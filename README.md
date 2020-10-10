@@ -1,6 +1,6 @@
 # go-arm64 [WIP] 🚧
 
-[![CI](https://github.com/blacktop/go-arm64/workflows/CI/badge.svg?branch=master)](https://github.com/blacktop/go-arm64/actions) [![PkgGoDev](https://pkg.go.dev/badge/blacktop/go-arm64)](https://pkg.go.dev/blacktop/go-arm64) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
+[![CI](https://github.com/blacktop/go-arm64/workflows/Go/badge.svg?branch=master)](https://github.com/blacktop/go-arm64/actions) [![PkgGoDev](https://pkg.go.dev/badge/blacktop/go-arm64)](https://pkg.go.dev/blacktop/go-arm64) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
 > Aarch64 architecture disassembler
 
