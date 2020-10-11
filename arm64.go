@@ -17,8 +17,18 @@ const (
 	REGSET_ZR = 1
 )
 
-func getRegistery() {
+var (
+	regSize     = []uint32{REG_W_BASE, REG_X_BASE}
+	simdRegSize = []uint32{REG_S_BASE, REG_D_BASE, REG_Q_BASE}
+	dataSize    = []uint8{32, 64}
+)
 
+func reg(arg1, arg2, arg3 int) uint32 {
+	return uint32(regMap[arg1][arg2][arg3])
+}
+
+func (i *Instruction) deleteOperand(index int) {
+	i.operands[0] = InstructionOperand{OpClass: NONE}
 }
 
 func (i *Instruction) decompose_load_register_literal() (*Instruction, error) {
@@ -41,18 +51,18 @@ func (i *Instruction) decompose_load_register_literal() (*Instruction, error) {
 	}
 	var operand = [2][4]option{
 		{
-			{LDR, REG_W_BASE, 0},
-			{LDR, REG_X_BASE, 0},
-			{LDRSW, REG_X_BASE, 1},
-			{PRFM, REG_W_BASE, 0},
+			{ARM64_LDR, REG_W_BASE, 0},
+			{ARM64_LDR, REG_X_BASE, 0},
+			{ARM64_LDRSW, REG_X_BASE, 1},
+			{ARM64_PRFM, REG_W_BASE, 0},
 		}, {
-			{LDR, REG_S_BASE, 0},
-			{LDR, REG_D_BASE, 0},
-			{LDR, REG_Q_BASE, 0},
+			{ARM64_LDR, REG_S_BASE, 0},
+			{ARM64_LDR, REG_D_BASE, 0},
+			{ARM64_LDR, REG_Q_BASE, 0},
 			{ARM64_UNDEFINED, 0, 0},
 		},
 	}
-	// fmt.Println(decode)
+
 	op := &operand[decode.V()][decode.Opc()]
 	i.operation = op.operation
 	i.operands[0].OpClass = REG
@@ -67,6 +77,492 @@ func (i *Instruction) decompose_load_register_literal() (*Instruction, error) {
 
 	if i.operation == ARM64_UNDEFINED {
 		return i, fmt.Errorf("failed to decode load register literal")
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_add_sub_imm() (*Instruction, error) {
+	/* C4.4.1 - Add/subtract (immediate)
+	 *
+	 * ADD  <Wd|WSP>, <Wn|WSP>, #<imm>{, <shift>}
+	 * ADDS <Wd>,	 <Wn|WSP>, #<imm>{, <shift>}
+	 * SUB  <Wd|WSP>, <Wn|WSP>, #<imm>{, <shift>}
+	 * SUBS <Wd>,	 <Wn|WSP>, #<imm>{, <shift>}
+	 *
+	 * ADD  <Xd|SP>, <Xn|SP>, #<imm>{, <shift>}
+	 * ADDS <Xd>,	<Xn|SP>, #<imm>{, <shift>}
+	 * SUB  <Xd|SP>, <Xn|SP>, #<imm>{, <shift>}
+	 * SUBS <Xd>,	<Xn|SP>, #<imm>{, <shift>}
+	 */
+
+	type decodeRec struct {
+		operation Operation
+		regType   uint32
+	}
+	var operationMap = [2][2]decodeRec{
+		{{ARM64_ADD, REGSET_SP}, {ARM64_ADDS, REGSET_ZR}},
+		{{ARM64_SUB, REGSET_SP}, {ARM64_SUBS, REGSET_ZR}}}
+	var regBaseMap = [2]uint32{REG_W_BASE, REG_X_BASE}
+
+	decode := AddSubImm(i.raw)
+
+	i.operation = operationMap[decode.Op()][decode.S()].operation
+
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = uint32(regMap[operationMap[decode.Op()][decode.S()].regType][regBaseMap[decode.Sf()]][decode.Rd()])
+
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = uint32(regMap[REGSET_SP][regBaseMap[decode.Sf()]][decode.Rn()])
+
+	i.operands[2].OpClass = IMM32
+	i.operands[2].Immediate = uint64(decode.Imm())
+	if decode.Shift() == 1 {
+		i.operands[2].ShiftValue = 12
+		i.operands[2].ShiftValueUsed = 1
+		i.operands[2].ShiftType = SHIFT_LSL
+	} else if decode.Shift() > 1 {
+		return nil, failedToDecodeInstruction
+	}
+	//Check for alias
+	if i.operation == ARM64_SUBS && decode.Rd() == 31 {
+		i.operation = ARM64_CMP
+		i.deleteOperand(0)
+	} else if i.operation == ARM64_ADD && i.operands[2].Immediate == 0 && decode.Shift() == 0 && (decode.Rd() == 31 || decode.Rn() == 31) {
+		i.operation = ARM64_MOV
+		i.operands[2].OpClass = NONE
+	} else if i.operation == ARM64_ADDS && decode.Rd() == 31 {
+		i.operation = ARM64_CMN
+		i.deleteOperand(0)
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_add_sub_imm_tags() (*Instruction, error) {
+	/*
+	 * ADDG <Xd|SP>, <Xn|SP>, #<uimm6>, #<uimm4>
+	 * SUBG <Xd|SP>, <Xn|SP>, #<uimm6>, #<uimm4>
+	 */
+	decode := AddSubImmTags(i.raw)
+
+	// ADDG: 1	0	0	1	0	0	0	1	1	0	uimm6	(0)	(0)	uimm4	Xn	Xd
+	// SUBG: 1	1	0	1	0	0	0	1	1	0	uimm6	(0)	(0)	uimm4	Xn	Xd
+	if ExtractBits(uint32(i.raw), 30, 1) == 0 {
+		i.operation = ARM64_ADDG
+	} else {
+		i.operation = ARM64_SUBG
+	}
+	// i.operation = BF_GETI(30,1) ? ARM64_SUBG : ARM64_ADDG;
+
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Xd()))
+
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Xn()))
+
+	// offset
+	i.operands[2].OpClass = IMM64
+	i.operands[2].Immediate = uint64(16 * decode.Uimm6())
+
+	// tag_offset
+	i.operands[3].OpClass = IMM32
+	i.operands[3].Immediate = uint64(decode.Uimm4())
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_data_processing_1() (*Instruction, error) {
+	/* C4.5.7 Data-processing (1 source)
+	 *
+	 * RBIT <Wd>, <Wn>
+	 * RBIT <Xd>, <Xn>
+	 * REV16 <Wd>, <Wn>
+	 * REV16 <Xd>, <Xn>
+	 * REV <Wd>, <Wn>
+	 * REV <Xd>, <Xn>
+	 * CLZ <Wd>, <Wn>
+	 * CLZ <Xd>, <Xn>
+	 * CLS <Wd>, <Wn>
+	 * CLS <Xd>, <Xn>
+	 */
+
+	decode := DataProcessing1(i.raw)
+	pac := PointerAuth(i.raw)
+
+	var operation = [2][8]Operation{
+		{ARM64_RBIT, ARM64_REV16, ARM64_REV, ARM64_UNDEFINED, ARM64_CLZ, ARM64_CLS, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_RBIT, ARM64_REV16, ARM64_REV32, ARM64_REV, ARM64_CLZ, ARM64_CLS, ARM64_UNDEFINED, ARM64_UNDEFINED},
+	}
+
+	var pacOperation = [2][8]Operation{
+		{ARM64_PACIA, ARM64_PACIB, ARM64_PACDA, ARM64_PACDB, ARM64_AUTIA, ARM64_AUTIB, ARM64_AUTDA, ARM64_AUTDB},
+		{ARM64_PACIZA, ARM64_PACIZB, ARM64_PACDZA, ARM64_PACDZB, ARM64_AUTIZA, ARM64_AUTIZB, ARM64_AUTDZA, ARM64_AUTDZB},
+	}
+
+	switch decode.Opcode2() {
+	case 0:
+		if decode.Opcode() > 5 {
+			return i, nil
+		}
+		i.operation = operation[decode.Sf()][decode.Opcode()]
+		i.operands[0].OpClass = REG
+		i.operands[0].Reg[0] = uint32(regMap[REGSET_ZR][regSize[decode.Sf()]][decode.Rd()])
+		i.operands[1].OpClass = REG
+		i.operands[1].Reg[0] = uint32(regMap[REGSET_ZR][regSize[decode.Sf()]][decode.Rn()])
+		if decode.S() != 0 || decode.Opcode2() != 0 || i.operation == ARM64_UNDEFINED {
+			return nil, failedToDecodeInstruction
+		}
+	case 1:
+		if (decode.Opcode() > 17) || (decode.Sf() != 1) {
+			return i, nil
+		}
+		switch decode.Opcode() {
+		case 16:
+			i.operation = ARM64_XPACI
+			break
+		case 17:
+			i.operation = ARM64_XPACD
+			break
+		default:
+			i.operation = pacOperation[pac.Z()][pac.Group1()]
+			break
+		}
+		i.operands[0].OpClass = REG
+		i.operands[0].Reg[0] = uint32(regMap[REGSET_ZR][regSize[decode.Sf()]][pac.Rd()])
+		if decode.Opcode() < 8 {
+			i.operands[1].OpClass = REG
+			i.operands[1].Reg[0] = uint32(regMap[REGSET_SP][regSize[decode.Sf()]][pac.Rn()])
+		}
+		if (decode.Opcode() >= 8) && (pac.Rn() != 0x1f) {
+			return nil, failedToDecodeInstruction // TODO should this be error or success?
+		}
+	default:
+		return i, nil
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_data_processing_2() (*Instruction, error) {
+	/* C4.5.8 Data-processing (2 source)
+	 *
+	 * UDIV <Wd>, <Wn>, <Wm>
+	 * UDIV <Xd>, <Xn>, <Xm>
+	 * SDIV <Wd>, <Wn>, <Wm>
+	 * SDIV <Wd>, <Wn>, <Wm>
+	 * LSLV <Wd>, <Wn>, <Wm>
+	 * LSLV <Xd>, <Xn>, <Xm>
+	 * LSRV <Wd>, <Wn>, <Wm>
+	 * LSRV <Xd>, <Xn>, <Xm>
+	 * ASRV <Wd>, <Wn>, <Wm>
+	 * ASRV <Xd>, <Xn>, <Xm>
+	 * RORV <Wd>, <Wn>, <Wm>
+	 * RORV <Xd>, <Xn>, <Xm>
+	 * CRC32B <Wd>, <Wn>, <Wm>
+	 * CRC32H <Wd>, <Wn>, <Wm>
+	 * CRC32W <Wd>, <Wn>, <Wm>
+	 * CRC32X <Wd>, <Wn>, <Xm>
+	 * CRC32CB <Wd>, <Wn>, <Wm>
+	 * CRC32CH <Wd>, <Wn>, <Wm>
+	 * CRC32CW <Wd>, <Wn>, <Wm>
+	 * CRC32CX <Wd>, <Wn>, <Xm>
+	 * SUBP <Xd>, <Xn|SP>, <Xm|SP>
+	 * SUBPS <Xd>, <Xn|SP>, <Xm|SP>
+	 */
+	var operation = [2][32]Operation{
+		{
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UDIV, ARM64_SDIV,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_LSL, ARM64_LSR, ARM64_ASR, ARM64_ROR,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_CRC32B, ARM64_CRC32H, ARM64_CRC32W, ARM64_UNDEFINED,
+			ARM64_CRC32CB, ARM64_CRC32CH, ARM64_CRC32CW, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		}, {
+			ARM64_SUBP, ARM64_UNDEFINED, ARM64_UDIV, ARM64_SDIV,
+			ARM64_IRG, ARM64_GMI, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_LSL, ARM64_LSR, ARM64_ASR, ARM64_ROR,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_CRC32X,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_CRC32CX,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		},
+	}
+
+	decode := DataProcessing2(i.raw)
+
+	if decode.Opcode() > 31 {
+		return nil, failedToDisassembleOperation
+	}
+	if decode.S() > 0 {
+		if decode.Opcode() != 0 || decode.Sf() != 1 {
+			return nil, failedToDisassembleOperation
+		}
+		i.operation = ARM64_SUBPS
+	} else {
+		i.operation = operation[decode.Sf()][decode.Opcode()]
+	}
+
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rd()))
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rn()))
+	i.operands[2].OpClass = REG
+	i.operands[2].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rm()))
+
+	switch i.operation {
+	case ARM64_CRC32X:
+		fallthrough
+	case ARM64_CRC32CX:
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rn()))
+		break
+	case ARM64_IRG:
+		if decode.Rm() == 0x1f {
+			i.operands[2].OpClass = NONE
+		}
+		fallthrough
+		/* intended fall-through */
+	case ARM64_SUBP:
+		fallthrough
+	case ARM64_SUBPS:
+		i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rm()))
+		break
+	case ARM64_GMI:
+		i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	default:
+		break
+	}
+
+	// aliases
+	if i.operation == ARM64_SUBPS && decode.S() == 1 && decode.Rd() == 0x1f {
+		i.operation = ARM64_CMPP
+		i.operands[0] = i.operands[1]
+		i.operands[1] = i.operands[2]
+		i.operands[2].OpClass = NONE
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_data_processing_3() (*Instruction, error) {
+
+	decode := DataProcessing3(i.raw)
+
+	var operation = [8][2]Operation{
+		{ARM64_MADD, ARM64_MSUB},
+		{ARM64_SMADDL, ARM64_SMSUBL},
+		{ARM64_SMULH, ARM64_UNDEFINED},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_UMADDL, ARM64_UMSUBL},
+		{ARM64_UMULH, ARM64_UNDEFINED},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED},
+	}
+
+	if decode.Op31() != 0 && decode.Sf() == 0 {
+		return nil, failedToDisassembleOperation
+	}
+
+	i.operation = operation[decode.Op31()][decode.O0()]
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rd()))
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	if decode.Op31() == 1 || decode.Op31() == 5 {
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rm()))
+	} else {
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rm()))
+	}
+	i.operands[3].OpClass = REG
+	i.operands[3].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Ra()))
+	if decode.Ra() == 31 {
+		hasAlias := 1
+		switch i.operation {
+		case ARM64_MADD:
+			i.operation = ARM64_MUL
+			break
+		case ARM64_MSUB:
+			i.operation = ARM64_MNEG
+			break
+		case ARM64_SMADDL:
+			i.operation = ARM64_SMULL
+			break
+		case ARM64_SMSUBL:
+			i.operation = ARM64_SMNEGL
+			break
+		case ARM64_UMADDL:
+			i.operation = ARM64_UMULL
+			break
+		case ARM64_UMSUBL:
+			i.operation = ARM64_UMNEGL
+			break
+		case ARM64_UMULH:
+		case ARM64_SMULH:
+			/*Just so we delete the extra operand*/
+			break
+		default:
+			hasAlias = 0
+		}
+		if hasAlias == 1 {
+			i.operands[3].OpClass = NONE
+			i.operands[3].Reg[0] = uint32(REG_NONE)
+		}
+	}
+
+	if i.operation == ARM64_UNDEFINED || decode.Op54() != 0 {
+		return nil, failedToDecodeInstruction
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_load_store_mem_tags() (*Instruction, error) {
+
+	/*
+	 * STG <Xt|SP>, [<Xn|SP>], #<simm> // post-index
+	 * STG <Xt|SP>, [<Xn|SP>, #<simm>]! // pre-index
+	 * STG <Xt|SP>, [<Xn|SP>{, #<simm>}] // signed offset
+	 *
+	 * STZGM <Xt>, [<Xn|SP>]
+	 *
+	 * LDG <Xt>, [<Xn|SP>{, #<simm>}]
+	 *
+	 * STZG <Xt|SP>, [<Xn|SP>], #<simm>
+	 * STZG <Xt|SP>, [<Xn|SP>, #<simm>]!
+	 * STZG <Xt|SP>, [<Xn|SP>{, #<simm>}]
+	 *
+	 * ST2G <Xt|SP>, [<Xn|SP>], #<simm>
+	 * ST2G <Xt|SP>, [<Xn|SP>, #<simm>]!
+	 * ST2G <Xt|SP>, [<Xn|SP>{, #<simm>}]
+	 *
+	 * STGM <Xt>, [<Xn|SP>]
+	 *
+	 * STZ2G <Xt|SP>, [<Xn|SP>], #<simm>
+	 * STZ2G <Xt|SP>, [<Xn|SP>, #<simm>]!
+	 * STZ2G <Xt|SP>, [<Xn|SP>{, #<simm>}]
+	 *
+	 * LDGM <Xt>, [<Xn|SP>]
+	 */
+
+	// LDST_TAGS decode = *(LDST_TAGS*)&instructionValue;
+	decode := LdstTags(i.raw)
+
+	var operation = [4][2][4]Operation{
+		{{ARM64_STZGM, ARM64_STG, ARM64_STG, ARM64_STG},
+			{ARM64_UNDEFINED, ARM64_STG, ARM64_STG, ARM64_STG},
+		},
+		{{ARM64_LDG, ARM64_STZG, ARM64_STZG, ARM64_STZG},
+			{ARM64_LDG, ARM64_STZG, ARM64_STZG, ARM64_STZG},
+		},
+		{{ARM64_STGM, ARM64_ST2G, ARM64_ST2G, ARM64_ST2G},
+			{ARM64_UNDEFINED, ARM64_ST2G, ARM64_ST2G, ARM64_ST2G},
+		},
+		{{ARM64_LDGM, ARM64_STZ2G, ARM64_STZ2G, ARM64_STZ2G},
+			{ARM64_UNDEFINED, ARM64_STZ2G, ARM64_STZ2G, ARM64_STZ2G},
+		},
+	}
+	if decode.Imm9() == 0 {
+		i.operation = operation[decode.Opc()][0][decode.Op2()]
+	} else {
+		i.operation = operation[decode.Opc()][1][decode.Op2()]
+	}
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	i.operands[0].OpClass = REG
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	switch (decode.Opc() << 2) | decode.Op2() {
+	case 0b0001:
+		fallthrough
+	case 0b0101:
+		fallthrough
+	case 0b1001:
+		fallthrough
+	case 0b1101:
+		fallthrough
+	case 0b0010:
+		fallthrough
+	case 0b0110:
+		fallthrough
+	case 0b1010:
+		fallthrough
+	case 0b1110:
+		fallthrough
+	case 0b0011:
+		fallthrough
+	case 0b0111:
+		fallthrough
+	case 0b1011:
+		fallthrough
+	case 0b1111:
+		fallthrough
+	case 0b0100:
+		if i.operation == ARM64_LDG {
+			i.operands[0].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+		} else {
+			i.operands[0].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rt()))
+		}
+
+		i.operands[1].SignedImm = 1
+		i.operands[1].Immediate = uint64(decode.Imm9() << 4)
+		if decode.Imm9()&0x100 > 0 {
+			i.operands[1].Immediate |= 0xFFFFFFFFFFFFF000
+		}
+		break
+	default:
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+		break
+	}
+
+	switch (decode.Opc() << 2) | decode.Op2() {
+	/* post-index, like: MNEMONIC <Xt|SP> [<Xn|SP>], #<simm> */
+	case 0b0001:
+		fallthrough
+	case 0b0101:
+		fallthrough
+	case 0b1001:
+		fallthrough
+	case 0b1101:
+		i.operands[1].OpClass = MEM_POST_IDX
+		break
+	/* signed-offset, like: MNEMONIC <Xt|SP>, [<Xn|SP>{, #<simm>}] */
+	case 0b0010:
+		fallthrough
+	case 0b0110:
+		fallthrough
+	case 0b1010:
+		fallthrough
+	case 0b1110:
+		fallthrough
+	case 0b0100:
+		i.operands[1].OpClass = MEM_OFFSET
+		break
+	/* pre-index, like: MNEMONIC <Xt|SP>, [<Xn|SP>{, #<simm>}]! */
+	case 0b0011:
+		fallthrough
+	case 0b0111:
+		fallthrough
+	case 0b1011:
+		fallthrough
+	case 0b1111:
+		i.operands[1].OpClass = MEM_PRE_IDX
+		break
+	/* MNEMONIC <Xt>, [<Xn|SP>] */
+	case 0b0000:
+		fallthrough
+	case 0b1000:
+		fallthrough
+	case 0b1100:
+		i.operands[1].OpClass = MEM_REG
 	}
 
 	return i, nil
@@ -94,15 +590,16 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		fallthrough
 	case 9:
 		instruction.group = GROUP_DATA_PROCESSING_IMM
+		fmt.Println("case 9:", ExtractBits(instructionValue, 23, 3))
 		switch ExtractBits(instructionValue, 23, 3) {
 		case 0:
 			fallthrough
 		case 1:
 			// return aarch64_decompose_pc_rel_addr(instructionValue, instruction, address)
 		case 2:
-			// return aarch64_decompose_add_sub_imm(instructionValue, instruction)
+			return instruction.decompose_add_sub_imm()
 		case 3:
-			// return aarch64_decompose_add_sub_imm_tags(instructionValue, instruction)
+			return instruction.decompose_add_sub_imm_tags()
 		case 4:
 			// return aarch64_decompose_logical_imm(instructionValue, instruction)
 		case 5:
@@ -181,7 +678,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 
 			if op0 == 0x0d {
-				// return aarch64_decompose_load_store_mem_tags(instructionValue, instruction)
+				return instruction.decompose_load_store_mem_tags()
 			}
 
 			if (op0&3) == 0 && op1 == 0 && (op2>>1) == 0 {
@@ -239,6 +736,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 	case 5:
 	case 13:
 		instruction.group = GROUP_DATA_PROCESSING_REG
+		fmt.Printf("case 13: 0x%x\n", ExtractBits(instructionValue, 21, 8))
 		switch ExtractBits(instructionValue, 21, 8) {
 		case 0x50:
 			fallthrough
@@ -296,12 +794,12 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0xde:
 			fallthrough
 		case 0xdf:
-			// return aarch64_decompose_data_processing_3(instructionValue, instruction)
+			return instruction.decompose_data_processing_3()
 		case 0xd6:
 			if ExtractBits(instructionValue, 30, 1) == 1 {
-				// return aarch64_decompose_data_processing_1(instructionValue, instruction)
+				return instruction.decompose_data_processing_1()
 			}
-			// return aarch64_decompose_data_processing_2(instructionValue, instruction)
+			return instruction.decompose_data_processing_2()
 		default:
 			return instruction, nil // TODO: or error ?
 		}
@@ -441,130 +939,4 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 	}
 
 	return instruction, nil
-}
-
-func (i *Instruction) disassemble() (string, error) {
-
-	if i.operation == ARM64_UNDEFINED || i.operation == AMD64_END_TYPE {
-		return "", fmt.Errorf("failed to disassemble operation")
-	}
-
-	for idx, operand := range i.operands {
-		switch operand.OpClass {
-		case FIMM32:
-			fallthrough
-		case IMM32:
-			fallthrough
-		case IMM64:
-			fallthrough
-		case LABEL:
-			if err := operand.getShiftedImmediate(); err != nil {
-				return "", fmt.Errorf("failed to disassemble operation: %v", err)
-			}
-			i.operands[idx].strRepr = operand.strRepr
-			break
-		case REG:
-			i.operands[idx].strRepr = Register(operand.Reg[0]).String()
-			// if (get_register(
-			// 		&instruction->operands[i],
-			// 		0,
-			// 		tmpOperandString,
-			// 		sizeof(tmpOperandString)) != DISASM_SUCCESS)
-			// 	return "", fmt.Errorf("failed to disassemble operation")
-			// operand = tmpOperandString;
-			break
-		case SYS_REG:
-			i.operands[idx].strRepr = SystemReg(operand.Reg[0]).String()
-			break
-		case MULTI_REG:
-			// if (get_multireg_operand(
-			// 			&instruction->operands[i],
-			// 			tmpOperandString,
-			// 			sizeof(tmpOperandString)) != DISASM_SUCCESS)
-			// {
-			// 	return "", fmt.Errorf("failed to disassemble operation")
-			// }
-			// operand = tmpOperandString;
-			break
-		case IMPLEMENTATION_SPECIFIC:
-			// if (get_implementation_specific(
-			// 		&instruction->operands[i],
-			// 		tmpOperandString,
-			// 		sizeof(tmpOperandString)) != DISASM_SUCCESS)
-			// {
-			// 	return "", fmt.Errorf("failed to disassemble operation")
-			// }
-			// operand = tmpOperandString;
-			break
-		case MEM_REG:
-			fallthrough
-		case MEM_OFFSET:
-			fallthrough
-		case MEM_EXTENDED:
-			fallthrough
-		case MEM_PRE_IDX:
-			fallthrough
-		case MEM_POST_IDX:
-			// if (get_memory_operand(&instruction->operands[i],
-			// 			tmpOperandString,
-			// 			sizeof(tmpOperandString)) != DISASM_SUCCESS)
-			// 	return "", fmt.Errorf("failed to disassemble operation")
-			// operand = tmpOperandString;
-			// break
-		case CONDITION:
-			// if (snprintf(tmpOperandString, sizeof(tmpOperandString), "%s", get_condition((Condition)instruction->operands[i].reg[0])) < 0)
-			// 	return "", fmt.Errorf("failed to disassemble operation")
-			// operand = tmpOperandString;
-		case NONE:
-			break
-		}
-
-		if operand.OpClass != NONE {
-			if idx == 0 {
-				i.operands[idx].strRepr = fmt.Sprintf("\t%s", i.operands[idx].strRepr)
-			} else {
-				i.operands[idx].strRepr = fmt.Sprintf(", %s", i.operands[idx].strRepr)
-			}
-		}
-	}
-
-	return fmt.Sprintf("%s%s%s%s%s%s",
-		i.operation,
-		i.operands[0],
-		i.operands[1],
-		i.operands[2],
-		i.operands[3],
-		i.operands[4]), nil
-}
-
-func (op *InstructionOperand) getShiftedImmediate() error {
-	var shiftBuff string
-	var immBuff string
-	var sign string
-
-	if op == nil {
-		return failedToDisassembleOperand
-	}
-
-	if op.SignedImm == 1 && int64(op.Immediate) < 0 {
-		sign = "-"
-	}
-	if op.ShiftType != SHIFT_NONE {
-		if op.ShiftValueUsed != 0 {
-			immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
-		}
-		shiftBuff = fmt.Sprintf(", %s%s", op.ShiftType, immBuff)
-	}
-	if op.OpClass == FIMM32 {
-		shiftBuff = fmt.Sprintf("#%f%s", float64(op.Immediate), shiftBuff)
-	} else if op.OpClass == IMM32 {
-		shiftBuff = fmt.Sprintf("#%s%#x%s", sign, uint32(op.Immediate), shiftBuff)
-	}
-
-	if op.SignedImm == 1 && int64(op.Immediate) < 0 {
-		op.strRepr = fmt.Sprintf("#%s%#016x%s", sign, int64(op.Immediate), shiftBuff)
-	}
-	op.strRepr = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
-
-	return nil
 }

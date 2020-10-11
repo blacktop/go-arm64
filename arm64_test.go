@@ -19,6 +19,42 @@ func Test_decompose(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "addg x20, x3, #0x330, #0x5",
+			args: args{
+				instructionValue: 0x91B31474,
+				address:          0,
+			},
+			want: "addg	x20, x3, #0x330, #0x5",
+			wantErr: false,
+		},
+		{
+			name: "irg x20, x21, x29",
+			args: args{
+				instructionValue: 0x9ADD12B4,
+				address:          0,
+			},
+			want: "irg	x20, x21, x29",
+			wantErr: false,
+		},
+		{
+			name: "st2g x16, [x10, #0x280]",
+			args: args{
+				instructionValue: 0xD9A28950,
+				address:          0,
+			},
+			want: "st2g	x16, [x10, #0x280]",
+			wantErr: false,
+		},
+		{
+			name: "add w2, w3, #4095",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xfc, 0x3f, 0x11}),
+				address:          0,
+			},
+			want: "add	w2, w3, #0xfff",
+			wantErr: false,
+		},
+		{
 			name: "ldr w0, #1048572",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xff, 0x7f, 0x18}),
