@@ -1,5 +1,10 @@
 package arm64
 
+import (
+	"errors"
+	"fmt"
+)
+
 const MAX_OPERANDS = 5
 
 type Operation uint32
@@ -1105,7 +1110,7 @@ func (i PcRelAddressing) Rd() uint32 {
 	return ExtractBits(uint32(i), 0, 5)
 }
 func (i PcRelAddressing) Immhi() int32 {
-	return int32(ExtractBits(uint32(i), 5, 19))
+	return int32(signExtend(ExtractBits(uint32(i), 5, 19), 19))
 }
 func (i PcRelAddressing) Group1() uint32 {
 	return ExtractBits(uint32(i), 24, 5)
@@ -1277,7 +1282,7 @@ func (i Extract) Sf() uint32 {
 type UnconditionalBranch uint32
 
 func (i UnconditionalBranch) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 0, 26))
+	return int32(signExtend(ExtractBits(uint32(i), 0, 26), 26))
 }
 func (i UnconditionalBranch) Opcode() uint32 {
 	return ExtractBits(uint32(i), 26, 5)
@@ -1292,7 +1297,7 @@ func (i CompareBranchImm) Rt() uint32 {
 	return ExtractBits(uint32(i), 0, 5)
 }
 func (i CompareBranchImm) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 5, 19))
+	return int32(signExtend(ExtractBits(uint32(i), 5, 19), 19))
 }
 func (i CompareBranchImm) Op() uint32 {
 	return ExtractBits(uint32(i), 24, 1)
@@ -1310,7 +1315,7 @@ func (i TestAndBranch) Rt() uint32 {
 	return ExtractBits(uint32(i), 0, 5)
 }
 func (i TestAndBranch) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 5, 14))
+	return int32(signExtend(ExtractBits(uint32(i), 5, 14), 14))
 }
 func (i TestAndBranch) B40() uint32 {
 	return ExtractBits(uint32(i), 19, 5)
@@ -1334,7 +1339,7 @@ func (i ConditionalBranchImm) O0() uint32 {
 	return ExtractBits(uint32(i), 4, 1)
 }
 func (i ConditionalBranchImm) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 5, 19))
+	return int32(signExtend(ExtractBits(uint32(i), 5, 19), 19))
 }
 func (i ConditionalBranchImm) O1() uint32 {
 	return ExtractBits(uint32(i), 24, 1)
@@ -1476,7 +1481,7 @@ func (i LoadRegisterLiteral) Rt() uint32 {
 	return ExtractBits(uint32(i), 0, 5)
 }
 func (i LoadRegisterLiteral) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 5, 19))
+	return int32(signExtend(ExtractBits(uint32(i), 5, 19), 19))
 }
 func (i LoadRegisterLiteral) Group1() uint32 {
 	return ExtractBits(uint32(i), 24, 2)
@@ -1489,6 +1494,9 @@ func (i LoadRegisterLiteral) Group2() uint32 {
 }
 func (i LoadRegisterLiteral) Opc() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
+}
+func (i LoadRegisterLiteral) String() string {
+	return fmt.Sprintf("Rt: %d, Imm: %d, Group1: %d, V: %d, Group2: %d, Opc: %d", i.Rt(), i.Imm(), i.Group1(), i.V(), i.Group2(), i.Opc())
 }
 
 type LdstNoAllocPair uint32
@@ -1503,7 +1511,7 @@ func (i LdstNoAllocPair) Rt2() uint32 {
 	return ExtractBits(uint32(i), 10, 5)
 }
 func (i LdstNoAllocPair) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 15, 7))
+	return int32(signExtend(ExtractBits(uint32(i), 15, 7), 7))
 }
 func (i LdstNoAllocPair) L() uint32 {
 	return ExtractBits(uint32(i), 22, 1)
@@ -1533,7 +1541,7 @@ func (i LdstRegPairPostIdx) Group1() uint32 {
 	return ExtractBits(uint32(i), 10, 2)
 }
 func (i LdstRegPairPostIdx) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 12, 9))
+	return int32(signExtend(ExtractBits(uint32(i), 12, 9), 9))
 }
 func (i LdstRegPairPostIdx) Group2() uint32 {
 	return ExtractBits(uint32(i), 21, 1)
@@ -1566,7 +1574,7 @@ func (i LdstRegPairOffset) Rt2() uint32 {
 	return ExtractBits(uint32(i), 10, 5)
 }
 func (i LdstRegPairOffset) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 15, 7))
+	return int32(signExtend(ExtractBits(uint32(i), 15, 7), 7))
 }
 func (i LdstRegPairOffset) L() uint32 {
 	return ExtractBits(uint32(i), 22, 1)
@@ -1626,7 +1634,7 @@ func (i LdstRegUnscaledImm) Group1() uint32 {
 	return ExtractBits(uint32(i), 10, 2)
 }
 func (i LdstRegUnscaledImm) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 12, 9))
+	return int32(signExtend(ExtractBits(uint32(i), 12, 9), 9))
 }
 func (i LdstRegUnscaledImm) Group2() uint32 {
 	return ExtractBits(uint32(i), 21, 1)
@@ -1692,7 +1700,7 @@ func (i LdstRegisterUnpriv) Group1() uint32 {
 	return ExtractBits(uint32(i), 10, 2)
 }
 func (i LdstRegisterUnpriv) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 12, 9))
+	return int32(signExtend(ExtractBits(uint32(i), 12, 9), 9))
 }
 func (i LdstRegisterUnpriv) Group2() uint32 {
 	return ExtractBits(uint32(i), 21, 1)
@@ -1725,7 +1733,7 @@ func (i LdstRegImmPreIdx) Group1() uint32 {
 	return ExtractBits(uint32(i), 10, 2)
 }
 func (i LdstRegImmPreIdx) Imm() int32 {
-	return int32(ExtractBits(uint32(i), 12, 9))
+	return int32(signExtend(ExtractBits(uint32(i), 12, 9), 9))
 }
 func (i LdstRegImmPreIdx) Group2() uint32 {
 	return ExtractBits(uint32(i), 21, 1)
@@ -4704,6 +4712,104 @@ func (r Register) String() string {
 	}[r]
 }
 
+var regMap = [2][9][32]Register{
+	{
+		{
+			REG_W0, REG_W1, REG_W2, REG_W3, REG_W4, REG_W5, REG_W6, REG_W7,
+			REG_W8, REG_W9, REG_W10, REG_W11, REG_W12, REG_W13, REG_W14, REG_W15,
+			REG_W16, REG_W17, REG_W18, REG_W19, REG_W20, REG_W21, REG_W22, REG_W23,
+			REG_W24, REG_W25, REG_W26, REG_W27, REG_W28, REG_W29, REG_W30, REG_WSP,
+		}, {
+			REG_X0, REG_X1, REG_X2, REG_X3, REG_X4, REG_X5, REG_X6, REG_X7,
+			REG_X8, REG_X9, REG_X10, REG_X11, REG_X12, REG_X13, REG_X14, REG_X15,
+			REG_X16, REG_X17, REG_X18, REG_X19, REG_X20, REG_X21, REG_X22, REG_X23,
+			REG_X24, REG_X25, REG_X26, REG_X27, REG_X28, REG_X29, REG_X30, REG_SP,
+		}, {
+			REG_V0, REG_V1, REG_V2, REG_V3, REG_V4, REG_V5, REG_V6, REG_V7,
+			REG_V8, REG_V9, REG_V10, REG_V11, REG_V12, REG_V13, REG_V14, REG_V15,
+			REG_V16, REG_V17, REG_V18, REG_V19, REG_V20, REG_V21, REG_V22, REG_V23,
+			REG_V24, REG_V25, REG_V26, REG_V27, REG_V28, REG_V29, REG_V30, REG_V31,
+		}, {
+			REG_B0, REG_B1, REG_B2, REG_B3, REG_B4, REG_B5, REG_B6, REG_B7,
+			REG_B8, REG_B9, REG_B10, REG_B11, REG_B12, REG_B13, REG_B14, REG_B15,
+			REG_B16, REG_B17, REG_B18, REG_B19, REG_B20, REG_B21, REG_B22, REG_B23,
+			REG_B24, REG_B25, REG_B26, REG_B27, REG_B28, REG_B29, REG_B30, REG_B31,
+		}, {
+			REG_H0, REG_H1, REG_H2, REG_H3, REG_H4, REG_H5, REG_H6, REG_H7,
+			REG_H8, REG_H9, REG_H10, REG_H11, REG_H12, REG_H13, REG_H14, REG_H15,
+			REG_H16, REG_H17, REG_H18, REG_H19, REG_H20, REG_H21, REG_H22, REG_H23,
+			REG_H24, REG_H25, REG_H26, REG_H27, REG_H28, REG_H29, REG_H30, REG_H31,
+		}, {
+			REG_S0, REG_S1, REG_S2, REG_S3, REG_S4, REG_S5, REG_S6, REG_S7,
+			REG_S8, REG_S9, REG_S10, REG_S11, REG_S12, REG_S13, REG_S14, REG_S15,
+			REG_S16, REG_S17, REG_S18, REG_S19, REG_S20, REG_S21, REG_S22, REG_S23,
+			REG_S24, REG_S25, REG_S26, REG_S27, REG_S28, REG_S29, REG_S30, REG_S31,
+		}, {
+			REG_D0, REG_D1, REG_D2, REG_D3, REG_D4, REG_D5, REG_D6, REG_D7,
+			REG_D8, REG_D9, REG_D10, REG_D11, REG_D12, REG_D13, REG_D14, REG_D15,
+			REG_D16, REG_D17, REG_D18, REG_D19, REG_D20, REG_D21, REG_D22, REG_D23,
+			REG_D24, REG_D25, REG_D26, REG_D27, REG_D28, REG_D29, REG_D30, REG_D31,
+		}, {
+			REG_Q0, REG_Q1, REG_Q2, REG_Q3, REG_Q4, REG_Q5, REG_Q6, REG_Q7,
+			REG_Q8, REG_Q9, REG_Q10, REG_Q11, REG_Q12, REG_Q13, REG_Q14, REG_Q15,
+			REG_Q16, REG_Q17, REG_Q18, REG_Q19, REG_Q20, REG_Q21, REG_Q22, REG_Q23,
+			REG_Q24, REG_Q25, REG_Q26, REG_Q27, REG_Q28, REG_Q29, REG_Q30, REG_Q31,
+		}, {
+			REG_PF0, REG_PF1, REG_PF2, REG_PF3, REG_PF4, REG_PF5, REG_PF6, REG_PF7,
+			REG_PF8, REG_PF9, REG_PF10, REG_PF11, REG_PF12, REG_PF13, REG_PF14, REG_PF15,
+			REG_PF16, REG_PF17, REG_PF18, REG_PF19, REG_PF20, REG_PF21, REG_PF22, REG_PF23,
+			REG_PF24, REG_PF25, REG_PF26, REG_PF27, REG_PF28, REG_PF29, REG_PF30, REG_PF31,
+		},
+	}, {
+		{
+			REG_W0, REG_W1, REG_W2, REG_W3, REG_W4, REG_W5, REG_W6, REG_W7,
+			REG_W8, REG_W9, REG_W10, REG_W11, REG_W12, REG_W13, REG_W14, REG_W15,
+			REG_W16, REG_W17, REG_W18, REG_W19, REG_W20, REG_W21, REG_W22, REG_W23,
+			REG_W24, REG_W25, REG_W26, REG_W27, REG_W28, REG_W29, REG_W30, REG_WZR,
+		}, {
+			REG_X0, REG_X1, REG_X2, REG_X3, REG_X4, REG_X5, REG_X6, REG_X7,
+			REG_X8, REG_X9, REG_X10, REG_X11, REG_X12, REG_X13, REG_X14, REG_X15,
+			REG_X16, REG_X17, REG_X18, REG_X19, REG_X20, REG_X21, REG_X22, REG_X23,
+			REG_X24, REG_X25, REG_X26, REG_X27, REG_X28, REG_X29, REG_X30, REG_XZR,
+		}, {
+			REG_V0, REG_V1, REG_V2, REG_V3, REG_V4, REG_V5, REG_V6, REG_V7,
+			REG_V8, REG_V9, REG_V10, REG_V11, REG_V12, REG_V13, REG_V14, REG_V15,
+			REG_V16, REG_V17, REG_V18, REG_V19, REG_V20, REG_V21, REG_V22, REG_V23,
+			REG_V24, REG_V25, REG_V26, REG_V27, REG_V28, REG_V29, REG_V30, REG_VZR,
+		}, {
+			REG_B0, REG_B1, REG_B2, REG_B3, REG_B4, REG_B5, REG_B6, REG_B7,
+			REG_B8, REG_B9, REG_B10, REG_B11, REG_B12, REG_B13, REG_B14, REG_B15,
+			REG_B16, REG_B17, REG_B18, REG_B19, REG_B20, REG_B21, REG_B22, REG_B23,
+			REG_B24, REG_B25, REG_B26, REG_B27, REG_B28, REG_B29, REG_B30, REG_BZR,
+		}, {
+			REG_H0, REG_H1, REG_H2, REG_H3, REG_H4, REG_H5, REG_H6, REG_H7,
+			REG_H8, REG_H9, REG_H10, REG_H11, REG_H12, REG_H13, REG_H14, REG_H15,
+			REG_H16, REG_H17, REG_H18, REG_H19, REG_H20, REG_H21, REG_H22, REG_H23,
+			REG_H24, REG_H25, REG_H26, REG_H27, REG_H28, REG_H29, REG_H30, REG_HZR,
+		}, {
+			REG_S0, REG_S1, REG_S2, REG_S3, REG_S4, REG_S5, REG_S6, REG_S7,
+			REG_S8, REG_S9, REG_S10, REG_S11, REG_S12, REG_S13, REG_S14, REG_S15,
+			REG_S16, REG_S17, REG_S18, REG_S19, REG_S20, REG_S21, REG_S22, REG_S23,
+			REG_S24, REG_S25, REG_S26, REG_S27, REG_S28, REG_S29, REG_S30, REG_SZR,
+		}, {
+			REG_D0, REG_D1, REG_D2, REG_D3, REG_D4, REG_D5, REG_D6, REG_D7,
+			REG_D8, REG_D9, REG_D10, REG_D11, REG_D12, REG_D13, REG_D14, REG_D15,
+			REG_D16, REG_D17, REG_D18, REG_D19, REG_D20, REG_D21, REG_D22, REG_D23,
+			REG_D24, REG_D25, REG_D26, REG_D27, REG_D28, REG_D29, REG_D30, REG_DZR,
+		}, {
+			REG_Q0, REG_Q1, REG_Q2, REG_Q3, REG_Q4, REG_Q5, REG_Q6, REG_Q7,
+			REG_Q8, REG_Q9, REG_Q10, REG_Q11, REG_Q12, REG_Q13, REG_Q14, REG_Q15,
+			REG_Q16, REG_Q17, REG_Q18, REG_Q19, REG_Q20, REG_Q21, REG_Q22, REG_Q23,
+			REG_Q24, REG_Q25, REG_Q26, REG_Q27, REG_Q28, REG_Q29, REG_Q30, REG_QZR,
+		}, {
+			REG_PF0, REG_PF1, REG_PF2, REG_PF3, REG_PF4, REG_PF5, REG_PF6, REG_PF7,
+			REG_PF8, REG_PF9, REG_PF10, REG_PF11, REG_PF12, REG_PF13, REG_PF14, REG_PF15,
+			REG_PF16, REG_PF17, REG_PF18, REG_PF19, REG_PF20, REG_PF21, REG_PF22, REG_PF23,
+			REG_PF24, REG_PF25, REG_PF26, REG_PF27, REG_PF28, REG_PF29, REG_PF30, REG_PF31,
+		},
+	},
+}
+
 type Condition uint32
 
 const (
@@ -4778,18 +4884,13 @@ func (s ShiftType) String() string {
 	}[s]
 }
 
-type FailureCodes uint32
-
-const (
-	DISASM_SUCCESS FailureCodes = iota
-	INVALID_ARGUMENTS
-	FAILED_TO_DISASSEMBLE_OPERAND
-	FAILED_TO_DISASSEMBLE_OPERATION
-	FAILED_TO_DISASSEMBLE_REGISTER
-	FAILED_TO_DECODE_INSTRUCTION
-	OUTPUT_BUFFER_TOO_SMALL
-	OPERAND_IS_NOT_REGISTER
-	NOT_MEMORY_OPERAND
+var (
+	failedToDisassembleOperand   = errors.New("failed to disassemble operand")
+	failedToDisassembleOperation = errors.New("failed to disassemble operation")
+	failedToDisassembleRegister  = errors.New("failed to disassemble register")
+	failedToDecodeInstruction    = errors.New("failed to decode instruction")
+	operandIsNotRegister         = errors.New("operand is not register")
+	notMemoryOperand             = errors.New("not memory operand")
 )
 
 type Group uint32
@@ -4807,6 +4908,7 @@ const (
 
 type InstructionOperand struct {
 	OpClass        OperandClass
+	strRepr        string
 	Reg            [5]uint32 //registers or conditions
 	Scale          uint32
 	DataSize       uint32
@@ -4820,7 +4922,13 @@ type InstructionOperand struct {
 	SignedImm      uint32
 }
 
+func (op InstructionOperand) String() string {
+	return op.strRepr
+}
+
 type Instruction struct {
+	raw       uint32
+	address   uint64
 	group     Group
 	operation Operation
 	operands  [MAX_OPERANDS]InstructionOperand
@@ -4846,6 +4954,17 @@ func MaskLSB32(x uint32, nbits uint8) uint32 {
 
 func ExtractBits(x uint32, start, nbits int32) uint32 {
 	return MaskLSB32(x>>start, uint8(nbits))
+}
+
+func signExtend(value, bits uint32) uint32 {
+	sign := (1 << (bits - 1)) & value
+	mask := (^uint32(0) >> (bits - 1)) << (bits - 1)
+	if sign != 0 {
+		value |= mask
+	} else {
+		value &= ^mask
+	}
+	return value
 }
 
 // //Given a uint32_t instructionValue decopose the instruction
