@@ -2,7 +2,6 @@ package arm64
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -55916,7 +55915,8 @@ func TestDisassemble(t *testing.T) {
 	}
 
 	type args struct {
-		r io.ReadSeeker
+		r         io.ReadSeeker
+		startAddr int64
 	}
 	tests := []struct {
 		name    string
@@ -55926,15 +55926,15 @@ func TestDisassemble(t *testing.T) {
 		{
 			name: "addg x20, x3, #0x330, #0x5",
 			args: args{
-				r: f,
+				r:         f,
+				startAddr: 0,
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Disassemble(tt.args.r); (err != nil) != tt.wantErr {
-				fmt.Println()
+			if _, err := Disassemble(tt.args.r, tt.args.startAddr); (err != nil) != tt.wantErr {
 				t.Errorf("Disassemble() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
