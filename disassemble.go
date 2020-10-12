@@ -66,6 +66,7 @@ func (i *Instruction) disassemble() (string, error) {
 
 		if operand.OpClass != NONE {
 			if idx == 0 {
+				// i.operands[idx].strRepr = fmt.Sprintf(" %s", i.operands[idx].strRepr)
 				i.operands[idx].strRepr = fmt.Sprintf("\t%s", i.operands[idx].strRepr)
 			} else {
 				i.operands[idx].strRepr = fmt.Sprintf(", %s", i.operands[idx].strRepr)

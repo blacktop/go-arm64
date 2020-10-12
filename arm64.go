@@ -29,7 +29,8 @@ func Disassemble(r io.ReadSeeker) error {
 
 		instruction, err := i.disassemble()
 		if err != nil {
-			return fmt.Errorf("failed to disassemble instruction: 0x%08x; %v", instrValue, err)
+			fmt.Printf("    %4x:\t%08x \t%s", addr, instrValue, "<UNKNOWN>")
+			// return fmt.Errorf("failed to disassemble instruction: 0x%08x; %v", instrValue, err)
 		}
 		fmt.Printf("    %4x:\t%08x \t%s", addr, instrValue, instruction)
 	}

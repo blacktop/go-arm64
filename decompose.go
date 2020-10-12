@@ -5897,794 +5897,968 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 	return i, nil
 }
 
-//func (i *Instruction) decompose_system_debug_and_trace_regs(SYSTEM decode, Instruction* restrict instruction)
-//{
-//	uint32_t sysreg = SYSREG_NONE
-//	var Operation operation[2] = {ARM64_MSR, ARM64_MRS}
-//	var uint32_t dbgreg[4][16] = {
-//		{
-//			REG_DBGBVR0_EL1,  REG_DBGBVR1_EL1,  REG_DBGBVR2_EL1,  REG_DBGBVR3_EL1,
-//			REG_DBGBVR4_EL1,  REG_DBGBVR5_EL1,  REG_DBGBVR6_EL1,  REG_DBGBVR7_EL1,
-//			REG_DBGBVR8_EL1,  REG_DBGBVR9_EL1,  REG_DBGBVR10_EL1, REG_DBGBVR11_EL1,
-//			REG_DBGBVR12_EL1, REG_DBGBVR13_EL1, REG_DBGBVR14_EL1, REG_DBGBVR15_EL1
-//		},{
-//			REG_DBGBCR0_EL1,  REG_DBGBCR1_EL1,  REG_DBGBCR2_EL1,  REG_DBGBCR3_EL1,
-//			REG_DBGBCR4_EL1,  REG_DBGBCR5_EL1,  REG_DBGBCR6_EL1,  REG_DBGBCR7_EL1,
-//			REG_DBGBCR8_EL1,  REG_DBGBCR9_EL1,  REG_DBGBCR10_EL1, REG_DBGBCR11_EL1,
-//			REG_DBGBCR12_EL1, REG_DBGBCR13_EL1, REG_DBGBCR14_EL1, REG_DBGBCR15_EL1
-//		},{
-//			REG_DBGWVR0_EL1,  REG_DBGWVR1_EL1,  REG_DBGWVR2_EL1,  REG_DBGWVR3_EL1,
-//			REG_DBGWVR4_EL1,  REG_DBGWVR5_EL1,  REG_DBGWVR6_EL1,  REG_DBGWVR7_EL1,
-//			REG_DBGWVR8_EL1,  REG_DBGWVR9_EL1,  REG_DBGWVR10_EL1, REG_DBGWVR11_EL1,
-//			REG_DBGWVR12_EL1, REG_DBGWVR13_EL1, REG_DBGWVR14_EL1, REG_DBGWVR15_EL1
-//		},{
-//			REG_DBGWCR0_EL1,  REG_DBGWCR1_EL1,  REG_DBGWCR2_EL1,  REG_DBGWCR3_EL1,
-//			REG_DBGWCR4_EL1,  REG_DBGWCR5_EL1,  REG_DBGWCR6_EL1,  REG_DBGWCR7_EL1,
-//			REG_DBGWCR8_EL1,  REG_DBGWCR9_EL1,  REG_DBGWCR10_EL1, REG_DBGWCR11_EL1,
-//			REG_DBGWCR12_EL1, REG_DBGWCR13_EL1, REG_DBGWCR14_EL1, REG_DBGWCR15_EL1
-//		}
-//	}
-//	switch (decode.Op1()) //Table C5-5 System instruction encodings for debug System register access
-//	{
-//	case 0:
-//		switch (decode.Crn())
-//		{
-//		case 0:
-//			if (decode.Crm() == 0 && decode.Op2() == 2)
-//				sysreg = REG_OSDTRRX_EL1
-//			else if (decode.Crm() == 2 && decode.Op2() == 0)
-//				sysreg = REG_MDCCINT_EL1
-//			else if (decode.Crm() == 2 && decode.Op2() == 2)
-//				sysreg = REG_MDSCR_EL1
-//			else if (decode.Crm() == 3 && decode.Op2() == 2)
-//				sysreg = REG_OSDTRTX_EL1
-//			else if (decode.Crm() == 6 && decode.Op2() == 2)
-//				sysreg = REG_OSECCR_EL1
-//			else
-//			{
-//				if (decode.Op2() > 3 && decode.Op2() < 8)
-//					sysreg = dbgreg[decode.Op2()-4][decode.Crm()]
-//			}
-//			break
-//		case 1:
-//			switch (decode.Crm())
-//			{
-//			case 0:
-//				if (decode.Op2() == 0)
-//					sysreg = REG_MDRAR_EL1
-//				else if (decode.Op2() == 4)
-//					sysreg = REG_OSLAR_EL1
-//				break
-//			case 1:
-//				if (decode.Op2() == 4)
-//					sysreg = REG_OSLSR_EL1
-//				break
-//			case 3:
-//				if (decode.Op2() == 4)
-//					sysreg = REG_OSDLR_EL1
-//				break
-//			case 4:
-//				if (decode.Op2() == 4)
-//					sysreg = REG_DBGPRCR_EL1
-//				break
-//			}
-//			break
-//		case 7:
-//			if (decode.Op2() != 6)
-//				break
-//			switch (decode.Crm())
-//			{
-//				case 8:  sysreg = REG_DBGCLAIMSET_EL1; break
-//				case 9:  sysreg = REG_DBGCLAIMCLR_EL1; break
-//				case 14: sysreg = REG_DBGAUTHSTATUS_EL1; break
-//			}
-//		}
-//		break
-//	case 1:
-//		{
-//		//Switch operands depending on load vs store
-//		uint32_t op1 = !!decode.L
-//		uint32_t op2 = !decode.L
-//		i.operation = operation[op1]
-//		i.operands[op1].OpClass = IMPLEMENTATION_SPECIFIC
-//		i.operands[op1].Reg[0] = decode.op0
-//		i.operands[op1].reg[1] = decode.Op1()
-//		i.operands[op1].reg[2] = decode.Crn()
-//		i.operands[op1].reg[3] = decode.Crm()
-//		i.operands[op1].reg[4] = decode.Op2()
-//		i.operands[op2].OpClass = REG
-//		i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-//		return 0
-//		}
-//	case 2:
-//		if (decode.Crn() == 0 && decode.Crm() == 0)
-//			sysreg = REG_TEECR32_EL1
-//		else if (decode.Crn() == 1 && decode.Crm() == 0)
-//			sysreg = REG_TEEHBR32_EL1
-//
-//		break
-//	case 3:
-//		if (decode.Crn() != 0 || decode.Op2() != 0)
-//			break
-//		switch (decode.Crm())
-//		{
-//		case 1: sysreg = REG_MDCCSR_EL0; break
-//		case 4: sysreg = REG_DBGDTR_EL0; break
-//		case 5:
-//			if (decode.L)
-//				sysreg = REG_DBGDTRTX_EL0
-//			else
-//				sysreg = REG_DBGDTRRX_EL0
-//		}
-//		break
-//	case 4:
-//		if (decode.Crn() == 0 && decode.Crm() == 7 && decode.Op2() == 0)
-//			sysreg = REG_DBGVCR32_EL2
-//		break
-//	//default:
-//	//	printf("%s\n", __FUNCTION__)
-//	}
-//	uint32_t op1 = !!decode.L
-//	uint32_t op2 = !decode.L
-//	i.operation = operation[op1]
-//	i.operands[op1].OpClass = SYS_REG
-//	i.operands[op1].Reg[0] = sysreg
-//	i.operands[op2].OpClass = REG
-//	i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-//	return sysreg == SYSREG_NONE
-//}
-//
-//
-//func (i *Instruction) decompose_system_debug_and_trace_regs2(SYSTEM decode, Instruction* restrict instruction)
-//{
-//	uint32_t sysreg = SYSREG_NONE
-//	var Operation operation[2] = {ARM64_MSR, ARM64_MRS}
-//	//printf("op0: %d op1: %d CRn: %d CRm: %d op2: %d %s\n", decode.op0, decode.Op1(), decode.Crn(), decode.Crm(), decode.Op2(), __FUNCTION__)
-//	switch (decode.Crn())
-//	{
-//	case 0:
-//		if (decode.Op1() == 0)
-//		{
-//			var SystemReg sysregs[8][8] = {
-//				{REG_MIDR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_MPIDR_EL1, REG_REVIDR_EL1 ,SYSREG_NONE},
-//				{REG_ID_PFR0_EL1, REG_ID_PFR1_EL1, REG_ID_DFR0_EL1, REG_ID_AFR0_EL1,
-//					REG_ID_MMFR0_EL1, REG_ID_MMFR1_EL1, REG_ID_MMFR2_EL1 ,REG_ID_MMFR3_EL1},
-//				{REG_ID_ISAR0_EL1, REG_ID_ISAR1_EL1, REG_ID_ISAR2_EL1, REG_ID_ISAR3_EL1,
-//					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1,SYSREG_NONE},
-//				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE},
-//				{REG_ID_AA64ISAR0_EL1, REG_ID_AA64ISAR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{REG_ID_AA64MMFR0_EL1, REG_ID_AA64MMFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			}
-//			sysreg = sysregs[decode.Crm()][decode.Op2()]
-//		}
-//		else if (decode.Crm() == 0)
-//		{
-//			var SystemReg sysregs[8][8] = {
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE,SYSREG_NONE},
-//				{REG_CCSIDR_EL1, REG_CLIDR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_AIDR_EL1},
-//				{REG_CSSELR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, REG_CTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_DCZID_EL0},
-//				{REG_VPIDR_EL2, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_VMPIDR_EL0, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE,SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE,SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE,SYSREG_NONE}
-//			}
-//			sysreg = sysregs[decode.Op1()][decode.Op2()]
-//		}
-//		break
-//	case 1:
-//		switch (decode.Op1())
-//		{
-//		case 0:
-//			if (decode.Crm() == 0)
-//			{
-//				switch (decode.Op2())
-//				{
-//				case 0: sysreg = REG_SCTLR_EL1; break
-//				case 1: sysreg = REG_ACTLR_EL1; break
-//				case 2: sysreg = REG_CPACR_EL1; break
-//				}
-//			}
-//			break
-//		case 4:
-//			if (decode.Crm() == 0)
-//			{
-//				switch (decode.Op2())
-//				{
-//				case 0: sysreg = REG_SCTLR_EL2; break
-//				case 1: sysreg = REG_ACTLR_EL2; break
-//				}
-//			}
-//			else if (decode.Crm() == 1)
-//			{
-//				var sysregs = []SystemReg{
-//					REG_HCR_EL2, REG_MDCR_EL2, REG_CPTR_EL2, REG_HSTR_EL2,
-//					SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_HACR_EL2
-//				}
-//				sysreg = sysregs[decode.Op2()]
-//			}
-//			else if (decode.Crm() == 6)
-//			{
-//				sysreg = REG_ICC_PMR_EL1
-//			}
-//			break
-//		case 6:
-//			switch (decode.Crm())
-//			{
-//			case 0:
-//				if (decode.Op2() == 0)
-//					sysreg = REG_SCTLR_EL3
-//				else if (decode.Op2() == 1)
-//					sysreg = REG_ACTLR_EL3
-//				break
-//			case 1:
-//				switch (decode.Op2())
-//				{
-//					case 0: sysreg = REG_SCR_EL3; break
-//					case 1: sysreg = REG_SDER32_EL3; break
-//					case 2: sysreg = REG_CPTR_EL3; break
-//				}
-//				break
-//			case 3:
-//				if (decode.Op2() == 1)
-//					sysreg = REG_MDCR_EL3
-//				break
-//			}
-//			break
-//		}
-//		break
-//	case 2:
-//		switch (decode.Op1())
-//		{
-//		case 0:
-//			if (decode.Crm() == 0)
-//			{
-//				switch (decode.Op2())
-//				{
-//				case 0: sysreg = REG_TTBR0_EL1; break
-//				case 1: sysreg = REG_TTBR1_EL1; break
-//				case 2: sysreg = REG_TCR_EL1; break
-//				}
-//			}
-//			break
-//		case 4:
-//			if (decode.Crm() == 0)
-//			{
-//				switch (decode.Op2())
-//				{
-//				case 0: sysreg = REG_TTBR0_EL2; break
-//				case 2: sysreg = REG_TCR_EL2; break
-//				}
-//			}
-//			else if (decode.Crm() == 1)
-//			{
-//				switch (decode.Op2())
-//				{
-//				case 0: sysreg = REG_VTTBR_EL2; break
-//				case 2: sysreg = REG_VTCR_EL2; break
-//				}
-//			}
-//			break
-//		case 6:
-//			if (decode.Crm() == 0)
-//			{
-//				if (decode.Op2() == 0)
-//					sysreg = REG_TTBR0_EL3
-//				else if (decode.Op2() == 2)
-//					sysreg = REG_TCR_EL3
-//			}
-//			break
-//		}
-//		break
-//	case 3:
-//		if (decode.Op1() != 4 || decode.Crm() != 0 || decode.Op2() != 0)
-//			break
-//		sysreg = REG_DACR32_EL2
-//		break
-//	case 4:
-//		switch (decode.Op1())
-//		{
-//			case 0:
-//				switch (decode.Crm())
-//				{
-//				case 0:
-//					if (decode.Op2() == 1)
-//						sysreg = REG_ELR_EL1
-//					else if (decode.Op2() == 0)
-//						sysreg = REG_SPSR_EL1
-//					break
-//				case 1:
-//					if (decode.Op2() == 0)
-//						sysreg = REG_SP_EL0
-//					break
-//				case 2:
-//					if (decode.Op2() == 0)
-//						sysreg = REG_SPSEL
-//					else if (decode.Op2() == 2)
-//						sysreg = REG_CURRENT_EL
-//					else if (decode.Op2() == 3)
-//						sysreg = REG_PAN
-//					break
-//				case 6:
-//					sysreg = REG_ICC_PMR_EL1
-//					break
-//				}
-//				break
-//			case 3:
-//				if (decode.Op2() == 0)
-//				{
-//					switch (decode.Crm())
-//					{
-//						case 2: sysreg = REG_NZCV; break
-//						case 4: sysreg = REG_FPCR; break
-//						case 5: sysreg = REG_DSPSR_EL0; break
-//					}
-//				}
-//				else if (decode.Op2() == 1)
-//				{
-//					switch (decode.Crm())
-//					{
-//						case 2: sysreg = REG_DAIF; break
-//						case 4: sysreg = REG_FPSR; break
-//						case 5: sysreg = REG_DLR_EL0; break
-//					}
-//				}
-//				break
-//			case 4:
-//				switch (decode.Crm())
-//				{
-//					case 0:
-//						if (decode.Op2() == 0)
-//							sysreg = REG_SPSR_EL2
-//						else if (decode.Op2() == 1)
-//							sysreg = REG_ELR_EL2
-//						break
-//					case 1:
-//						if (decode.Op2() == 0)
-//							sysreg = REG_SP_EL1
-//						break
-//					case 3:
-//						switch (decode.Op2())
-//						{
-//							case 0: sysreg = REG_SPSR_IRQ; break
-//							case 1: sysreg = REG_SPSR_ABT; break
-//							case 2: sysreg = REG_SPSR_UND; break
-//							case 3: sysreg = REG_SPSR_FIQ; break
-//						}
-//						break
-//				}
-//				break
-//			case 6:
-//				if (decode.Crm() == 0)
-//				{
-//					if (decode.Op2() == 0)
-//						sysreg = REG_SPSR_EL3
-//					else if (decode.Op2() == 1)
-//						sysreg = REG_ELR_EL3
-//				}
-//				else if (decode.Crm() == 1)
-//				{
-//					if (decode.Op2() == 0)
-//						sysreg = REG_SP_EL2
-//				}
-//				break
-//		}
-//		break
-//	case 5:
-//		{
-//		if (decode.Crm() > 3 || decode.Op2() > 1)
-//			break
-//		var SystemReg sysregs[3][4][2] = {
-//			{
-//				{SYSREG_NONE,SYSREG_NONE},
-//				{REG_AFSR0_EL1, REG_AFSR1_EL1},
-//				{REG_ESR_EL1,  SYSREG_NONE},
-//				{SYSREG_NONE,SYSREG_NONE},
-//			},{
-//				{SYSREG_NONE,REG_IFSR32_EL2},
-//				{REG_AFSR0_EL2, REG_AFSR1_EL2},
-//				{REG_ESR_EL2,  SYSREG_NONE},
-//				{REG_FPEXC32_EL2,SYSREG_NONE},
-//			},{
-//				{SYSREG_NONE,SYSREG_NONE},
-//				{REG_AFSR0_EL3, REG_AFSR1_EL3},
-//				{REG_ESR_EL3,  SYSREG_NONE},
-//				{SYSREG_NONE,SYSREG_NONE},
-//			}
-//		}
-//		switch (decode.Op1())
-//		{
-//		case 0: sysreg = sysregs[0][decode.Crm()][decode.Op2()]; break
-//		case 4: sysreg = sysregs[1][decode.Crm()][decode.Op2()]; break
-//		case 6: sysreg = sysregs[2][decode.Crm()][decode.Op2()]; break
-//		}
-//		break
-//		}
-//	case 6:
-//			if (decode.Op1() == 0 && decode.Crm() == 0 && decode.Op2() == 0)
-//				sysreg = REG_FAR_EL1
-//			else if (decode.Op1() == 4 && decode.Crm() == 0)
-//			{
-//				if (decode.Op2() == 0)
-//					sysreg = REG_FAR_EL2
-//				else if (decode.Op2() == 4)
-//					sysreg = REG_HPFAR_EL2
-//			}
-//			else if (decode.Op1() == 6 && decode.Crm() == 0 && decode.Op2() == 0)
-//				sysreg = REG_FAR_EL3
-//			else if (decode.Op1() == 0 && decode.Crm() == 11 && decode.Op2() == 5)
-//				sysreg = REG_ICC_SGI1R_EL1
-//		break
-//	case 7:
-//			if (decode.Op1() == 0 && decode.Crm() == 4 && decode.Op2() == 0)
-//				sysreg = REG_PAR_EL1
-//		break
-//	case 9:
-//		{
-//			if (decode.Op1() == 0 && decode.Crm() == 14)
-//			{
-//				if (decode.Op2() == 1)
-//					sysreg = REG_PMINTENSET_EL1
-//				else if (decode.Op2() == 2)
-//					sysreg = REG_PMINTENCLR_EL1
-//			}
-//			else if (decode.Op1() == 3)
-//			{
-//				var SystemReg sysregs[3][8] = {
-//					{
-//						REG_PMCR_EL0,	REG_PMCNTENSET_EL0, REG_PMCNTENCLR_EL0, REG_PMOVSCLR_EL0,
-//						REG_PMSWINC_EL0, REG_PMSELR_EL0,	 REG_PMCEID0_EL0,   REG_PMCEID1_EL0
-//					},
-//					{REG_PMCCNTR_EL0, REG_PMXEVTYPER_EL0, REG_PMXEVCNTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//					{REG_PMUSERENR_EL0, SYSREG_NONE, SYSREG_NONE, REG_PMOVSSET_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//				}
-//				if (decode.Crm() > 11 && decode.Crm() < 15)
-//				{
-//					sysreg = sysregs[decode.Crm()-12][decode.Op2()]
-//				}
-//			}
-//			break
-//		}
-//	case 10:
-//		{
-//			if (decode.Op2() == 0)
-//			{
-//				var SystemReg sysregs[8][2] = {
-//					{REG_MAIR_EL1, REG_AMAIR_EL1},
-//					{SYSREG_NONE, SYSREG_NONE},
-//					{SYSREG_NONE, SYSREG_NONE},
-//					{SYSREG_NONE, SYSREG_NONE},
-//					{REG_MAIR_EL2, REG_AMAIR_EL2},
-//					{SYSREG_NONE, SYSREG_NONE},
-//					{REG_MAIR_EL3, REG_AMAIR_EL3},
-//					{SYSREG_NONE, SYSREG_NONE}
-//				}
-//				sysreg = sysregs[decode.Op1()][decode.Crm()-2]
-//			}
-//		break
-//		}
-//	case 12:
-//		if (decode.Op1() == 0)
-//		{
-//			switch (decode.Crm())
-//			{
-//				case 0:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_VBAR_EL1; break
-//						case 1: sysreg = REG_RVBAR_EL1; break
-//						case 2: sysreg = REG_RMR_EL1; break
-//					}
-//					break
-//				case 1:
-//					if (decode.Op2() == 0)
-//						sysreg = REG_EL1
-//					break
-//				case 8:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICC_IAR0_EL1; break
-//						case 1: sysreg = REG_ICC_EOIR0_EL1; break
-//						case 2: sysreg = REG_ICC_HPPIR0_EL1; break
-//						case 3: sysreg = REG_ICC_BPR0_EL1; break
-//						case 4: sysreg = REG_ICC_AP0R0_EL1; break
-//						case 5: sysreg = REG_ICC_AP0R1_EL1; break
-//						case 6: sysreg = REG_ICC_AP0R2_EL1; break
-//						case 7: sysreg = REG_ICC_AP0R3_EL1; break
-//					}
-//					break
-//				case 9:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICC_AP1R0_EL1; break
-//						case 1: sysreg = REG_ICC_AP1R1_EL1; break
-//						case 2: sysreg = REG_ICC_AP1R2_EL1; break
-//						case 3: sysreg = REG_ICC_AP1R3_EL1; break
-//					}
-//					break
-//				case 11:
-//					if (decode.Op2() == 1)
-//						sysreg = REG_ICC_DIR_EL1
-//					else if (decode.Op2() == 3)
-//						sysreg = REG_ICC_RPR_EL1
-//					else if (decode.Op2() == 5)
-//						sysreg = REG_ICC_SGI1R_EL1
-//					else if (decode.Op2() == 6)
-//						sysreg = REG_ICC_ASGI1R_EL1
-//					else if (decode.Op2() == 7)
-//						sysreg = REG_ICC_SGI0R_EL1
-//					break
-//				case 12:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICC_IAR1_EL1; break
-//						case 1: sysreg = REG_ICC_EOIR1_EL1; break
-//						case 2: sysreg = REG_ICC_HPPIR1_EL1; break
-//						case 3: sysreg = REG_ICC_BPR1_EL1; break
-//						case 4: sysreg = REG_ICC_CTLR_EL1; break
-//						case 5: sysreg = REG_ICC_SRE_EL1; break
-//						case 6: sysreg = REG_ICC_IGRPEN0_EL1; break
-//						case 7: sysreg = REG_ICC_IGRPEN1_EL1; break
-//					}
-//					break
-//				case 13:
-//					if (decode.Op2() == 0)
-//						sysreg = REG_ICC_SEIEN_EL1
-//					break
-//				default:
-//					break
-//			}
-//		}
-//		else if (decode.Op1() == 1 && decode.Crm() == 12)
-//		{
-//			sysreg = REG_ICC_ASGI1R_EL2
-//		}
-//		else if (decode.Op1() == 2 && decode.Crm() == 12)
-//		{
-//			sysreg = REG_ICC_SGI0R_EL2
-//		}
-//		else if (decode.Op1() == 4)
-//		{
-//			switch (decode.Crm())
-//			{
-//				case 0:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_VBAR_EL2; break
-//						case 1: sysreg = REG_RVBAR_EL2; break
-//						case 2: sysreg = REG_RMR_EL2; break
-//					}
-//					break
-//				case 8:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_AP0R0_EL2; break
-//						case 1: sysreg = REG_ICH_AP0R1_EL2; break
-//						case 2: sysreg = REG_ICH_AP0R2_EL2; break
-//						case 3: sysreg = REG_ICH_AP0R3_EL2; break
-//					}
-//					break
-//				case 9:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_AP1R0_EL2; break
-//						case 1: sysreg = REG_ICH_AP1R1_EL2; break
-//						case 2: sysreg = REG_ICH_AP1R2_EL2; break
-//						case 3: sysreg = REG_ICH_AP1R3_EL2; break
-//						case 4: sysreg = REG_ICH_AP1R4_EL2; break
-//						case 5: sysreg = REG_ICC_HSRE_EL2;  break
-//					}
-//					break
-//				case 11:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_HCR_EL2; break
-//						case 1: sysreg = REG_ICH_VTR_EL2; break
-//						case 2: sysreg = REG_ICH_MISR_EL2; break
-//						case 3: sysreg = REG_ICH_EISR_EL2; break
-//						case 5: sysreg = REG_ICH_ELRSR_EL2; break
-//						case 7: sysreg = REG_ICH_VMCR_EL2; break
-//					}
-//					break
-//				case 12:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_LR0_EL2; break
-//						case 1: sysreg = REG_ICH_LR1_EL2; break
-//						case 2: sysreg = REG_ICH_LR2_EL2; break
-//						case 3: sysreg = REG_ICH_LR3_EL2; break
-//						case 4: sysreg = REG_ICH_LR4_EL2; break
-//						case 5: sysreg = REG_ICH_LR5_EL2; break
-//						case 6: sysreg = REG_ICH_LR6_EL2; break
-//						case 7: sysreg = REG_ICH_LR7_EL2; break
-//					}
-//					break
-//				case 13:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_LR8_EL2;  break
-//						case 1: sysreg = REG_ICH_LR9_EL2;  break
-//						case 2: sysreg = REG_ICH_LR10_EL2; break
-//						case 3: sysreg = REG_ICH_LR11_EL2; break
-//						case 4: sysreg = REG_ICH_LR12_EL2; break
-//						case 5: sysreg = REG_ICH_LR13_EL2; break
-//						case 6: sysreg = REG_ICH_LR14_EL2; break
-//						case 7: sysreg = REG_ICH_LR15_EL2; break
-//					}
-//					break
-//				case 14:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_LRC0_EL2; break
-//						case 1: sysreg = REG_ICH_LRC1_EL2; break
-//						case 2: sysreg = REG_ICH_LRC2_EL2; break
-//						case 3: sysreg = REG_ICH_LRC3_EL2; break
-//						case 4: sysreg = REG_ICH_LRC4_EL2; break
-//						case 5: sysreg = REG_ICH_LRC5_EL2; break
-//						case 6: sysreg = REG_ICH_LRC6_EL2; break
-//						case 7: sysreg = REG_ICH_LRC7_EL2; break
-//					}
-//					break
-//				case 15:
-//					switch (decode.Op2())
-//					{
-//						case 0: sysreg = REG_ICH_LRC8_EL2;  break
-//						case 1: sysreg = REG_ICH_LRC9_EL2;  break
-//						case 2: sysreg = REG_ICH_LRC10_EL2; break
-//						case 3: sysreg = REG_ICH_LRC11_EL2; break
-//						case 4: sysreg = REG_ICH_LRC12_EL2; break
-//						case 5: sysreg = REG_ICH_LRC13_EL2; break
-//						case 6: sysreg = REG_ICH_LRC14_EL2; break
-//						case 7: sysreg = REG_ICH_LRC15_EL2; break
-//					}
-//					break
-//			}
-//		}
-//		else if (decode.Op1() == 6)
-//		{
-//			if (decode.Crm() == 0)
-//			{
-//				switch (decode.Op2())
-//				{
-//					case 0: sysreg = REG_VBAR_EL3; break
-//					case 1: sysreg = REG_RVBAR_EL3; break
-//					case 2: sysreg = REG_RMR_EL3; break
-//				}
-//			}
-//			else if (decode.Crm() == 12)
-//			{
-//				switch (decode.Op2())
-//				{
-//					case 4: sysreg = REG_ICC_MCTLR_EL3; break
-//					case 5: sysreg = REG_ICC_MSRE_EL3; break
-//					case 7: sysreg = REG_ICC_MGRPEN1_EL3; break
-//				}
-//			}
-//		}
-//		break
-//	case 13:
-//		{
-//			if (decode.Crm() != 0 || decode.Op2() > 4)
-//				break
-//			var SystemReg sysregs[8][5] = {
-//				{SYSREG_NONE, REG_CONTEXTIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL1},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL0, REG_TPIDRRO_EL0, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL3, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			}
-//			sysreg = sysregs[decode.Op1()][decode.Op2()]
-//		break
-//		}
-//	case 14:
-//		{
-//		if (decode.Op1() == 3)
-//		{
-//			uint32_t reg = ((decode.Crm()&3) << 3)|decode.Op2()
-//			if ((decode.Crm() >=8 && decode.Crm() <= 10 && decode.Op2() <= 7)||
-//				(decode.Crm() == 11 && decode.Op2() <= 6))
-//			{
-//				sysreg = REG_PMEVCNTR0_EL0 + reg
-//				break
-//			}
-//			else if ((decode.Crm() >= 12 && decode.Crm() <= 14 && decode.Op2() <= 7)||
-//					 (decode.Crm() == 15 && decode.Op2() <= 6))
-//			{
-//				sysreg = REG_PMEVTYPER0_EL0 + reg
-//				break
-//			}
-//			else if (decode.Crm() == 15 && decode.Op2() == 7)
-//			{
-//				sysreg = REG_PMCCFILTR_EL0
-//				break
-//			}
-//		}
-//		else if (decode.Op1() == 4 && decode.Crm() == 0 && decode.Op2() == 3)
-//		{
-//			sysreg = REG_CNTVOFF_EL2
-//			break
-//		}
-//		else if (decode.Op2() > 2)
-//			break
-//		var SystemReg sysregs[8][4][3] = {
-//			{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{REG_CNTKCTL_EL1, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			},{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			},{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			},{
-//				{REG_CNTFRQ_EL0,    REG_CNTPCT_EL0,   REG_CNTVCT_EL0},
-//				{SYSREG_NONE,       SYSREG_NONE,      SYSREG_NONE},
-//				{REG_CNTP_TVAL_EL0, REG_CNTP_CTL_EL0, REG_CNTP_CVAL_EL0},
-//				{REG_CNTV_TVAL_EL0, REG_CNTV_CTL_EL0, REG_CNTV_CVAL_EL0}
-//			},{
-//				{SYSREG_NONE,        SYSREG_NONE,       SYSREG_NONE},
-//				{REG_CNTHCTL_EL2,    SYSREG_NONE,       SYSREG_NONE},
-//				{REG_CNTHP_TVAL_EL2, REG_CNTHP_CTL_EL2, REG_CNTHP_CVAL_EL2},
-//				{SYSREG_NONE,        SYSREG_NONE,       SYSREG_NONE}
-//			},{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			},{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			},{
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-//				{REG_CNTPS_TVAL_EL1, REG_CNTPS_CTL_EL1, REG_CNTPS_CVAL_EL1},
-//				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE}
-//			}
-//		}
-//		sysreg = sysregs[decode.Op1()][decode.Crm()][decode.Op2()]
-//		}
-//		break
-//	case 11:
-//	case 15:
-//		{
-//		//Switch operands depending on load vs store
-//		uint32_t op1 = !!decode.L
-//		uint32_t op2 = !decode.L
-//		i.operation = operation[op1]
-//		i.operands[op1].OpClass = IMPLEMENTATION_SPECIFIC
-//		i.operands[op1].Reg[0] = decode.op0
-//		i.operands[op1].reg[1] = decode.Op1()
-//		i.operands[op1].reg[2] = decode.Crn()
-//		i.operands[op1].reg[3] = decode.Crm()
-//		i.operands[op1].reg[4] = decode.Op2()
-//		i.operands[op2].OpClass = REG
-//		i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-//		return 0
-//		}
-//		break
-//	}
-//	uint32_t op1 = !!decode.L
-//	uint32_t op2 = !decode.L
-//	i.operation = operation[op1]
-//	i.operands[op1].OpClass = SYS_REG
-//	i.operands[op1].Reg[0] = sysreg
-//	i.operands[op2].OpClass = REG
-//	i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-//	return sysreg == SYSREG_NONE
-//}
+func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Instruction, error) {
+	sysreg := SYSREG_NONE
+	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
+	var dbgreg = [4][16]SystemReg{
+		{
+			REG_DBGBVR0_EL1, REG_DBGBVR1_EL1, REG_DBGBVR2_EL1, REG_DBGBVR3_EL1,
+			REG_DBGBVR4_EL1, REG_DBGBVR5_EL1, REG_DBGBVR6_EL1, REG_DBGBVR7_EL1,
+			REG_DBGBVR8_EL1, REG_DBGBVR9_EL1, REG_DBGBVR10_EL1, REG_DBGBVR11_EL1,
+			REG_DBGBVR12_EL1, REG_DBGBVR13_EL1, REG_DBGBVR14_EL1, REG_DBGBVR15_EL1,
+		}, {
+			REG_DBGBCR0_EL1, REG_DBGBCR1_EL1, REG_DBGBCR2_EL1, REG_DBGBCR3_EL1,
+			REG_DBGBCR4_EL1, REG_DBGBCR5_EL1, REG_DBGBCR6_EL1, REG_DBGBCR7_EL1,
+			REG_DBGBCR8_EL1, REG_DBGBCR9_EL1, REG_DBGBCR10_EL1, REG_DBGBCR11_EL1,
+			REG_DBGBCR12_EL1, REG_DBGBCR13_EL1, REG_DBGBCR14_EL1, REG_DBGBCR15_EL1,
+		}, {
+			REG_DBGWVR0_EL1, REG_DBGWVR1_EL1, REG_DBGWVR2_EL1, REG_DBGWVR3_EL1,
+			REG_DBGWVR4_EL1, REG_DBGWVR5_EL1, REG_DBGWVR6_EL1, REG_DBGWVR7_EL1,
+			REG_DBGWVR8_EL1, REG_DBGWVR9_EL1, REG_DBGWVR10_EL1, REG_DBGWVR11_EL1,
+			REG_DBGWVR12_EL1, REG_DBGWVR13_EL1, REG_DBGWVR14_EL1, REG_DBGWVR15_EL1,
+		}, {
+			REG_DBGWCR0_EL1, REG_DBGWCR1_EL1, REG_DBGWCR2_EL1, REG_DBGWCR3_EL1,
+			REG_DBGWCR4_EL1, REG_DBGWCR5_EL1, REG_DBGWCR6_EL1, REG_DBGWCR7_EL1,
+			REG_DBGWCR8_EL1, REG_DBGWCR9_EL1, REG_DBGWCR10_EL1, REG_DBGWCR11_EL1,
+			REG_DBGWCR12_EL1, REG_DBGWCR13_EL1, REG_DBGWCR14_EL1, REG_DBGWCR15_EL1,
+		},
+	}
+	switch decode.Op1() { //Table C5-5 System instruction encodings for debug System register access
+	case 0:
+		switch decode.Crn() {
+		case 0:
+			if decode.Crm() == 0 && decode.Op2() == 2 {
+				sysreg = REG_OSDTRRX_EL1
+			} else if decode.Crm() == 2 && decode.Op2() == 0 {
+				sysreg = REG_MDCCINT_EL1
+			} else if decode.Crm() == 2 && decode.Op2() == 2 {
+				sysreg = REG_MDSCR_EL1
+			} else if decode.Crm() == 3 && decode.Op2() == 2 {
+				sysreg = REG_OSDTRTX_EL1
+			} else if decode.Crm() == 6 && decode.Op2() == 2 {
+				sysreg = REG_OSECCR_EL1
+			} else {
+				if decode.Op2() > 3 && decode.Op2() < 8 {
+					sysreg = dbgreg[decode.Op2()-4][decode.Crm()]
+				}
+			}
+			break
+		case 1:
+			switch decode.Crm() {
+			case 0:
+				if decode.Op2() == 0 {
+					sysreg = REG_MDRAR_EL1
+				} else if decode.Op2() == 4 {
+					sysreg = REG_OSLAR_EL1
+				}
+				break
+			case 1:
+				if decode.Op2() == 4 {
+					sysreg = REG_OSLSR_EL1
+				}
+				break
+			case 3:
+				if decode.Op2() == 4 {
+					sysreg = REG_OSDLR_EL1
+				}
+				break
+			case 4:
+				if decode.Op2() == 4 {
+					sysreg = REG_DBGPRCR_EL1
+				}
+				break
+			}
+			break
+		case 7:
+			if decode.Op2() != 6 {
+				break
+			}
+			switch decode.Crm() {
+			case 8:
+				sysreg = REG_DBGCLAIMSET_EL1
+				break
+			case 9:
+				sysreg = REG_DBGCLAIMCLR_EL1
+				break
+			case 14:
+				sysreg = REG_DBGAUTHSTATUS_EL1
+				break
+			}
+		}
+		break
+	case 1:
+		{
+			//Switch operands depending on load vs store
+			op1 := ^(^decode.L()) & 1
+			op2 := ^decode.L() & 1
+			i.operation = operation[op1]
+			i.operands[op1].OpClass = IMPLEMENTATION_SPECIFIC
+			i.operands[op1].Reg[0] = decode.Op0()
+			i.operands[op1].Reg[1] = decode.Op1()
+			i.operands[op1].Reg[2] = decode.Crn()
+			i.operands[op1].Reg[3] = decode.Crm()
+			i.operands[op1].Reg[4] = decode.Op2()
+			i.operands[op2].OpClass = REG
+			i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+			return i, nil
+		}
+	case 2:
+		if decode.Crn() == 0 && decode.Crm() == 0 {
+			sysreg = REG_TEECR32_EL1
+		} else if decode.Crn() == 1 && decode.Crm() == 0 {
+			sysreg = REG_TEEHBR32_EL1
+		}
+		break
+	case 3:
+		if decode.Crn() != 0 || decode.Op2() != 0 {
+			break
+		}
+		switch decode.Crm() {
+		case 1:
+			sysreg = REG_MDCCSR_EL0
+			break
+		case 4:
+			sysreg = REG_DBGDTR_EL0
+			break
+		case 5:
+			if decode.L() > 0 {
+				sysreg = REG_DBGDTRTX_EL0
+			} else {
+				sysreg = REG_DBGDTRRX_EL0
+			}
+		}
+		break
+	case 4:
+		if decode.Crn() == 0 && decode.Crm() == 7 && decode.Op2() == 0 {
+			sysreg = REG_DBGVCR32_EL2
+		}
+		break
+		//default:
+		//	printf("%s\n", __FUNCTION__)
+	}
+	op1 := ^(^decode.L()) & 1
+	op2 := ^decode.L() & 1
+	i.operation = operation[op1]
+	i.operands[op1].OpClass = SYS_REG
+	i.operands[op1].Reg[0] = uint32(sysreg)
+	i.operands[op2].OpClass = REG
+	i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+
+	if sysreg == SYSREG_NONE {
+		return nil, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*Instruction, error) {
+	sysreg := SYSREG_NONE
+	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
+	//printf("op0: %d op1: %d CRn: %d CRm: %d op2: %d %s\n", decode.op0, decode.Op1(), decode.Crn(), decode.Crm(), decode.Op2(), __FUNCTION__)
+	switch decode.Crn() {
+	case 0:
+		if decode.Op1() == 0 {
+			var sysregs = [8][8]SystemReg{
+				{REG_MIDR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_MPIDR_EL1, REG_REVIDR_EL1, SYSREG_NONE},
+				{REG_ID_PFR0_EL1, REG_ID_PFR1_EL1, REG_ID_DFR0_EL1, REG_ID_AFR0_EL1,
+					REG_ID_MMFR0_EL1, REG_ID_MMFR1_EL1, REG_ID_MMFR2_EL1, REG_ID_MMFR3_EL1},
+				{REG_ID_ISAR0_EL1, REG_ID_ISAR1_EL1, REG_ID_ISAR2_EL1, REG_ID_ISAR3_EL1,
+					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1, SYSREG_NONE},
+				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64ISAR0_EL1, REG_ID_AA64ISAR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64MMFR0_EL1, REG_ID_AA64MMFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+			}
+			sysreg = sysregs[decode.Crm()][decode.Op2()]
+		} else if decode.Crm() == 0 {
+			var sysregs = [8][8]SystemReg{
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_CCSIDR_EL1, REG_CLIDR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_AIDR_EL1},
+				{REG_CSSELR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, REG_CTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_DCZID_EL0},
+				{REG_VPIDR_EL2, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_VMPIDR_EL0, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+			}
+			sysreg = sysregs[decode.Op1()][decode.Op2()]
+		}
+		break
+	case 1:
+		switch decode.Op1() {
+		case 0:
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_SCTLR_EL1
+					break
+				case 1:
+					sysreg = REG_ACTLR_EL1
+					break
+				case 2:
+					sysreg = REG_CPACR_EL1
+					break
+				}
+			}
+			break
+		case 4:
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_SCTLR_EL2
+					break
+				case 1:
+					sysreg = REG_ACTLR_EL2
+					break
+				}
+			} else if decode.Crm() == 1 {
+				var sysregs = []SystemReg{
+					REG_HCR_EL2, REG_MDCR_EL2, REG_CPTR_EL2, REG_HSTR_EL2,
+					SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_HACR_EL2,
+				}
+				sysreg = sysregs[decode.Op2()]
+			} else if decode.Crm() == 6 {
+				sysreg = REG_ICC_PMR_EL1
+			}
+			break
+		case 6:
+			switch decode.Crm() {
+			case 0:
+				if decode.Op2() == 0 {
+					sysreg = REG_SCTLR_EL3
+				} else if decode.Op2() == 1 {
+					sysreg = REG_ACTLR_EL3
+				}
+				break
+			case 1:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_SCR_EL3
+					break
+				case 1:
+					sysreg = REG_SDER32_EL3
+					break
+				case 2:
+					sysreg = REG_CPTR_EL3
+					break
+				}
+				break
+			case 3:
+				if decode.Op2() == 1 {
+					sysreg = REG_MDCR_EL3
+				}
+				break
+			}
+			break
+		}
+		break
+	case 2:
+		switch decode.Op1() {
+		case 0:
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_TTBR0_EL1
+					break
+				case 1:
+					sysreg = REG_TTBR1_EL1
+					break
+				case 2:
+					sysreg = REG_TCR_EL1
+					break
+				}
+			}
+			break
+		case 4:
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_TTBR0_EL2
+					break
+				case 2:
+					sysreg = REG_TCR_EL2
+					break
+				}
+			} else if decode.Crm() == 1 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_VTTBR_EL2
+					break
+				case 2:
+					sysreg = REG_VTCR_EL2
+					break
+				}
+			}
+			break
+		case 6:
+			if decode.Crm() == 0 {
+				if decode.Op2() == 0 {
+					sysreg = REG_TTBR0_EL3
+				} else if decode.Op2() == 2 {
+					sysreg = REG_TCR_EL3
+				}
+			}
+			break
+		}
+		break
+	case 3:
+		if decode.Op1() != 4 || decode.Crm() != 0 || decode.Op2() != 0 {
+			break
+		}
+		sysreg = REG_DACR32_EL2
+		break
+	case 4:
+		switch decode.Op1() {
+		case 0:
+			switch decode.Crm() {
+			case 0:
+				if decode.Op2() == 1 {
+					sysreg = REG_ELR_EL1
+				} else if decode.Op2() == 0 {
+					sysreg = REG_SPSR_EL1
+				}
+				break
+			case 1:
+				if decode.Op2() == 0 {
+					sysreg = REG_SP_EL0
+				}
+				break
+			case 2:
+				if decode.Op2() == 0 {
+					sysreg = REG_SPSEL
+				} else if decode.Op2() == 2 {
+					sysreg = REG_CURRENT_EL
+				} else if decode.Op2() == 3 {
+					sysreg = REG_PAN
+				}
+				break
+			case 6:
+				sysreg = REG_ICC_PMR_EL1
+				break
+			}
+			break
+		case 3:
+			if decode.Op2() == 0 {
+				switch decode.Crm() {
+				case 2:
+					sysreg = REG_NZCV
+					break
+				case 4:
+					sysreg = REG_FPCR
+					break
+				case 5:
+					sysreg = REG_DSPSR_EL0
+					break
+				}
+			} else if decode.Op2() == 1 {
+				switch decode.Crm() {
+				case 2:
+					sysreg = REG_DAIF
+					break
+				case 4:
+					sysreg = REG_FPSR
+					break
+				case 5:
+					sysreg = REG_DLR_EL0
+					break
+				}
+			}
+			break
+		case 4:
+			switch decode.Crm() {
+			case 0:
+				if decode.Op2() == 0 {
+					sysreg = REG_SPSR_EL2
+				} else if decode.Op2() == 1 {
+					sysreg = REG_ELR_EL2
+				}
+				break
+			case 1:
+				if decode.Op2() == 0 {
+					sysreg = REG_SP_EL1
+				}
+				break
+			case 3:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_SPSR_IRQ
+					break
+				case 1:
+					sysreg = REG_SPSR_ABT
+					break
+				case 2:
+					sysreg = REG_SPSR_UND
+					break
+				case 3:
+					sysreg = REG_SPSR_FIQ
+					break
+				}
+				break
+			}
+			break
+		case 6:
+			if decode.Crm() == 0 {
+				if decode.Op2() == 0 {
+					sysreg = REG_SPSR_EL3
+				} else if decode.Op2() == 1 {
+					sysreg = REG_ELR_EL3
+				}
+			} else if decode.Crm() == 1 {
+				if decode.Op2() == 0 {
+					sysreg = REG_SP_EL2
+				}
+			}
+			break
+		}
+		break
+	case 5:
+		{
+			if decode.Crm() > 3 || decode.Op2() > 1 {
+				break
+			}
+			var sysregs = [3][4][2]SystemReg{
+				{
+					{SYSREG_NONE, SYSREG_NONE},
+					{REG_AFSR0_EL1, REG_AFSR1_EL1},
+					{REG_ESR_EL1, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, REG_IFSR32_EL2},
+					{REG_AFSR0_EL2, REG_AFSR1_EL2},
+					{REG_ESR_EL2, SYSREG_NONE},
+					{REG_FPEXC32_EL2, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE},
+					{REG_AFSR0_EL3, REG_AFSR1_EL3},
+					{REG_ESR_EL3, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE},
+				},
+			}
+			switch decode.Op1() {
+			case 0:
+				sysreg = sysregs[0][decode.Crm()][decode.Op2()]
+				break
+			case 4:
+				sysreg = sysregs[1][decode.Crm()][decode.Op2()]
+				break
+			case 6:
+				sysreg = sysregs[2][decode.Crm()][decode.Op2()]
+				break
+			}
+			break
+		}
+	case 6:
+		if decode.Op1() == 0 && decode.Crm() == 0 && decode.Op2() == 0 {
+			sysreg = REG_FAR_EL1
+		} else if decode.Op1() == 4 && decode.Crm() == 0 {
+			if decode.Op2() == 0 {
+				sysreg = REG_FAR_EL2
+			} else if decode.Op2() == 4 {
+				sysreg = REG_HPFAR_EL2
+			}
+		} else if decode.Op1() == 6 && decode.Crm() == 0 && decode.Op2() == 0 {
+			sysreg = REG_FAR_EL3
+		} else if decode.Op1() == 0 && decode.Crm() == 11 && decode.Op2() == 5 {
+			sysreg = REG_ICC_SGI1R_EL1
+		}
+		break
+	case 7:
+		if decode.Op1() == 0 && decode.Crm() == 4 && decode.Op2() == 0 {
+			sysreg = REG_PAR_EL1
+		}
+		break
+	case 9:
+		{
+			if decode.Op1() == 0 && decode.Crm() == 14 {
+				if decode.Op2() == 1 {
+					sysreg = REG_PMINTENSET_EL1
+				} else if decode.Op2() == 2 {
+					sysreg = REG_PMINTENCLR_EL1
+				}
+			} else if decode.Op1() == 3 {
+				var sysregs = [3][8]SystemReg{
+					{
+						REG_PMCR_EL0, REG_PMCNTENSET_EL0, REG_PMCNTENCLR_EL0, REG_PMOVSCLR_EL0,
+						REG_PMSWINC_EL0, REG_PMSELR_EL0, REG_PMCEID0_EL0, REG_PMCEID1_EL0,
+					},
+					{REG_PMCCNTR_EL0, REG_PMXEVTYPER_EL0, REG_PMXEVCNTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_PMUSERENR_EL0, SYSREG_NONE, SYSREG_NONE, REG_PMOVSSET_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}
+				if decode.Crm() > 11 && decode.Crm() < 15 {
+					sysreg = sysregs[decode.Crm()-12][decode.Op2()]
+				}
+			}
+			break
+		}
+	case 10:
+		{
+			if decode.Op2() == 0 {
+				var sysregs = [8][2]SystemReg{
+					{REG_MAIR_EL1, REG_AMAIR_EL1},
+					{SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE},
+					{REG_MAIR_EL2, REG_AMAIR_EL2},
+					{SYSREG_NONE, SYSREG_NONE},
+					{REG_MAIR_EL3, REG_AMAIR_EL3},
+					{SYSREG_NONE, SYSREG_NONE},
+				}
+				sysreg = sysregs[decode.Op1()][decode.Crm()-2]
+			}
+			break
+		}
+	case 12:
+		if decode.Op1() == 0 {
+			switch decode.Crm() {
+			case 0:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_VBAR_EL1
+					break
+				case 1:
+					sysreg = REG_RVBAR_EL1
+					break
+				case 2:
+					sysreg = REG_RMR_EL1
+					break
+				}
+				break
+			case 1:
+				if decode.Op2() == 0 {
+					sysreg = REG_EL1
+				}
+				break
+			case 8:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICC_IAR0_EL1
+					break
+				case 1:
+					sysreg = REG_ICC_EOIR0_EL1
+					break
+				case 2:
+					sysreg = REG_ICC_HPPIR0_EL1
+					break
+				case 3:
+					sysreg = REG_ICC_BPR0_EL1
+					break
+				case 4:
+					sysreg = REG_ICC_AP0R0_EL1
+					break
+				case 5:
+					sysreg = REG_ICC_AP0R1_EL1
+					break
+				case 6:
+					sysreg = REG_ICC_AP0R2_EL1
+					break
+				case 7:
+					sysreg = REG_ICC_AP0R3_EL1
+					break
+				}
+				break
+			case 9:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICC_AP1R0_EL1
+					break
+				case 1:
+					sysreg = REG_ICC_AP1R1_EL1
+					break
+				case 2:
+					sysreg = REG_ICC_AP1R2_EL1
+					break
+				case 3:
+					sysreg = REG_ICC_AP1R3_EL1
+					break
+				}
+				break
+			case 11:
+				if decode.Op2() == 1 {
+					sysreg = REG_ICC_DIR_EL1
+				} else if decode.Op2() == 3 {
+					sysreg = REG_ICC_RPR_EL1
+				} else if decode.Op2() == 5 {
+					sysreg = REG_ICC_SGI1R_EL1
+				} else if decode.Op2() == 6 {
+					sysreg = REG_ICC_ASGI1R_EL1
+				} else if decode.Op2() == 7 {
+					sysreg = REG_ICC_SGI0R_EL1
+				}
+				break
+			case 12:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICC_IAR1_EL1
+					break
+				case 1:
+					sysreg = REG_ICC_EOIR1_EL1
+					break
+				case 2:
+					sysreg = REG_ICC_HPPIR1_EL1
+					break
+				case 3:
+					sysreg = REG_ICC_BPR1_EL1
+					break
+				case 4:
+					sysreg = REG_ICC_CTLR_EL1
+					break
+				case 5:
+					sysreg = REG_ICC_SRE_EL1
+					break
+				case 6:
+					sysreg = REG_ICC_IGRPEN0_EL1
+					break
+				case 7:
+					sysreg = REG_ICC_IGRPEN1_EL1
+					break
+				}
+				break
+			case 13:
+				if decode.Op2() == 0 {
+					sysreg = REG_ICC_SEIEN_EL1
+				}
+				break
+			default:
+				break
+			}
+		} else if decode.Op1() == 1 && decode.Crm() == 12 {
+			sysreg = REG_ICC_ASGI1R_EL2
+		} else if decode.Op1() == 2 && decode.Crm() == 12 {
+			sysreg = REG_ICC_SGI0R_EL2
+		} else if decode.Op1() == 4 {
+			switch decode.Crm() {
+			case 0:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_VBAR_EL2
+					break
+				case 1:
+					sysreg = REG_RVBAR_EL2
+					break
+				case 2:
+					sysreg = REG_RMR_EL2
+					break
+				}
+				break
+			case 8:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_AP0R0_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_AP0R1_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_AP0R2_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_AP0R3_EL2
+					break
+				}
+				break
+			case 9:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_AP1R0_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_AP1R1_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_AP1R2_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_AP1R3_EL2
+					break
+				case 4:
+					sysreg = REG_ICH_AP1R4_EL2
+					break
+				case 5:
+					sysreg = REG_ICC_HSRE_EL2
+					break
+				}
+				break
+			case 11:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_HCR_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_VTR_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_MISR_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_EISR_EL2
+					break
+				case 5:
+					sysreg = REG_ICH_ELRSR_EL2
+					break
+				case 7:
+					sysreg = REG_ICH_VMCR_EL2
+					break
+				}
+				break
+			case 12:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_LR0_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_LR1_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_LR2_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_LR3_EL2
+					break
+				case 4:
+					sysreg = REG_ICH_LR4_EL2
+					break
+				case 5:
+					sysreg = REG_ICH_LR5_EL2
+					break
+				case 6:
+					sysreg = REG_ICH_LR6_EL2
+					break
+				case 7:
+					sysreg = REG_ICH_LR7_EL2
+					break
+				}
+				break
+			case 13:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_LR8_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_LR9_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_LR10_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_LR11_EL2
+					break
+				case 4:
+					sysreg = REG_ICH_LR12_EL2
+					break
+				case 5:
+					sysreg = REG_ICH_LR13_EL2
+					break
+				case 6:
+					sysreg = REG_ICH_LR14_EL2
+					break
+				case 7:
+					sysreg = REG_ICH_LR15_EL2
+					break
+				}
+				break
+			case 14:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_LRC0_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_LRC1_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_LRC2_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_LRC3_EL2
+					break
+				case 4:
+					sysreg = REG_ICH_LRC4_EL2
+					break
+				case 5:
+					sysreg = REG_ICH_LRC5_EL2
+					break
+				case 6:
+					sysreg = REG_ICH_LRC6_EL2
+					break
+				case 7:
+					sysreg = REG_ICH_LRC7_EL2
+					break
+				}
+				break
+			case 15:
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_ICH_LRC8_EL2
+					break
+				case 1:
+					sysreg = REG_ICH_LRC9_EL2
+					break
+				case 2:
+					sysreg = REG_ICH_LRC10_EL2
+					break
+				case 3:
+					sysreg = REG_ICH_LRC11_EL2
+					break
+				case 4:
+					sysreg = REG_ICH_LRC12_EL2
+					break
+				case 5:
+					sysreg = REG_ICH_LRC13_EL2
+					break
+				case 6:
+					sysreg = REG_ICH_LRC14_EL2
+					break
+				case 7:
+					sysreg = REG_ICH_LRC15_EL2
+					break
+				}
+				break
+			}
+		} else if decode.Op1() == 6 {
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_VBAR_EL3
+					break
+				case 1:
+					sysreg = REG_RVBAR_EL3
+					break
+				case 2:
+					sysreg = REG_RMR_EL3
+					break
+				}
+			} else if decode.Crm() == 12 {
+				switch decode.Op2() {
+				case 4:
+					sysreg = REG_ICC_MCTLR_EL3
+					break
+				case 5:
+					sysreg = REG_ICC_MSRE_EL3
+					break
+				case 7:
+					sysreg = REG_ICC_MGRPEN1_EL3
+					break
+				}
+			}
+		}
+		break
+	case 13:
+		{
+			if decode.Crm() != 0 || decode.Op2() > 4 {
+				break
+			}
+			var sysregs = [8][5]SystemReg{
+				{SYSREG_NONE, REG_CONTEXTIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL1},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL0, REG_TPIDRRO_EL0, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL3, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+			}
+			sysreg = sysregs[decode.Op1()][decode.Op2()]
+			break
+		}
+	case 14:
+		{
+			if decode.Op1() == 3 {
+				reg := ((decode.Crm() & 3) << 3) | decode.Op2()
+				if (decode.Crm() >= 8 && decode.Crm() <= 10 && decode.Op2() <= 7) ||
+					(decode.Crm() == 11 && decode.Op2() <= 6) {
+					sysreg = REG_PMEVCNTR0_EL0 + SystemReg(reg)
+					break
+				} else if (decode.Crm() >= 12 && decode.Crm() <= 14 && decode.Op2() <= 7) ||
+					(decode.Crm() == 15 && decode.Op2() <= 6) {
+					sysreg = REG_PMEVTYPER0_EL0 + SystemReg(reg)
+					break
+				} else if decode.Crm() == 15 && decode.Op2() == 7 {
+					sysreg = REG_PMCCFILTR_EL0
+					break
+				}
+			} else if decode.Op1() == 4 && decode.Crm() == 0 && decode.Op2() == 3 {
+				sysreg = REG_CNTVOFF_EL2
+				break
+			} else if decode.Op2() > 2 {
+				break
+			}
+			var sysregs = [8][4][3]SystemReg{
+				{
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTKCTL_EL1, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{REG_CNTFRQ_EL0, REG_CNTPCT_EL0, REG_CNTVCT_EL0},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTP_TVAL_EL0, REG_CNTP_CTL_EL0, REG_CNTP_CVAL_EL0},
+					{REG_CNTV_TVAL_EL0, REG_CNTV_CTL_EL0, REG_CNTV_CVAL_EL0},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTHCTL_EL2, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTHP_TVAL_EL2, REG_CNTHP_CTL_EL2, REG_CNTHP_CVAL_EL2},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTPS_TVAL_EL1, REG_CNTPS_CTL_EL1, REG_CNTPS_CVAL_EL1},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				},
+			}
+			sysreg = sysregs[decode.Op1()][decode.Crm()][decode.Op2()]
+		}
+		break
+	case 11:
+		fallthrough
+	case 15:
+		{
+			//Switch operands depending on load vs store
+			op1 := ^(^decode.L()) & 1
+			op2 := ^decode.L() & 1
+			i.operation = operation[op1]
+			i.operands[op1].OpClass = IMPLEMENTATION_SPECIFIC
+			i.operands[op1].Reg[0] = decode.Op0()
+			i.operands[op1].Reg[1] = decode.Op1()
+			i.operands[op1].Reg[2] = decode.Crn()
+			i.operands[op1].Reg[3] = decode.Crm()
+			i.operands[op1].Reg[4] = decode.Op2()
+			i.operands[op2].OpClass = REG
+			i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+			return i, nil
+		}
+	}
+	op1 := ^(^decode.L()) & 1
+	op2 := ^decode.L() & 1
+	i.operation = operation[op1]
+	i.operands[op1].OpClass = SYS_REG
+	i.operands[op1].Reg[0] = uint32(sysreg)
+	i.operands[op2].OpClass = REG
+	i.operands[op2].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+
+	if sysreg == SYSREG_NONE {
+		return nil, failedToDecodeInstruction
+	}
+	return i, nil
+}
 
 func (i *Instruction) decompose_system() (*Instruction, error) {
 	decode := System(i.raw)
@@ -6694,118 +6868,121 @@ func (i *Instruction) decompose_system() (*Instruction, error) {
 	case 1: //C5.2.4 - Cache maintenance, TLB maintenance, and address translation instructions
 		return i.decompose_system_cache_maintenance(decode)
 	case 2: //C5.2.5 - Moves to and from debug and trace system registers
-		// return i.decompose_system_debug_and_trace_regs(decode)
+		return i.decompose_system_debug_and_trace_regs(decode)
 	case 3: //C5.2.6 - Moves to and from non-debug System registers and special purpose registers
-		// return i.decompose_system_debug_and_trace_regs2(decode)
+		return i.decompose_system_debug_and_trace_regs2(decode)
 	}
 	return nil, failedToDecodeInstruction
 }
 
-//func (i *Instruction) decompose_test_branch_imm(uint32_t instructionValue, Instruction* restrict instruction, uint64_t address)
-//{
-//	/* C4.2.5 Test & branch (immediate)
-//	 *
-//	 * TBZ <R><t>, #<imm>, <label>
-//	 * TBNZ <R><t>, #<imm>, <label>
-//	 */
-//	TEST_AND_BRANCH decode = *(TEST_AND_BRANCH*)&instructionValue
-//	var Operation operation[2] = {ARM64_TBZ, ARM64_TBNZ}
-//	i.operation = operation[decode.Op()]
-//	i.operands[0].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regSize[decode.b5], int(decode.Rt()))
-//	i.operands[1].OpClass = IMM32
-//	i.operands[1].Immediate = decode.b5 << 5 | decode.b40
-//
-//	i.operands[2].OpClass = LABEL
-//	i.operands[2].Immediate = address + (decode.Imm() << 2)
-//	return DISASM_SUCCESS
-//}
-//
-//
-//func (i *Instruction) decompose_unconditional_branch(uint32_t instructionValue, Instruction* restrict instruction, uint64_t address)
-//{
-//	/*
-//	 * B <label>
-//	 * BL <label>
-//	 */
-//	UNCONDITIONAL_BRANCH decode = *(UNCONDITIONAL_BRANCH*)&instructionValue
-//	var operation = []Operation{ARM64_B, ARM64_BL}
-//	i.operation = operation[decode.Op()]
-//	i.operands[0].OpClass = LABEL
-//	i.operands[0].Immediate = address + (decode.Imm() << 2)
-//	return 0
-//}
-//
-//
-//func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error) {
-//{
-//	/* C4.2.7 Unconditional branch (register)
-//	 *
-//	 * BR <Xn>
-//	 * BLR <Xn>
-//	 * RET {<Xn>}
-//	 * ERET
-//	 * DRPS
-//	 */
-//	UNCONDITIONAL_BRANCH_REG decode = *(UNCONDITIONAL_BRANCH_REG*)&instructionValue
-//	var Operation operations[][4] = {
-//		{ARM64_BR,        ARM64_UNDEFINED, ARM64_BRAAZ,     ARM64_BRABZ},
-//		{ARM64_BLR,       ARM64_UNDEFINED, ARM64_BLRAAZ,    ARM64_BLRABZ},
-//		{ARM64_RET,       ARM64_UNDEFINED, ARM64_RETAA,     ARM64_RETAB},
-//		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//
-//		{ARM64_ERET,      ARM64_UNDEFINED, ARM64_ERETAA,    ARM64_ERETAB},
-//		{ARM64_DRPS,      ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//
-//		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_BRAA,      ARM64_BRAB},
-//		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_BLRAA,     ARM64_BLRAB},
-//	}
-//
-//	if (decode.Opc() > 9)
-//		return 1
-//	if (decode.op3 > 3)
-//		return 1
-//	if (decode.Opc() < 8 && decode.op3 != 0 && decode.op4 != 0x1f)
-//		return 1
-//	if (decode.op3 == 0 && decode.op4 != 0)
-//		return 1
-//	if (decode.Op2() != 0x1f)
-//		return 1
-//
-//	i.operation = operations[decode.Opc()][decode.op3]
-//	Register reg = reg(1, REG_X_BASE, int(decode.Rn()))
-//
-//	switch (decode.Opc())
-//	{
-//	case 2: // RET
-//		if (!decode.op3)
-//		{
-//			if (reg == REG_X30)
-//				return 0
-//			break
-//		}
-//		FALL_THROUGH
-//	case 4: // ERET
-//	case 5: // DRPS
-//		if (decode.Rn() != 0x1f)
-//			return 1
-//		return 0
-//	case 8:
-//	case 9:
-//		i.operands[1].OpClass = REG
-//		i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, decode.op4)
-//		break
-//	default:
-//		break
-//	}
-//
-//	i.operands[0].OpClass = REG
-//	i.operands[0].Reg[0] = reg
-//
-//	return 0
-//}
+func (i *Instruction) decompose_test_branch_imm(address uint64) (*Instruction, error) {
+	/* C4.2.5 Test & branch (immediate)
+	 *
+	 * TBZ <R><t>, #<imm>, <label>
+	 * TBNZ <R><t>, #<imm>, <label>
+	 */
+	decode := TestAndBranch(i.raw)
+	var operation = [2]Operation{ARM64_TBZ, ARM64_TBNZ}
+	i.operation = operation[decode.Op()]
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.B5()]), int(decode.Rt()))
+	i.operands[1].OpClass = IMM32
+	i.operands[1].Immediate = uint64(decode.B5()<<5 | decode.B40())
+
+	i.operands[2].OpClass = LABEL
+	i.operands[2].Immediate = address + uint64(decode.Imm()<<2)
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_unconditional_branch(address uint64) (*Instruction, error) {
+	/*
+	 * B <label>
+	 * BL <label>
+	 */
+	decode := UnconditionalBranch(i.raw)
+	var operation = []Operation{ARM64_B, ARM64_BL}
+	i.operation = operation[decode.Op()]
+	i.operands[0].OpClass = LABEL
+	i.operands[0].Immediate = address + uint64(decode.Imm()<<2)
+	return i, nil
+}
+
+func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error) {
+	/* C4.2.7 Unconditional branch (register)
+	 *
+	 * BR <Xn>
+	 * BLR <Xn>
+	 * RET {<Xn>}
+	 * ERET
+	 * DRPS
+	 */
+	decode := UnconditionalBranchReg(i.raw)
+	var operations = [][4]Operation{
+		{ARM64_BR, ARM64_UNDEFINED, ARM64_BRAAZ, ARM64_BRABZ},
+		{ARM64_BLR, ARM64_UNDEFINED, ARM64_BLRAAZ, ARM64_BLRABZ},
+		{ARM64_RET, ARM64_UNDEFINED, ARM64_RETAA, ARM64_RETAB},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
+
+		{ARM64_ERET, ARM64_UNDEFINED, ARM64_ERETAA, ARM64_ERETAB},
+		{ARM64_DRPS, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED},
+
+		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_BRAA, ARM64_BRAB},
+		{ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_BLRAA, ARM64_BLRAB},
+	}
+
+	if decode.Opc() > 9 {
+		// return 1
+	}
+	if decode.Op3() > 3 {
+		// return 1
+	}
+	if decode.Opc() < 8 && decode.Op3() != 0 && decode.Op4() != 0x1f {
+		// return 1
+	}
+	if decode.Op3() == 0 && decode.Op4() != 0 {
+		// return 1
+	}
+	if decode.Op2() != 0x1f {
+		// return 1
+	}
+
+	i.operation = operations[decode.Opc()][decode.Op3()]
+	r := reg(1, REG_X_BASE, int(decode.Rn()))
+
+	switch decode.Opc() {
+	case 2: // RET
+		if !(decode.Op3() == 0) {
+			if r == uint32(REG_X30) {
+				return i, nil
+			}
+			break
+		}
+		fallthrough
+	case 4: // ERET
+		fallthrough
+	case 5: // DRPS
+		if decode.Rn() != 0x1f {
+			// return 1
+		}
+		return i, nil
+	case 8:
+		fallthrough
+	case 9:
+		i.operands[1].OpClass = REG
+		i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Op4()))
+		break
+	default:
+		break
+	}
+
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = r
+
+	return i, nil
+}
 
 func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 
@@ -6852,7 +7029,6 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		fallthrough
 	case 11:
 		instruction.group = GROUP_BRANCH_EXCEPTION_SYSTEM
-		fmt.Println("case 11:", ExtractBits(instructionValue, 25, 7))
 		switch ExtractBits(instructionValue, 25, 7) {
 		case 0xa:
 			fallthrough
@@ -6861,7 +7037,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0x4a:
 			fallthrough
 		case 0x4b:
-			// return instruction.decompose_unconditional_branch(, address)
+			return instruction.decompose_unconditional_branch(address)
 		case 0x1a:
 			fallthrough
 		case 0x5a:
@@ -6869,7 +7045,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0x1b:
 			fallthrough
 		case 0x5b:
-			// return instruction.decompose_test_branch_imm(, address)
+			return instruction.decompose_test_branch_imm(address)
 		case 0x2a:
 			return instruction.decompose_conditional_branch(address)
 		case 0x6a:
@@ -6880,11 +7056,10 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 			return instruction, nil // TODO error  ?
 		case 0x6b:
-			// return instruction.decompose_unconditional_branch_reg()
+			return instruction.decompose_unconditional_branch_reg()
 		default:
-			return instruction, nil // TODO: (error) shouldn't be able to get here
+			return nil, failedToDecodeInstruction
 		}
-		break
 	case 4:
 		fallthrough
 	case 6:
@@ -6976,7 +7151,6 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		fallthrough
 	case 13:
 		instruction.group = GROUP_DATA_PROCESSING_REG
-		fmt.Printf("case 13: 0x%x\n", ExtractBits(instructionValue, 21, 8))
 		switch ExtractBits(instructionValue, 21, 8) {
 		case 0x50:
 			fallthrough
@@ -7041,13 +7215,13 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 			return instruction.decompose_data_processing_2()
 		default:
-			return instruction, nil // TODO: or error ?
+			return nil, failedToDecodeInstruction
 		}
-		break
 	case 7:
 		fallthrough
 	case 15:
 		instruction.group = GROUP_DATA_PROCESSING_SIMD
+		fmt.Println("case 15:", ExtractBits(instructionValue, 24, 8))
 		switch ExtractBits(instructionValue, 24, 8) {
 		case 0x1e:
 			fallthrough
@@ -7178,7 +7352,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			break
 		}
 	default:
-		break //should never get here
+		return nil, failedToDecodeInstruction
 	}
 
 	return instruction, nil
