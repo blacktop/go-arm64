@@ -3,6 +3,7 @@ package arm64
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 const MAX_OPERANDS = 5
@@ -1346,6 +1347,9 @@ func (i ConditionalBranchImm) O1() uint32 {
 }
 func (i ConditionalBranchImm) Opcode() uint32 {
 	return ExtractBits(uint32(i), 25, 7)
+}
+func (i ConditionalBranchImm) String() string {
+	return fmt.Sprintf("Cond: %d, o0: %d, Imm: 0x%x, o1: %d, opcode: 0x%x", i.Cond(), i.O0(), i.Imm(), i.O1(), i.Opcode())
 }
 
 type ExceptionGeneration uint32
@@ -4808,6 +4812,167 @@ var regMap = [2][9][32]Register{
 			REG_PF24, REG_PF25, REG_PF26, REG_PF27, REG_PF28, REG_PF29, REG_PF30, REG_PF31,
 		},
 	},
+}
+
+const (
+	REG_W_BASE  = 0
+	REG_X_BASE  = 1
+	REG_V_BASE  = 2
+	REG_B_BASE  = 3
+	REG_H_BASE  = 4
+	REG_S_BASE  = 5
+	REG_D_BASE  = 6
+	REG_Q_BASE  = 7
+	REG_PF_BASE = 8
+
+	REGSET_SP = 0
+	REGSET_ZR = 1
+)
+
+var (
+	regSize     = []uint32{REG_W_BASE, REG_X_BASE}
+	simdRegSize = []uint32{REG_S_BASE, REG_D_BASE, REG_Q_BASE}
+	dataSize    = []uint8{32, 64}
+)
+
+// func getRegisterSize(Register r) uint32 {
+// 	//Comparison done in order of likelyhood to occur
+// 	if r >= REG_X0 && r <= REG_SP {
+// 		return 8
+// 	} else if (r >= REG_W0 && r <= REG_WSP) || (r >= REG_S0 && r <= REG_S31) {
+// 		return 4
+// 	} else if r >= REG_B0 && r <= REG_B31 {
+// 		return 1
+// 	} else if r >= REG_H0 && r <= REG_H31 {
+// 		return 2
+// 	} else if (r >= REG_Q0 && r <= REG_Q31) || (r >= REG_V0 && r <= REG_V31) {
+// 		return 16
+// 	}
+// 	return 0
+// }
+
+type ieee754 uint32
+
+func (i ieee754) Value() uint32 {
+	return uint32(i)
+}
+func (i ieee754) Fraction() uint32 {
+	return ExtractBits(i.Value(), 0, 23)
+}
+func (i ieee754) Exponent() uint32 {
+	return ExtractBits(i.Value(), 23, 8)
+}
+func (i ieee754) Sign() uint32 {
+	return ExtractBits(i.Value(), 31, 1)
+}
+func (i ieee754) Float() float32 {
+	return math.Float32frombits(i.Value())
+}
+func (i ieee754) SetFraction(fraction uint32) ieee754 {
+	return ieee754(i.Value() | fraction)
+}
+func (i ieee754) SetExponent(exponent uint32) ieee754 {
+	return ieee754(i.Value() | exponent<<23)
+}
+func (i ieee754) SetSign(sign uint32) ieee754 {
+	return ieee754(i.Value() | sign<<31)
+}
+func (i ieee754) SetFloat(fvalue float32) ieee754 {
+	return ieee754(math.Float32bits(fvalue))
+}
+
+func bfxPreferred(sf, uns, imms, immr uint32) uint32 {
+	if imms < immr {
+		return 0
+	}
+	if sf == 0 && imms == 31 {
+		return 0
+	} else if sf == 1 && imms == 63 {
+		return 0
+	}
+	if immr == 0 {
+		if sf == 0 && (imms == 7 || imms == 15) {
+			return 0
+		}
+		if sf == 1 && uns == 0 && (imms == 7 || imms == 15 || imms == 31) {
+			return 0
+		}
+	}
+	return 1
+}
+
+func highestSetBit(x uint32) uint32 {
+	for i := uint32(0); i < 31; i++ {
+		if ((x << i) & 0x80000000) != 0 {
+			return 31 - i
+		}
+	}
+	return 0
+}
+
+func ONES(x uint64) uint64 {
+	return math.MaxUint64 >> (64 - x)
+}
+func ROR(x, N, nbits uint64) uint64 {
+	return (((x) >> (N)) | ((x & ONES(N)) << (nbits - (N))))
+}
+
+func DecodeBitMasks(immN, imms, immr, outBits uint64) uint64 {
+	/*
+	* bits(M) DecodeBitMasks (bit immN, bits(6) imms, bits(6) immr, boolean immediate)
+	* bits(M) wmask;
+	* bits(6) levels;
+	*
+	* // Compute log2 of element size
+	* // 2^len must be in range [2, M]
+	* len = HighestSetBit(immN:NOT(imms));
+	* if len < 1 then ReservedValue();
+	* assert M >= (1 << len);
+	*
+	* // Determine S, R and S - R parameters
+	* levels = ZeroExtend(Ones(len), 6);
+	*
+	* // For logical immediates an all-ones value of S is reserved
+	* // since it would generate a useless all-ones result (many times)
+	* if immediate && (imms AND levels) == levels then
+	* ReservedValue();
+	*
+	* S = UInt(imms AND levels);
+	* R = UInt(immr AND levels);
+	* diff = S - R; // 6-bit subtract with borrow
+	*
+	* esize = 1 << len;
+	* d = UInt(diff<len-1:0>);
+	* welem = ZeroExtend(Ones(S + 1), esize);
+	* wmask = Replicate(ROR(welem, R));
+	* return wmask;
+	 */
+	len := highestSetBit(uint32(immN<<6 | ((^imms) & 0x3f)))
+	if len < 1 {
+		return 0
+	}
+
+	levels := ONES(uint64(len)) & 0x3f
+
+	if (imms & levels) == levels {
+		return 0
+	}
+
+	S := imms & levels
+	R := immr & levels
+	//uint32_t diff = S-R;
+	esize := uint64(1 << len)
+	//uint32_t d = diff & ONES(len);
+	welm := ONES(S+1) & ONES(esize)
+	//uint32_t telm = (1<<(d+2))-1;
+	wmask := ROR(welm, R, esize) & ONES(esize)
+	if outBits/esize != 0 {
+		for i := uint64(0); i < ((outBits / esize) - 1); i++ {
+			wmask |= wmask << esize
+		}
+	}
+
+	return wmask
 }
 
 type Condition uint32

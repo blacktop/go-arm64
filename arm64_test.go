@@ -3,6 +3,8 @@ package arm64
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -84,6 +86,39 @@ func Test_decompose(t *testing.T) {
 			}
 			if !reflect.DeepEqual(out, tt.want) {
 				t.Errorf("disassemble() = %v, want %v", out, tt.want)
+			}
+		})
+	}
+}
+
+func TestDisassemble(t *testing.T) {
+
+	f, err := os.Open("internal/instructions.bin")
+	if err != nil {
+		panic(err)
+	}
+
+	type args struct {
+		r io.ReadSeeker
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "addg x20, x3, #0x330, #0x5",
+			args: args{
+				r: f,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := Disassemble(tt.args.r); (err != nil) != tt.wantErr {
+				fmt.Println()
+				t.Errorf("Disassemble() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
