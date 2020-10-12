@@ -25,7 +25,7 @@ func main() {
         panic(err)
     }
 
-    for i := range arm64.Disassemble(f, 0) {
+    for i := range arm64.Disassemble(f, int64(0x100007e58)) {
         if i.Error != nil{
             fmt.Println(i.StrRepr)
         }
