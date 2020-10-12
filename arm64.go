@@ -62,7 +62,7 @@ func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
 			}
 
 			out <- Result{
-				StrRepr:     fmt.Sprintf("0x%08x:\t%08x \t%s", addr, instrValue, instruction),
+				StrRepr:     fmt.Sprintf("%08x:\t%08x \t%s", addr, instrValue, instruction),
 				Instruction: i,
 				Error:       nil,
 			}

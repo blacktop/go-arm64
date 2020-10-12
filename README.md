@@ -25,13 +25,10 @@ func main() {
         panic(err)
     }
 
-    instrs, err := arm64.Disassemble(f)
-    if err != nil {
-        panic(err)
-    }
-
-    for _, i := range instrs {
-        fmt.Println(i)
+    for i := range arm64.Disassemble(f, 0) {
+        if i.Error != nil{
+            fmt.Println(i.StrRepr)
+        }
     }
 }
 ```
