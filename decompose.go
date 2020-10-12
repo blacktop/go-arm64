@@ -1,7 +1,7 @@
 package arm64
 
 import (
-	"fmt"
+	"encoding/binary"
 	"math"
 )
 
@@ -46,8 +46,8 @@ func (i *Instruction) decompose_add_sub_extended_reg() (*Instruction, error) {
 	decode := AddSubExtendedReg(i.raw)
 
 	var operation = [2][2]Operation{{ARM64_ADD, ARM64_ADDS}, {ARM64_SUB, ARM64_SUBS}}
-	var regBaseMap = [2]uint32{REG_W_BASE, REG_X_BASE}
-	var regBaseMap2 = [8]uint32{
+	var regBaseMap = [2]Register{REG_W_BASE, REG_X_BASE}
+	var regBaseMap2 = [8]Register{
 		REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE,
 		REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE,
 	}
@@ -2168,147 +2168,136 @@ func (i *Instruction) decompose_load_store_reg_pair_post_idx() (*Instruction, er
 	return i.decompose_load_store_reg_imm_common()
 }
 
-//func (i *Instruction) decompose_load_store_reg_reg_offset() (*Instruction, error) {
-//{
-//	/* C4.3.10 Load/store register (register offset)
-//	 *
-//	 * STRB   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDRB   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDRSB  <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDRSB  <Xt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STR	<Bt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STR	<Ht>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STR	<St>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STR	<Dt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STR	<Qt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDR	<Bt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDR	<Ht>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDR	<St>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDR	<Dt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDR	<Qt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * STRH   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDRH   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * LDRSW  <Xt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 * PRFM <prfop>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
-//	 */
-//	LDST_REG_REG_OFFSET decode = *(LDST_REG_REG_OFFSET*)&instructionValue
-//	type  opreg struct {
-//		Operation operation
-//		uint32_t registerBase
-//		int32_t amount[2]
-//	}
-//	var operation = [4][2][4]opreg{
-//		{
-//			{
-//				{ARM64_STRB,  REG_W_BASE, {-1,0}},
-//				{ARM64_LDRB,  REG_W_BASE, {-1,0}},
-//				{ARM64_LDRSB, REG_X_BASE, {-1,0}},
-//				{ARM64_LDRSB, REG_W_BASE, {-1,0}}
-//			},{
-//				{ARM64_STR, REG_B_BASE, {-1,0}},
-//				{ARM64_LDR, REG_B_BASE, {-1,0}},
-//				{ARM64_STR, REG_Q_BASE, { 0,4}},
-//				{ARM64_LDR, REG_Q_BASE, { 0,4}}
-//			}
-//		},{
-//			{
-//				{ARM64_STRH,  REG_W_BASE, {0,1}},
-//				{ARM64_LDRH,  REG_W_BASE, {0,1}},
-//				{ARM64_LDRSH, REG_X_BASE, {0,1}},
-//				{ARM64_LDRSH, REG_W_BASE, {0,1}}
-//			},{
-//				{ARM64_STR, REG_H_BASE, {0,1}},
-//				{ARM64_LDR, REG_H_BASE, {0,1}},
-//				{ARM64_UNDEFINED, 0, {0,0}},
-//				{ARM64_UNDEFINED, 0, {0,0}}
-//			}
-//		},{
-//			{
-//				{ARM64_STR,   REG_W_BASE, {0,2}},
-//				{ARM64_LDR,   REG_W_BASE, {0,2}},
-//				{ARM64_LDRSW, REG_X_BASE, {0,2}},
-//				{ARM64_UNDEFINED, 0, {0,0}}
-//			},{
-//				{ARM64_STR, REG_S_BASE, {0,2}},
-//				{ARM64_LDR, REG_S_BASE, {0,2}},
-//				{ARM64_UNDEFINED, 0, {0,0}},
-//				{ARM64_UNDEFINED, 0, {0,0}}
-//			}
-//		},{
-//			{
-//				{ARM64_STR,  REG_X_BASE,  {0,3}},
-//				{ARM64_LDR,  REG_X_BASE,  {0,3}},
-//				{ARM64_PRFM, REG_PF_BASE, {0,0}},
-//				{ARM64_UNDEFINED,0, {0,0}}
-//			},{
-//				{ARM64_STR, REG_D_BASE, {0,3}},
-//				{ARM64_LDR, REG_D_BASE, {0,3}},
-//				{ARM64_UNDEFINED, 0, {0,0}},
-//				{ARM64_UNDEFINED, 0, {0,0}}
-//			}
-//		}
-//	}
-//
-//	op := operation[decode.Size()][decode.V()][decode.Opc()]
-//	var uint32_t extendRegister[] = {0, 0, REG_W_BASE, REG_X_BASE}
-//	var ShiftType extendMap[] = {
-//		SHIFT_NONE, SHIFT_NONE, SHIFT_UXTW, SHIFT_LSL,
-//		SHIFT_NONE, SHIFT_NONE, SHIFT_SXTW, SHIFT_SXTX}
-//
-//	if (decode.Option() >> 1 == 0 || decode.Option() >> 1 == 2)
-//		return 1
-//	i.operation = op.operation
-//
-//	i.operands[0].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, op.registerBase, int(decode.Rt()))
-//
-//	i.operands[1].OpClass = MEM_EXTENDED
-//	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-//	i.operands[1].reg[1] = reg(REGSET_ZR, extendRegister[decode.Option()&3], int(decode.Rm()))
-//
-//	ShiftType extend = extendMap[decode.Option()]
-//	i.operands[1].ShiftType = extend
-//	i.operands[1].ShiftValueUsed = 1
-//	i.operands[1].ShiftValue = op->amount[decode.S()]
-//
-//	if (i.operands[1].ShiftValue == (uint32_t)-1)
-//	{
-//		i.operands[1].ShiftValueUsed = 0
-//		i.operands[1].ShiftValue = 0
-//		if (i.operands[1].ShiftType == SHIFT_LSL)
-//			i.operands[1].ShiftType = SHIFT_NONE
-//	}
-//	else if (i.operation == ARM64_LDRB)
-//	{
-//		if (i.operands[1].ShiftType == SHIFT_LSL &&
-//			i.operands[1].ShiftValue == 0)
-//		{
-//			i.operands[1].ShiftValueUsed = 1
-//		}
-//		else if (i.operands[1].ShiftType != SHIFT_LSL &&
-//				i.operands[1].ShiftValue == 0)
-//		{
-//			i.operands[1].ShiftValueUsed = 0
-//		}
-//	}
-//	else if (i.operands[1].ShiftValue == 0 &&
-//		(i.operation == ARM64_LDRSB ||
-//		i.operation == ARM64_STRB))
-//	{
-//			i.operands[1].ShiftValueUsed = 1
-//	}
-//	else if (i.operands[1].ShiftValue == 0)
-//	{
-//		if (i.operands[1].ShiftType == SHIFT_LSL)
-//			i.operands[1].ShiftType = SHIFT_NONE
-//		i.operands[1].ShiftValueUsed = 0
-//	}
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil || extend == SHIFT_NONE
-//}
+func (i *Instruction) decompose_load_store_reg_reg_offset() (*Instruction, error) {
+	/* C4.3.10 Load/store register (register offset)
+	 *
+	 * STRB   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDRB   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDRSB  <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDRSB  <Xt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STR	<Bt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STR	<Ht>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STR	<St>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STR	<Dt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STR	<Qt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDR	<Bt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDR	<Ht>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDR	<St>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDR	<Dt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDR	<Qt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * STRH   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDRH   <Wt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * LDRSW  <Xt>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 * PRFM <prfop>, [<Xn|SP>, <R><m>{, <extend> {<amount>}}]
+	 */
+	decode := LdstRegRegOffset(i.raw)
+	type opreg struct {
+		operation    Operation
+		registerBase uint32
+		amount       [2]int32
+	}
+	var operation = [4][2][4]opreg{
+		{
+			{
+				{ARM64_STRB, REG_W_BASE, [2]int32{-1, 0}},
+				{ARM64_LDRB, REG_W_BASE, [2]int32{-1, 0}},
+				{ARM64_LDRSB, REG_X_BASE, [2]int32{-1, 0}},
+				{ARM64_LDRSB, REG_W_BASE, [2]int32{-1, 0}},
+			}, {
+				{ARM64_STR, REG_B_BASE, [2]int32{-1, 0}},
+				{ARM64_LDR, REG_B_BASE, [2]int32{-1, 0}},
+				{ARM64_STR, REG_Q_BASE, [2]int32{0, 4}},
+				{ARM64_LDR, REG_Q_BASE, [2]int32{0, 4}},
+			},
+		}, {
+			{
+				{ARM64_STRH, REG_W_BASE, [2]int32{0, 1}},
+				{ARM64_LDRH, REG_W_BASE, [2]int32{0, 1}},
+				{ARM64_LDRSH, REG_X_BASE, [2]int32{0, 1}},
+				{ARM64_LDRSH, REG_W_BASE, [2]int32{0, 1}},
+			}, {
+				{ARM64_STR, REG_H_BASE, [2]int32{0, 1}},
+				{ARM64_LDR, REG_H_BASE, [2]int32{0, 1}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+			},
+		}, {
+			{
+				{ARM64_STR, REG_W_BASE, [2]int32{0, 2}},
+				{ARM64_LDR, REG_W_BASE, [2]int32{0, 2}},
+				{ARM64_LDRSW, REG_X_BASE, [2]int32{0, 2}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+			}, {
+				{ARM64_STR, REG_S_BASE, [2]int32{0, 2}},
+				{ARM64_LDR, REG_S_BASE, [2]int32{0, 2}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+			},
+		}, {
+			{
+				{ARM64_STR, REG_X_BASE, [2]int32{0, 3}},
+				{ARM64_LDR, REG_X_BASE, [2]int32{0, 3}},
+				{ARM64_PRFM, REG_PF_BASE, [2]int32{0, 0}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+			}, {
+				{ARM64_STR, REG_D_BASE, [2]int32{0, 3}},
+				{ARM64_LDR, REG_D_BASE, [2]int32{0, 3}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+				{ARM64_UNDEFINED, 0, [2]int32{0, 0}},
+			},
+		},
+	}
+
+	op := operation[decode.Size()][decode.V()][decode.Opc()]
+	var extendRegister = []uint32{0, 0, REG_W_BASE, REG_X_BASE}
+	var extendMap = []ShiftType{
+		SHIFT_NONE, SHIFT_NONE, SHIFT_UXTW, SHIFT_LSL,
+		SHIFT_NONE, SHIFT_NONE, SHIFT_SXTW, SHIFT_SXTX}
+
+	if decode.Option()>>1 == 0 || decode.Option()>>1 == 2 {
+		// return 1
+	}
+	i.operation = op.operation
+
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(op.registerBase), int(decode.Rt()))
+
+	i.operands[1].OpClass = MEM_EXTENDED
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	i.operands[1].Reg[1] = reg(REGSET_ZR, int(extendRegister[decode.Option()&3]), int(decode.Rm()))
+
+	extend := extendMap[decode.Option()]
+	i.operands[1].ShiftType = extend
+	i.operands[1].ShiftValueUsed = 1
+	i.operands[1].ShiftValue = uint32(op.amount[decode.S()])
+
+	if i.operands[1].ShiftValue == math.MaxUint32 {
+		i.operands[1].ShiftValueUsed = 0
+		i.operands[1].ShiftValue = 0
+		if i.operands[1].ShiftType == SHIFT_LSL {
+			i.operands[1].ShiftType = SHIFT_NONE
+		}
+	} else if i.operation == ARM64_LDRB {
+		if i.operands[1].ShiftType == SHIFT_LSL && i.operands[1].ShiftValue == 0 {
+			i.operands[1].ShiftValueUsed = 1
+		} else if i.operands[1].ShiftType != SHIFT_LSL && i.operands[1].ShiftValue == 0 {
+			i.operands[1].ShiftValueUsed = 0
+		}
+	} else if i.operands[1].ShiftValue == 0 && (i.operation == ARM64_LDRSB || i.operation == ARM64_STRB) {
+		i.operands[1].ShiftValueUsed = 1
+	} else if i.operands[1].ShiftValue == 0 {
+		if i.operands[1].ShiftType == SHIFT_LSL {
+			i.operands[1].ShiftType = SHIFT_NONE
+		}
+		i.operands[1].ShiftValueUsed = 0
+	}
+
+	if i.operation == ARM64_UNDEFINED || extend == SHIFT_NONE {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
 
 func (i *Instruction) decompose_load_store_reg_unpriv() (*Instruction, error) {
 	/* C4.3.11  Load/store register (unprivileged)
@@ -3701,1797 +3690,1793 @@ func (i *Instruction) decompose_simd_across_lanes() (*Instruction, error) {
 	return i, nil
 }
 
-//func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
-//{
-//	/* C4.6.2 - Advanced SIMD copy
-//	 *
-//	 * DUP  <V><d>, <Vn>.<T>[<index>]
-//	 * DUP  <Vd>.<T>, <R><n>
-//	 * SMOV <Wd>, <Vn>.<Ts>[<index>]
-//	 * SMOV <Xd>, <Vn>.<Ts>[<index>]
-//	 * UMOV <Wd>, <Vn>.<Ts>[<index>]
-//	 * UMOV <Xd>, <Vn>.<Ts>[<index>]
-//	 * INS  <Vd>.<Ts>[<index>], <R><n>
-//	 * INS  <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>]
-//	 *
-//	 * Aliases:
-//	 * INS  <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>] -> MOV <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>]
-//	 * DUP  <V><d>, <Vn>.<T>[<index>] -> MOV <V><d>, <Vn>.<T>[<index>]
-//	 * UMOV <Wd>, <Vn>.S[<index>] -> MOV <Wd>, <Vn>.S[<index>]
-//	 * UMOV <Xd>, <Vn>.D[<index>] -> MOV <Xd>, <Vn>.D[<index>]
-//	 */
-//	SIMD_COPY decode = *(SIMD_COPY*)&instructionValue
-//
-//	uint32_t elemSize1 = 0
-//	uint32_t size = 0
-//	var uint32_t dsizeMap[2] = {64, 128}
-//	var uint32_t dupRegMap[5] = {REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE, REG_X_BASE}
-//	for (; size < 4; size++)
-//	{
-//		if (((decode.imm5 >> size) & 1) == 1)
-//			break
-//	}
-//	elemSize1 = 1 << size
-//	i.operands[0].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	i.operands[1].OpClass = REG
-//	if (decode.op == 0)
-//	{
-//		switch (decode.imm4)
-//		{
-//		case 0:
-//			i.operation = ARM64_DUP
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//			i.operands[0].ElementSize = elemSize1
-//			i.operands[0].DataSize = dsizeMap[decode.Q()]/(8<<size)
-//			i.operands[1].ElementSize = 1 << size
-//			i.operands[1].scale = (0x80000000 | (decode.imm5 >> (size+1)))
-//			break
-//		case 1:
-//			i.operation = ARM64_DUP
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, dupRegMap[size], int(decode.Rn()))
-//			i.operands[0].ElementSize = elemSize1
-//			i.operands[0].DataSize = dsizeMap[decode.Q()]/(8<<size)
-//			break
-//		case 3:
-//			i.operation = ARM64_INS
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, dupRegMap[size], int(decode.Rn()))
-//			i.operands[0].ElementSize = elemSize1
-//			i.operands[0].scale = 0x80000000 |  (decode.imm5 >> (size+1))
-//			break
-//		case 5:
-//			i.operation = ARM64_SMOV
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regSize[decode.Q()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//			i.operands[1].ElementSize = elemSize1
-//			i.operands[1].scale = 0x80000000 | (decode.imm5 >> (size+1))
-//			if ((decode.Q == 0 && (decode.imm5 & 3) == 0) || (decode.Q == 1 && (decode.imm5 & 7) == 0))
-//				return 1
-//			break
-//		case 7:
-//			i.operation = ARM64_UMOV
-//			if (elemSize1 == ((uint32_t)4<<decode.Q))
-//				i.operation = ARM64_MOV
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regSize[decode.Q()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//			i.operands[1].ElementSize = elemSize1
-//			i.operands[1].scale = 0x80000000 | (decode.imm5 >> (size+1))
-//			/*printf("Q %d imm5 %d\n", decode.Q, decode.imm5)
-//			if ((decode.Q == 0 && (decode.imm5 & 3) == 0) || (decode.Q == 1 &&
-//					(((decode.imm5 & 15) == 0) ||
-//					 ((decode.imm5 & 1) == 1) ||
-//					 ((decode.imm5 & 3) == 2) ||
-//					 ((decode.imm5 & 7) == 4))))
-//				return 1
-//			*/
-//			break
-//		default:
-//			return 1
-//		}
-//	}
-//	else
-//	{
-//		i.operation = ARM64_INS
-//		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//		i.operands[0].ElementSize = elemSize1
-//		i.operands[0].scale = 0x80000000 | (decode.imm5 >> (size+1))
-//
-//		i.operands[1].ElementSize = elemSize1
-//		i.operands[1].scale = decode.imm4 >> size
-//		if ((decode.imm5 & 15) == 0)
-//			return 1
-//	}
-//	return 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_extract() (*Instruction, error) {
-//{
-//	SIMD_EXTRACT decode = *(SIMD_EXTRACT*)&instructionValue
-//	var uint8_t sizeMap[] = {8,16}
-//	i.operation = ARM64_EXT
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[3].OpClass = IMM32
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//	i.operands[0].ElementSize = 1
-//	i.operands[1].ElementSize = 1
-//	i.operands[2].ElementSize = 1
-//	i.operands[0].DataSize = sizeMap[decode.Q()]
-//	i.operands[1].DataSize = sizeMap[decode.Q()]
-//	i.operands[2].DataSize = sizeMap[decode.Q()]
-//	if (decode.Q == 0)
-//		i.operands[3].Immediate = uint64(decode.Imm()) & 7
-//	else
-//		i.operands[3].Immediate = uint64(decode.Imm())
-//
-//	return decode.Imm() > 7
-//}
-//
-//
-//func (i *Instruction) decompose_simd_load_store_multiple() (*Instruction, error) {
-//{
-//	/* C4.3.1 Advanced SIMD load/store multiple structures
-//	 *
-//	 * LD1/ST1 { <Vt>.<T> },								  [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },						  [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			  [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
-//	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },						  [<Xn|SP>]
-//	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			  [<Xn|SP>]
-//	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
-//	 */
-//	SIMD_LDST_MULT decode = *(SIMD_LDST_MULT*)&instructionValue
-//	var char regCount[] = {4, 0, 4, 0, 3, 0, 3, 1, 2, 0, 2, 0, 0, 0, 0, 0}
-//	var char elementDataSize[4][2] = {{8, 16}, {4, 8}, {2, 4}, {1, 2}}
-//	var Operation operation[2][16] = {
-//		{
-//		ARM64_ST4,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_UNDEFINED,
-//		ARM64_ST3,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_ST1,
-//		ARM64_ST2,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_UNDEFINED,
-//		ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED
-//		},{
-//		ARM64_LD4,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_UNDEFINED,
-//		ARM64_LD3,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_LD1,
-//		ARM64_LD2,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_UNDEFINED,
-//		ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED
-//		}
-//	}
-//
-//	i.operation = operation[decode.L()][decode.Opcode()]
-//	uint32_t elements = regCount[decode.Opcode()]
-//	i.operands[0].OpClass = MULTI_REG
-//	for (uint32_t i = 0; i < elements; i++)
-//		i.operands[0].reg[idx] = reg(REGSET_ZR, REG_V_BASE, ((decode.Rt+i)%32))
-//
-//	i.operands[0].DataSize = elementDataSize[decode.Size()][decode.Q()]
-//	i.operands[0].ElementSize = 1 << decode.Size()
-//	i.operands[1].OpClass = MEM_REG
-//	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_load_store_multiple_post_idx() (*Instruction, error) {
-//{
-//	/* C4.3.2 Advanced SIMD load/store multiple structures (post-indexed)
-//	 *
-//	 * LD1/ST1 { <Vt>.<T> }								   [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
-//	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <Xm>
-//	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <Xm>
-//	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.<T> },								  [<Xn|SP>], <imm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <imm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <imm>
-//	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
-//	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <imm>
-//	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <imm>
-//	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
-//	 */
-//	SIMD_LDST_MULT_PI decode = *(SIMD_LDST_MULT_PI*)&instructionValue
-//	var char regCount[] = {4, 0, 4, 0, 3, 0, 3, 1, 2, 0, 2, 0, 0, 0, 0, 0}
-//	var char elementDataSize[4][2] = {{8, 16}, {4, 8}, {2, 4}, {1, 2}}
-//	var Operation operation[2][16] = {
-//	{
-//		ARM64_ST4,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_UNDEFINED,
-//		ARM64_ST3,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_ST1,
-//		ARM64_ST2,       ARM64_UNDEFINED, ARM64_ST1,       ARM64_UNDEFINED,
-//		ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED
-//	},{
-//		ARM64_LD4,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_UNDEFINED,
-//		ARM64_LD3,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_LD1,
-//		ARM64_LD2,       ARM64_UNDEFINED, ARM64_LD1,       ARM64_UNDEFINED,
-//		ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED
-//	}}
-//	var char imm[4][2] = {{8,16}, {16,32}, {24,48}, {32,64}}
-//	i.operation = (Operation)((uint32_t)operation[decode.L()][decode.Opcode()])
-//	uint32_t elements = regCount[decode.Opcode()]
-//	if (elements == 0)
-//	{
-//		return 1
-//	}
-//	i.operands[0].OpClass = MULTI_REG
-//	for (uint32_t i = 0; i < elements; i++)
-//		i.operands[0].reg[idx] = reg(REGSET_ZR, REG_V_BASE, ((decode.Rt+i)%32))
-//
-//	i.operands[0].DataSize = elementDataSize[decode.Size()][decode.Q()]
-//	i.operands[0].ElementSize = 1 << decode.Size()
-//
-//	i.operands[1].OpClass = MEM_POST_IDX
-//	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-//	if (decode.Rm == 31)
-//	{
-//		i.operands[1].Immediate = imm[elements-1][decode.Q()]
-//		i.operands[1].reg[1] = REG_NONE
-//	}
-//	else
-//		i.operands[1].reg[1] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rm()))
-//
-//	return (i.operation == ARM64_UNDEFINED) ||
-//		   ((i.operation != ARM64_ST1 && i.operation != ARM64_LD1 ) &&
-//			decode.Q == 0 && decode.Size() == 3)
-//}
-//
-//
-//func (i *Instruction) decompose_simd_load_store_single() (*Instruction, error) {
-//{
-//	/* C4.3.3  Advanced SIMD load/store single structure
-//	 *
-//	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>]
-//	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>]
-//	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>]
-//	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>]
-//	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>]
-//	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>]
-//	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>]
-//	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>]
-//	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>]
-//	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>]
-//	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>]
-//	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>]
-//	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>]
-//	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>]
-//	 * LD1R { <Vt>.<T> }, [<Xn|SP>]
-//	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>]
-//	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>]
-//	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
-//	 */
-//	SIMD_LDST_SINGLE decode = *(SIMD_LDST_SINGLE*)&instructionValue
-//	var Operation operation[4][8] = {
-//		{ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1R, ARM64_LD3R},
-//		{ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2R, ARM64_LD4R}}
-//
-//	var char elementMap[4][8] = {
-//		{1, 3, 1, 3, 1, 3, 0, 0},
-//		{2, 4, 2, 4, 2, 4, 0, 0},
-//		{1, 3, 1, 3, 1, 3, 1, 3},
-//		{2, 4, 2, 4, 2, 4, 2, 4},
-//		}
-//	i.operation = (Operation)((uint32_t)operation[(decode.L<<1) + decode.R][decode.Opcode()])
-//	i.operands[0].OpClass = MULTI_REG
-//	uint32_t elements = elementMap[(decode.L<<1) + decode.R][decode.Opcode()]
-//	for (uint32_t i = 0; i < elements; i++)
-//		i.operands[0].reg[idx] = reg(REGSET_ZR, REG_V_BASE, ((decode.Rt+i)%32))
-//
-//	var uint32_t sizemap[2] = {64,128}
-//	switch (decode.Opcode() >> 1)
-//	{
-//		case 0:
-//			i.operands[0].ElementSize = 1
-//			i.operands[0].index = (decode.Q << 3) | (decode.S() << 2) | (decode.Size())
-//			break
-//		case 1:
-//			if (decode.Size() == 2 || decode.Size() == 0)
-//			{
-//				i.operands[0].ElementSize = 2
-//				i.operands[0].index = (decode.Q << 2) | (decode.S() << 1) | (decode.Size() >> 1)
-//			}
-//			else
-//				return 1
-//			break
-//		case 2:
-//			if (decode.Size() == 0)
-//			{
-//				i.operands[0].ElementSize = 4
-//				i.operands[0].index = (decode.Q << 1) | decode.S
-//			}
-//			else if (decode.Size() == 1 && decode.S() == 0)
-//			{
-//				i.operands[0].ElementSize = 8
-//				i.operands[0].index = decode.Q
-//			}
-//			else
-//				return 1
-//			break
-//		case 3:
-//			i.operands[0].ElementSize = 1 << decode.Size()
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(8<<decode.Size())
-//			break
-//		default:
-//			return 1
-//	}
-//	i.operands[1].OpClass = REG
-//	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_load_store_single_post_idx() (*Instruction, error) {
-//{
-//	/* C4.3.4 Advanced SIMD load/store single structure (post-indexed)
-//	 *
-//	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>], #1
-//	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>], #2
-//	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>], #4
-//	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>], #8
-//	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>], <Xm>
-//	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>], <Xm>
-//	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>], #2
-//	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>], #4
-//	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>], #8
-//	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>], #16
-//	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>], <Xm>
-//	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>], <Xm>
-//	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>], <Xm>
-//	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>], <Xm>
-//	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>], #3
-//	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>], #6
-//	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>], #12
-//	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>], #24
-//	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>], <Xm>
-//	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>], <Xm>
-//	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>], <Xm>
-//	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>], <Xm>
-//	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>], #4
-//	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>], #8
-//	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>], #16
-//	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>], #32
-//	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>], <Xm>
-//	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>], <Xm>
-//	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>], <Xm>
-//	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>], <Xm>
-//	 * LD1R { <Vt>.<T> }, [<Xn|SP>], <imm>
-//	 * LD1R { <Vt>.<T> }, [<Xn|SP>], <Xm>
-//	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>], <imm>
-//	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>], <Xm>
-//	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>], <imm>
-//	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>], <Xm>
-//	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
-//	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
-//	 */
-//	SIMD_LDST_SINGLE_PI decode = *(SIMD_LDST_SINGLE_PI*)&instructionValue
-//	uint32_t immIdx = 0
-//	var Operation operation[4][8] = {
-//		{ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_UNDEFINED, ARM64_UNDEFINED},
-//		{ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1R, ARM64_LD3R},
-//		{ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2R, ARM64_LD4R}}
-//
-//	var char elementMap[4][8] = {
-//		{1, 3, 1, 3, 1, 3, 0, 0},
-//		{2, 4, 2, 4, 2, 4, 0, 0},
-//		{1, 3, 1, 3, 1, 3, 1, 3},
-//		{2, 4, 2, 4, 2, 4, 2, 4},
-//		}
-//
-//	var char immediateValues[4][4] = {
-//		{1, 2, 4, 8},
-//		{2, 4, 8, 16},
-//		{3, 6, 12, 24},
-//		{4, 8, 16, 32}
-//	}
-//	i.operation = (Operation)((uint32_t)operation[(decode.L<<1) + decode.R][decode.Opcode()])
-//	i.operands[0].OpClass = MULTI_REG
-//	i.operands[1].OpClass = MEM_POST_IDX
-//	uint32_t elements = elementMap[(decode.L<<1) + decode.R][decode.Opcode()]
-//	for (uint32_t i = 0; i < elements; i++)
-//		i.operands[0].reg[idx] = reg(REGSET_ZR, REG_V_BASE, ((decode.Rt+i)%32))
-//
-//	var uint32_t sizemap[2] = {64,128}
-//	switch (decode.Opcode() >> 1)
-//	{
-//		case 0:
-//			i.operands[0].ElementSize = 1
-//			i.operands[0].index = (decode.Q << 3) | (decode.S() << 2) | (decode.Size())
-//			immIdx = 0
-//			break
-//		case 1:
-//			if (decode.Size() == 2 || decode.Size() == 0)
-//			{
-//				i.operands[0].ElementSize = 2
-//				i.operands[0].index = (decode.Q << 2) | (decode.S() << 1) | (decode.Size() >> 1)
-//				immIdx = 1
-//			}
-//			else
-//				return 1
-//			break
-//		case 2:
-//			if (decode.Size() == 0)
-//			{
-//				i.operands[0].ElementSize = 4
-//				i.operands[0].index = (decode.Q << 1) | decode.S
-//				immIdx = 2
-//			}
-//			else if (decode.Size() == 1 && decode.S() == 0)
-//			{
-//				i.operands[0].ElementSize = 8
-//				i.operands[0].index = decode.Q
-//				immIdx = 3
-//			}
-//			else
-//				return 1
-//			break
-//		case 3:
-//			i.operands[0].ElementSize = 1 << decode.Size()
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(8<<decode.Size())
-//			break
-//		default:
-//			return 1
-//	}
-//
-//	if (decode.Rm == 31 && elements != 0)
-//	{
-//		if (decode.Opcode() >> 1 == 3)
-//			i.operands[1].Immediate = immediateValues[elements-1][decode.Size()]
-//		else
-//			i.operands[1].Immediate = immediateValues[elements-1][immIdx]
-//		i.operands[1].reg[1] = REG_NONE
-//	}
-//	else
-//	{
-//		i.operands[1].reg[1] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rm()))
-//	}
-//	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_modified_imm() (*Instruction, error) {
-//{
-//	/* C4.6.4 Advanced SIMD modified immediate
-//	 *
-//	 * MOVI <Vd>.<T>, #<imm8>{, LSL #0}
-//	 * MOVI <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * MOVI <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * MOVI <Vd>.<T>, #<imm8>, MSL #<amount>
-//	 * ORR  <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * ORR  <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * FMOV <Vd>.<T>, #<imm>
-//	 * FMOV <Vd>.2D, #<imm>
-//	 * MVNI <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * MVNI <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * MVNI <Vd>.<T>, #<imm8>, MSL #<amount>
-//	 * BIC  <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 * BIC  <Vd>.<T>, #<imm8>{, LSL #<amount>}
-//	 */
-//	SIMD_MODIFIED_IMM decode = *(SIMD_MODIFIED_IMM*)&instructionValue
-//	struct opInfo{
-//		Operation op
-//		uint32_t variant
-//	}
-//	var  operation = [2][16]opInfo{
-//		{
-//			{ARM64_MOVI, 4},
-//			{ARM64_ORR,  4},
-//			{ARM64_MOVI, 4},
-//			{ARM64_ORR,  4},
-//			{ARM64_MOVI, 4},
-//			{ARM64_ORR,  4},
-//			{ARM64_MOVI, 4},
-//			{ARM64_ORR,  4},
-//			{ARM64_MOVI, 2},
-//			{ARM64_ORR,  2},
-//			{ARM64_MOVI, 2},
-//			{ARM64_ORR,  2},
-//			{ARM64_MOVI, 6},
-//			{ARM64_MOVI, 6},
-//			{ARM64_MOVI, 1},
-//			{ARM64_FMOV, 5}
-//		},{
-//			{ARM64_MVNI, 4},
-//			{ARM64_BIC,  4},
-//			{ARM64_MVNI, 4},
-//			{ARM64_BIC,  4},
-//			{ARM64_MVNI, 4},
-//			{ARM64_BIC,  4},
-//			{ARM64_MVNI, 4},
-//			{ARM64_BIC,  4},
-//			{ARM64_MVNI, 2},
-//			{ARM64_BIC,  2},
-//			{ARM64_MVNI, 2},
-//			{ARM64_BIC,  2},
-//			{ARM64_MVNI, 6},
-//			{ARM64_MVNI, 6},
-//			{ARM64_MOVI, 8},
-//			{ARM64_FMOV, 7},
-//		}
-//	}
-//	const * opinfo = &operation[decode.Op()][decode.cmode]
-//	i.operation = opinfo->op
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = IMM32
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	uint32_t esize = 0
-//	uint32_t dsize = 0
-//	uint32_t shiftValue = 0
-//	ShiftType shiftType = SHIFT_NONE
-//	uint64_t immediate =  decode.a << 7 | decode.b << 6 | decode.c << 5 | decode.d << 4 | decode.e << 3 | decode.f << 2 | decode.g << 1 | decode.h
-//	var int32_t sign[2] = {1,-1}
-//	ieee754	fvalue
-//	switch(opinfo->variant)
-//	{
-//		case 1:
-//			esize = 1
-//			dsize = 8 << decode.Q
-//			shiftType = SHIFT_LSL
-//			break
-//		case 2:
-//			esize = 2
-//			dsize = 4 << decode.Q
-//			shiftValue = 8 * ((decode.cmode & 2)>>1)
-//			shiftType = SHIFT_LSL
-//			break
-//		case 4:
-//			esize = 4
-//			dsize = 2 << decode.Q
-//			shiftValue = 8 * ((decode.cmode & 6)>>1)
-//			shiftType = SHIFT_LSL
-//			break
-//		case 5:
-//			esize = 4
-//			dsize = 2 << decode.Q
-//			i.operands[1].OpClass = FIMM32
-//			fvalue.sign = (uint32_t)(immediate >> 7)
-//			fvalue.exponent = (uint32_t)((immediate >> 4) & 7)
-//			fvalue.fraction = (uint32_t)(immediate & 15)
-//			fvalue.fvalue = (float)(sign[fvalue.sign] * (1<<(fvalue.exponent-7)) * (1.0+((float)fvalue.fraction/16)))
-//			immediate = fvalue.value
-//			break
-//		case 6:
-//			esize = 4
-//			dsize = 2 << decode.Q
-//			shiftValue = 8 << (decode.cmode & 1)
-//			shiftType = SHIFT_MSL
-//			break
-//		case 7:
-//			esize = 8
-//			dsize = 2
-//			i.operands[1].OpClass = FIMM32
-//			fvalue.sign = immediate & 1
-//			fvalue.exponent = (immediate >> 4) & 7
-//			fvalue.fraction = (immediate & 15)
-//			fvalue.fvalue = (float)(sign[fvalue.sign] * (1<<(fvalue.exponent-7)) * (1.0+((float)fvalue.fraction/16)))
-//			immediate = fvalue.value
-//			break
-//		case 8:
-//			if (decode.Q == 1)
-//			{
-//				esize = 8
-//				dsize = 2
-//				i.operands[1].OpClass = IMM64
-//				shiftType = SHIFT_NONE
-//			}
-//			else
-//			{
-//				i.operands[0].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rd()))
-//				i.operands[1].OpClass = IMM64
-//				shiftType = SHIFT_NONE
-//			}
-//			//ugh this encoding is terrible
-//			//Is a 64-bit immediate 'aaaaaaaabbbbbbbbccccccccddddddddeeeeeeeeffffffffgggggggghhhhhhhh',
-//			// encoded in "a:b:c:d:e:f:g:h".
-//			// To do this we pretend that the bit is a sign bit in each byte then right shift them
-//			union longImmediate {
-//				uint64_t value
-//				int8_t bytes[8]
-//			}
-//			union longImmediate li
-//			li.bytes[7] = decode.a << 7
-//			li.bytes[6] = decode.b << 7
-//			li.bytes[5] = decode.c << 7
-//			li.bytes[4] = decode.d << 7
-//			li.bytes[3] = decode.e << 7
-//			li.bytes[2] = decode.f << 7
-//			li.bytes[1] = decode.g << 7
-//			li.bytes[0] = decode.h << 7
-//			for (uint32_t i = 0; i < 8; i++)
-//				li.bytes[idx] >>= 7
-//			immediate = li.value
-//			break
-//	}
-//	i.operands[0].ElementSize = esize
-//	i.operands[0].DataSize = dsize
-//	i.operands[1].Immediate = immediate
-//
-//	if (shiftValue == 0 && shiftType == SHIFT_LSL)
-//		shiftType = SHIFT_NONE
-//	i.operands[1].ShiftValue = shiftValue
-//	i.operands[1].ShiftType = shiftType
-//	i.operands[1].ShiftValueUsed = 1
-//
-//	return decode.o2 != 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_permute() (*Instruction, error) {
-//{
-//	/* C4.6.5 Advanced SIMD permute
-//	 *
-//	 * UZP1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 * TRN1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 * ZIP1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 * UZP2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 * TRN2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 * ZIP2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
-//	 */
-//	var operation = []Operation{
-//		ARM64_UNDEFINED,
-//		ARM64_UZP1,
-//		ARM64_TRN1,
-//		ARM64_ZIP1,
-//		ARM64_UNDEFINED,
-//		ARM64_UZP2,
-//		ARM64_TRN2,
-//		ARM64_ZIP2,
-//	}
-//	SIMD_PERMUTE  decode = *(SIMD_PERMUTE *)&instructionValue
-//	var uint8_t esizeMap[2] = {64,128}
-//	i.operation = operation[decode.Opcode()]
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//	i.operands[0].ElementSize = 1<<decode.Size()
-//	i.operands[0].DataSize = esizeMap[decode.Q()]/(8<<decode.Size())
-//	i.operands[1].ElementSize = 1<<decode.Size()
-//	i.operands[1].DataSize = esizeMap[decode.Q()]/(8<<decode.Size())
-//	i.operands[2].ElementSize = 1<<decode.Size()
-//	i.operands[2].DataSize = esizeMap[decode.Q()]/(8<<decode.Size())
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil || (decode.Size() == 3 && decode.Q == 0)
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
-//{
-//	/* C4.6.11 Advanced SIMD scalar two-register miscellaneous
-//	 *
-//	 * SUQADD  <V><d>, <V><n>
-//	 * SQABS   <V><d>, <V><n>
-//	 * CMGT	<V><d>, <V><n>, #0
-//	 * CMEQ	<V><d>, <V><n>, #0
-//	 * CMLT	<V><d>, <V><n>, #0
-//	 * ABS	 <V><d>, <V><n>
-//	 * SQXTN   <Vb><d>, <Va><n>
-//	 * FCVTNS  <V><d>, <V><n>
-//	 * FCVTMS  <V><d>, <V><n>
-//	 * FCVTAS  <V><d>, <V><n>
-//	 * SCVTF   <V><d>, <V><n>
-//	 * FCMGT   <V><d>, <V><n>, #0.0
-//	 * FCMEQ   <V><d>, <V><n>, #0.0
-//	 * FCMLT   <V><d>, <V><n>, #0.0
-//	 * FCVTPS  <V><d>, <V><n>
-//	 * FCVTZS  <V><d>, <V><n>
-//	 * FRECPE  <V><d>, <V><n>
-//	 * FRECPX  <V><d>, <V><n>
-//	 * FRECPX  <V><d>, <V><n>
-//	 * USQADD  <V><d>, <V><n>
-//	 * SQNEG   <V><d>, <V><n>
-//	 * CMGE	<V><d>, <V><n>, #0
-//	 * CMLE	<V><d>, <V><n>, #0
-//	 * NEG	 <V><d>, <V><n>
-//	 * SQXTUN  <Vb><d>, <Va><n>
-//	 * UQXTN   <Vb><d>, <Va><n>
-//	 * FCVTXN  <Vb><d>, <Va><n>
-//	 * FCVTNU  <V><d>, <V><n>
-//	 * FCVTMU  <V><d>, <V><n>
-//	 * FCVTAU  <V><d>, <V><n>
-//	 * UCVTF   <V><d>, <V><n>
-//	 * FCMGE   <V><d>, <V><n>, #0.0
-//	 * FCMLE   <V><d>, <V><n>, #0.0
-//	 * FCVTPU  <V><d>, <V><n>
-//	 * FCVTZU  <V><d>, <V><n>
-//	 * FRSQRTE <V><d>, <V><n>
-//	 *
-//	 * 0: <V><d>,  <V><n>
-//	 * 1: <V><d>,  <V><n>, #0.0
-//	 * 2: <Vb><d>, <Va><n>
-//	 * 3: (decode.Size() < 2)->  <V><d>, <V><n>
-//	 * 4: (decode.Size() < 2)->  <V><d>, <V><n>, #0.0
-//	 * 5: (decode.Size() < 2)->  <Vb><d>, <Va><n>
-//	 * 6: (decode.Size() > 1)->  <V><d>, <V><n>
-//	 * 7: (decode.Size() > 1)->  <V><d>, <V><n>, #0.0
-//	 * 8: (decode.Size() > 2)->  <Vb><d>, <Va><n>
-//	 */
-//	/*var operation = []Operation{*/
-//		/*0 - xx - 3  - v: 0 {ARM64_SUQADD,  0},*/
-//		/*0 - xx - 7  - v: 0 {ARM64_SQABS,   0},*/
-//		/*0 - xx - 8  - v: 1 {ARM64_CMGT,	1},*/
-//		/*0 - xx - 9  - v: 1 {ARM64_CMEQ,	1},*/
-//		/*0 - xx - 10 - v: 1 {ARM64_CMLT,	1},*/
-//		/*0 - xx - 11 - v: 0 {ARM64_ABS,	 0},*/
-//		/*0 - xx - 20 - v: 2 {ARM64_SQXTN,   2},*/
-//		/*0 - 0x - 26 - v: 3 {ARM64_FCVTNS,  3},*/
-//		/*0 - 0x - 27 - v: 3 {ARM64_FCVTMS,  3},*/
-//		/*0 - 0x - 28 - v: 3 {ARM64_FCVTAS,  3},*/
-//		/*0 - 0x - 29 - v: 3 {ARM64_SCVTF,   3},*/
-//		/*0 - 1x - 12 - v: 7 {ARM64_FCMGT,   7},*/
-//		/*0 - 1x - 13 - v: 7 {ARM64_FCMEQ,   7},*/
-//		/*0 - 1x - 14 - v: 7 {ARM64_FCMLT,   7},*/
-//		/*0 - 1x - 26 - v: 6 {ARM64_FCVTPS,  6},*/
-//		/*0 - 1x - 27 - v: 6 {ARM64_FCVTZS,  6},*/
-//		/*0 - 1x - 29 - v: 6 {ARM64_FRECPE,  6},*/
-//		/*0 - 1x - 31 - v: 6 {ARM64_FRECPX,  6},*/
-//		/*1 - xx - 3  - v: 0 {ARM64_USQADD,  0},*/
-//		/*1 - xx - 7  - v: 0 {ARM64_SQNEG,   0},*/
-//		/*1 - xx - 8  - v: 1 {ARM64_CMGE,	1},*/
-//		/*1 - xx - 9  - v: 1 {ARM64_CMLE,	1},*/
-//		/*1 - xx - 11 - v: 0 {ARM64_NEG,	 0},*/
-//		/*1 - xx - 18 - v: 2 {ARM64_SQXTUN,  2},*/
-//		/*1 - xx - 20 - v: 2 {ARM64_UQXTN,   2},*/
-//		/*1 - 0x - 22 - v: 5 {ARM64_FCVTXN,  5},*/
-//		/*1 - 0x - 26 - v: 3 {ARM64_FCVTNU,  3},*/
-//		/*1 - 0x - 27 - v: 3 {ARM64_FCVTMU,  3},*/
-//		/*1 - 0x - 28 - v: 6 {ARM64_FCVTAU,  6},*/
-//		/*1 - 0x - 29 - v: 6 {ARM64_UCVTF,   6},*/
-//		/*1 - 1x - 12 - v: 7 {ARM64_FCMGE,   7},*/
-//		/*1 - 1x - 13 - v: 7 {ARM64_FCMLE,   7},*/
-//		/*1 - 1x - 26 - v: 6 {ARM64_FCVTPU,  6},*/
-//		/*1 - 1x - 27 - v: 6 {ARM64_FCVTZU,  6},*/
-//		/*1 - 1x - 29 - v: 6 {ARM64_FRSQRTE, 6},*/
-//	/*};*/
-//	struct OpInfo {
-//		Operation op
-//		uint32_t var
-//	}
-//	var struct OpInfo operation[2][2][32] = {
-//	{
-//		{
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SUQADD,    0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SQABS,     0},
-//		{ARM64_CMGT,      1}, {ARM64_CMEQ,      1},{ARM64_CMLT,      1}, {ARM64_ABS,       0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_SQXTN,     2}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_FCVTNS,    3}, {ARM64_FCVTMS,    3},
-//		{ARM64_FCVTAS,    3}, {ARM64_SCVTF,     3},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//	  },{
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SUQADD,    0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SQABS,     0},
-//		{ARM64_CMGT,      1}, {ARM64_CMEQ,      1},{ARM64_CMLT,      1}, {ARM64_ABS,       0},
-//		{ARM64_FCMGT,     7}, {ARM64_FCMEQ,     7},{ARM64_FCMLT,     7}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_SQXTN,     2}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_FCVTPS,    6}, {ARM64_FCVTZS,    6},
-//		{ARM64_UNDEFINED, 0}, {ARM64_FRECPE,    6},{ARM64_UNDEFINED, 0}, {ARM64_FRECPX,    6},
-//	  }
-//	},{
-//	  {
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_USQADD,    0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SQNEG,     0},
-//		{ARM64_CMGE,      1}, {ARM64_CMLE,      1},{ARM64_UNDEFINED, 0}, {ARM64_NEG,       0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_SQXTUN,    2}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UQXTN,     2}, {ARM64_UNDEFINED, 0},{ARM64_FCVTXN,    5}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_FCVTNU,    3}, {ARM64_FCVTMU,    3},
-//		{ARM64_FCVTAU,    6}, {ARM64_UCVTF,     6},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//	  },{
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_USQADD,    0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_SQNEG,     0},
-//		{ARM64_CMGE,      1}, {ARM64_CMLE,      1},{ARM64_UNDEFINED, 0}, {ARM64_NEG,       0},
-//		{ARM64_FCMGE,     7}, {ARM64_FCMLE,     7},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_SQXTUN,    2}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UQXTN,     2}, {ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},{ARM64_FCVTPU,    6}, {ARM64_FCVTZU,    6},
-//		{ARM64_UNDEFINED, 0}, {ARM64_FRSQRTE,   6},{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
-//		}
-//		}
-//	}
-//	SIMD_SCALAR_2_REGISTER_MISC  decode = *(SIMD_SCALAR_2_REGISTER_MISC *)&instructionValue
-//	const struct OpInfo* opinfo = &operation[decode.U()][decode.Size()>>1][decode.Opcode()]
-//	var uint8_t regbase[4] = {REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE}
-//	var uint8_t regbase2[3] = {REG_H_BASE, REG_S_BASE, REG_D_BASE}
-//	var uint8_t regbase3[2] = {REG_S_BASE, REG_D_BASE}
-//	i.operation = opinfo->op
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	switch (opinfo->var)
-//	{
-//		case 0:
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rn()))
-//			break
-//		case 6:
-//		case 3:
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rn()))
-//			break
-//		case 1:
-//		case 4:
-//			if (decode.Size() != 3)
-//				return 1
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rn()))
-//			i.operands[2].OpClass = IMM32
-//			i.operands[2].Immediate = 0
-//			break
-//		case 7:
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rn()))
-//			i.operands[2].OpClass = IMM32
-//			i.operands[2].Immediate = 0
-//			break
-//		case 2:
-//		case 8:
-//			if (decode.Size() == 3)
-//				return 1
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			break
-//		case 5:
-//			if ((decode.Size() & 1) == 0)
-//				return 1
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, REG_S_BASE, int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rn()))
-//			break
-//	}
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_3_different() (*Instruction, error) {
-//{
-//	/* C4.6.9 Advanced SIMD scalar three different
-//	 *
-//	 * SQDMLAL <Va><d>, <Vb><n>, <Vb><m>
-//	 * SQDMLSL <Va><d>, <Vb><n>, <Vb><m>
-//	 * SQDMULL <Va><d>, <Vb><n>, <Vb><m>
-//	 */
-//	var operation = []Operation{
-//		ARM64_UNDEFINED,
-//		ARM64_SQDMLAL,
-//		ARM64_UNDEFINED,
-//		ARM64_SQDMLSL,
-//		ARM64_UNDEFINED,
-//		ARM64_SQDMULL,
-//		ARM64_UNDEFINED,
-//		ARM64_UNDEFINED,
-//	}
-//	SIMD_SCALAR_3_DIFFERENT  decode = *(SIMD_SCALAR_3_DIFFERENT *)&instructionValue
-//	var uint8_t regbase1[4] = {0, REG_S_BASE, REG_D_BASE, 0}
-//	var uint8_t regbase2[4] = {0, REG_H_BASE, REG_S_BASE, 0}
-//	i.operation = operation[decode.Opcode() & 7]
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regbase1[decode.Size()], int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rm()))
-//	return decode.Opcode() < 7 || decode.Size() == 0 || decode.Size() == 3 || i.operation == ARM64_UNDEFINED
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_3_same() (*Instruction, error) {
-//{
-//	/* C4.6.10 Advanced SIMD scalar three same
-//	 *
-//	 * SQADD	<V><d>, <V><n>, <V><m>
-//	 * SQSUB	<V><d>, <V><n>, <V><m>
-//	 * CMGT	 <V><d>, <V><n>, <V><m>
-//	 * CMGE	 <V><d>, <V><n>, <V><m>
-//	 * SSHL	 <V><d>, <V><n>, <V><m>
-//	 * SQSHL	<V><d>, <V><n>, <V><m>
-//	 * SQRSHL   <V><d>, <V><n>, <V><m>
-//	 * ADD	  <V><d>, <V><n>, <V><m>
-//	 * CMTST	<V><d>, <V><n>, <V><m>
-//	 * SQDMULH  <V><d>, <V><n>, <V><m>
-//	 * FMULX	<V><d>, <V><n>, <V><m>
-//	 * FCMEQ	<V><d>, <V><n>, <V><m>
-//	 * FRECPS   <V><d>, <V><n>, <V><m>
-//	 * FRSQRTS  <V><d>, <V><n>, <V><m>
-//	 * UQADD	<V><d>, <V><n>, <V><m>
-//	 * UQSUB	<V><d>, <V><n>, <V><m>
-//	 * CMHI	 <V><d>, <V><n>, <V><m>
-//	 * CMHS	 <V><d>, <V><n>, <V><m>
-//	 * USHL	 <V><d>, <V><n>, <V><m>
-//	 * UQRSHL   <V><d>, <V><n>, <V><m>
-//	 * URSHL	<V><d>, <V><n>, <V><m>
-//	 * SUB	  <V><d>, <V><n>, <V><m>
-//	 * CMEQ	 <V><d>, <V><n>, <V><m>
-//	 * CMEQ	 <V><d>, <V><n>, <V><m>
-//	 * SQRDMULH <V><d>, <V><n>, <V><m>
-//	 * FCMGE	<V><d>, <V><n>, <V><m>
-//	 * FACGE	<V><d>, <V><n>, <V><m>
-//	 * FABD	 <V><d>, <V><n>, <V><m>
-//	 * FCMGT	<V><d>, <V><n>, <V><m>
-//	 * FACGT	<V><d>, <V><n>, <V><m>
-//	 *
-//	 * Variants:
-//	 * 0: BHSD
-//	 * 1: D
-//	 * 2: HS
-//	 * 3: SD
-//	 */
-//	struct OpInfo {
-//		Operation op
-//		uint32_t var
-//	}
-//	/*var operation = []Operation{*/
-//	/*0 - xx - 0 	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 1 	{ARM64_SQADD,	 0},*/
-//	/*0 - xx - 2 	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 3 	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 4 	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 5 	{ARM64_SQSUB,	 0},*/
-//	/*0 - xx - 6 	{ARM64_CMGT,	  1},*/
-//	/*0 - xx - 7 	{ARM64_CMGE,	  1},*/
-//	/*0 - xx - 8 	{ARM64_SSHL,	  1},*/
-//	/*0 - xx - 9 	{ARM64_SQSHL,	 0},*/
-//	/*0 - xx - 10 	{ARM64_SRSHL,	 0},*/
-//	/*0 - xx - 11	{ARM64_SQRSHL,	0},*/
-//	/*0 - xx - 12	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 13	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 14	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 15	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 16	{ARM64_ADD,	   1},*/
-//	/*0 - xx - 17	{ARM64_CMTST,	 1},*/
-//	/*0 - xx - 18	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 19	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 20	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 21	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 22	{ARM64_SQDMULH,   3},*/
-//	/*0 - xx - 23	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 24	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 25	{ARM64_UNDEFINED, 0},*/
-//	/*0 - xx - 26	{ARM64_UNDEFINED, 0},*/
-//	/*0 - 0x - 27	{ARM64_FMULX,	 3},*/
-//	/*0 - 0x - 28	{ARM64_FCMEQ,	 3},*/
-//	/*0 - xx - 30	{ARM64_UNDEFINED, 0},*/
-//	/*0 - 0x - 31	{ARM64_FRECPS,	3},*/
-//	/*0 - 1x - 31	{ARM64_FRSQRTS,   3},*/
-//
-//	/*1 - xx - 0 	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 1 	{ARM64_UQADD,	 0},*/
-//	/*1 - xx - 2 	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 3 	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 4 	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 5 	{ARM64_UQSUB,	 0},*/
-//	/*1 - xx - 6 	{ARM64_CMHI,	  1},*/
-//	/*1 - xx - 7 	{ARM64_CMHS,	  1},*/
-//	/*1 - xx - 8 	{ARM64_USHL,	  1},*/
-//	/*1 - xx - 9 	{ARM64_UQRSHL,	0},*/
-//	/*1 - xx - 10	{ARM64_URSHL,	 1},*/
-//	/*1 - xx - 11	{ARM64_UQRSHL,	0},*/
-//	/*1 - xx - 12	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 13	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 14	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 15	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 16	{ARM64_SUB,	   1},*/
-//	/*1 - xx - 17	{ARM64_CMEQ,	  1},*/
-//	/*1 - xx - 18	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 19	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 20	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 21	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 22	{ARM64_SQRDMULH,  2},*/
-//	/*1 - xx - 23	{ARM64_UNDEFINED, 0},*/
-//	/*1 - 0x - 24	{ARM64_FCMGE,	 3},*/
-//	/*1 - 0x - 25	{ARM64_FACGE,	 3},*/
-//	/*1 - 1x - 26	{ARM64_FABD,	  3},*/
-//	/*1 - 1x - 27	{ARM64_UNDEFINED, 0},*/
-//	/*1 - 1x - 28	{ARM64_FCMGT,	 3},*/
-//	/*1 - 1x - 29	{ARM64_FACGT,	  3},*/
-//	/*1 - xx - 30	{ARM64_UNDEFINED, 0},*/
-//	/*1 - xx - 31	{ARM64_UNDEFINED, 0},*/
-//	/*};*/
-//	SIMD_SCALAR_3_SAME  decode = *(SIMD_SCALAR_3_SAME *)&instructionValue
-//	var struct OpInfo operation[2][2][32] = {
-//	  {
-//		{
-//		{ARM64_UNDEFINED, 0},{ARM64_SQADD,     0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_SQSUB,     0},{ARM64_CMGT,      1},{ARM64_CMGE,      1},
-//		{ARM64_SSHL,      1},{ARM64_SQSHL,     0},{ARM64_SRSHL,     0},{ARM64_SQRSHL,    0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_ADD,       1},{ARM64_CMTST,     1},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_SQDMULH,   2},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_FMULX,     3},
-//		{ARM64_FCMEQ,     3},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_FRECPS,    3},
-//		},{
-//		{ARM64_UNDEFINED, 0},{ARM64_SQADD,     0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_SQSUB,     0},{ARM64_CMGT,      1},{ARM64_CMGE,      1},
-//		{ARM64_SSHL,      1},{ARM64_SQSHL,     0},{ARM64_SRSHL,     0},{ARM64_SQRSHL,    0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_ADD,       1},{ARM64_CMTST,     1},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_SQDMULH,   2},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_FMULX,     3},
-//		{ARM64_FCMEQ,     3},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_FRSQRTS,   3},
-//		}
-//		},{
-//		{
-//		{ARM64_UNDEFINED, 0},{ARM64_UQADD,     0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UQSUB,     0},{ARM64_CMHI,      1},{ARM64_CMHS,      1},
-//		{ARM64_USHL,      1},{ARM64_UQSHL,     0},{ARM64_URSHL,     1},{ARM64_UQRSHL,    0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_SUB,       1},{ARM64_CMEQ,      1},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_SQRDMULH,  2},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_FCMGE,     3},{ARM64_FACGE,     3},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		},{
-//		{ARM64_UNDEFINED, 0},{ARM64_UQADD,     0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UQSUB,     0},{ARM64_CMHI,      1},{ARM64_CMHS,      1},
-//		{ARM64_USHL,      1},{ARM64_UQSHL,     0},{ARM64_URSHL,     1},{ARM64_UQRSHL,    0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_SUB,       1},{ARM64_CMEQ,      1},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_SQRDMULH,  2},{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},{ARM64_FABD,      3},{ARM64_UNDEFINED, 0},
-//		{ARM64_FCMGT,     3},{ARM64_FACGT,     3},{ARM64_UNDEFINED, 0},{ARM64_UNDEFINED, 0},
-//		}
-//	  }
-//	}
-//
-//	const struct OpInfo* opinfo = &operation[decode.U()][decode.Size()>>1][decode.Opcode()]
-//	var uint8_t regbase[4][4] = {
-//		{REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE},
-//		{REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE},
-//		{REG_S_BASE, REG_H_BASE, REG_S_BASE, REG_H_BASE},
-//		{REG_S_BASE, REG_D_BASE, REG_S_BASE, REG_D_BASE}
-//	}
-//	i.operation = opinfo->op
-//	//printf("U: %d s: %d opc: %d - str: %s\n", decode.U, decode.Size()>>1, decode.Opcode(), OperationString[opinfo->op])
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[opinfo->var][decode.Size()], int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, regbase[opinfo->var][decode.Size()], int(decode.Rn()))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, regbase[opinfo->var][decode.Size()], int(decode.Rm()))
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_copy() (*Instruction, error) {
-//{
-//	/* C4.6.6 Advanced SIMD scalar copy
-//	 *
-//	 * DUP <V><d>, <Vn>.<T>[<index>]
-//	 */
-//	SIMD_SCALAR_COPY  decode = *(SIMD_SCALAR_COPY *)&instructionValue
-//	uint32_t size = 0
-//	if (decode.imm5 == 0 || decode.imm5 == 16)
-//		return 1
-//	for (; size < 4; size++)
-//		if (((decode.imm5 >> size) & 1) == 1)
-//			break
-//	i.operation = ARM64_MOV
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	var uint8_t regset[4] = {REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE}
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regset[size], int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[1].ElementSize = 1 << size
-//	i.operands[1].scale = 0x80000000 | (decode.imm5 >> (1+size))
-//	return decode.op != 0 || decode.imm4 != 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_indexed_element() (*Instruction, error) {
-//{
-//	/* C4.6.12 Advanced SIMD scalar x indexed element
-//	 *
-//	 * SQDMLAL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
-//	 * SQDMLSL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
-//	 * SQDMULL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
-//	 * SQDMULH  <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 * SQRDMULH <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 * FMLA	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 * FMLS	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 * FMUL	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 * FMULX	<V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
-//	 */
-//	SIMD_SCALAR_X_INDEXED_ELEMENT  decode = *(SIMD_SCALAR_X_INDEXED_ELEMENT *)&instructionValue
-//	uint32_t index = 0
-//	uint32_t hireg = decode.M() << 4
-//	var uint32_t regbase[4] = {0, REG_S_BASE, REG_D_BASE, 0}
-//	var uint32_t regbase2[4] = {0 ,REG_H_BASE, REG_S_BASE, 0}
-//	var uint32_t regbase3[2] = {REG_S_BASE, REG_D_BASE}
-//
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, regbase3[decode.Size() & 1], int(decode.Rn()))
-//
-//	if (decode.Size() == 1)
-//	{
-//		index = decode.H << 2 | decode.L << 1 | decode.M
-//	}
-//	else if (decode.Size() == 2)
-//	{
-//		index = decode.H << 1 | decode.L
-//	}
-//	i.operands[2].ElementSize = 4 << (decode.Size() & 1)
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, hireg | decode.Rm())
-//	switch (decode.Opcode())
-//	{
-//		case 1:
-//			if (decode.Size() < 2)
-//				return 1
-//			i.operation = ARM64_FMLA
-//			if ((decode.Size() & 1) == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H << 1 | decode.L
-//			else if ((decode.Size() & 1) == 1 && decode.L == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H
-//			break
-//		case 3:
-//			i.operation = ARM64_SQDMLAL
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			if (decode.Size() == 1)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//			else if (decode.Size() == 2)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//			i.operands[2].scale = 0x80000000 | index
-//			i.operands[2].ElementSize = 1<<decode.Size()
-//			break
-//		case 5:
-//			if (decode.Size() < 2)
-//				return 1
-//			i.operation = ARM64_FMLS
-//			if ((decode.Size() & 1) == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H << 1 | decode.L
-//			else if ((decode.Size() & 1) == 1 && decode.L == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H
-//			break
-//		case 7:
-//			i.operation = ARM64_SQDMLSL
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			if (decode.Size() == 1)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//			else if (decode.Size() == 2)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//			i.operands[2].scale = 0x80000000 | index
-//			i.operands[2].ElementSize = 1<<decode.Size()
-//			break
-//		case 9:
-//			if (decode.Size() < 2)
-//				return 1
-//			if (decode.U() == 0)
-//				i.operation = ARM64_FMUL
-//			else
-//				i.operation = ARM64_FMULX
-//			if ((decode.Size() & 1) == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H << 1 | decode.L
-//			else if ((decode.Size() & 1) == 1 && decode.L == 0)
-//				i.operands[2].scale = 0x80000000 | decode.H
-//			break
-//		case 11:
-//			i.operation = ARM64_SQDMULL
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			if (decode.Size() == 1)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//			else if (decode.Size() == 2)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//			i.operands[2].scale = 0x80000000 | index
-//			i.operands[2].ElementSize = 1<<decode.Size()
-//			break
-//		case 12:
-//			i.operation = ARM64_SQDMULH
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			if (decode.Size() == 1)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//			else if (decode.Size() == 2)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//			i.operands[2].scale = 0x80000000 | index
-//			i.operands[2].ElementSize = 1<<decode.Size()
-//			break
-//		case 13:
-//			i.operation = ARM64_SQRDMULH
-//			i.operands[0].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rd()))
-//			i.operands[1].Reg[0] = reg(REGSET_ZR, regbase2[decode.Size()], int(decode.Rn()))
-//			if (decode.Size() == 1)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//			else if (decode.Size() == 2)
-//				i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//			i.operands[2].scale = 0x80000000 | index
-//			i.operands[2].ElementSize = 1<<decode.Size()
-//			break
-//	}
-//
-//	return 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_pairwise() (*Instruction, error) {
-//{
-//	/* C4.6.7 Advanced SIMD scalar pairwise
-//	 *
-//	 * ADDP	<V><d>, <Vn>.<T>
-//	 * FMAXNMP <V><d>, <Vn>.<T>
-//	 * FADDP   <V><d>, <Vn>.<T>
-//	 * FADDP   <V><d>, <Vn>.<T>
-//	 * FMAXP   <V><d>, <Vn>.<T>
-//	 * FMINNMP <V><d>, <Vn>.<T>
-//	 * FMINP   <V><d>, <Vn>.<T>
-//	 */
-//	SIMD_SCALAR_PAIRWISE decode = *(SIMD_SCALAR_PAIRWISE*)&instructionValue
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	var uint8_t regset[2] = {REG_S_BASE, REG_D_BASE}
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regset[decode.Size()&1], int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[1].ElementSize = 4 << decode.Size()
-//	i.operands[1].DataSize = 2
-//	switch (decode.Opcode())
-//	{
-//		case 27:
-//			if (decode.U() == 0)
-//			{
-//				i.operation = ARM64_ADDP
-//				if (decode.Size() != 3)
-//					return 1
-//				i.operands[0].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rd()))
-//				i.operands[1].ElementSize = 8
-//				i.operands[1].DataSize = 2
-//			}
-//			break
-//		case 12:
-//			 if (decode.U() == 1)
-//			 {
-//				 if (decode.Size() < 2)
-//					i.operation = ARM64_FMAXNMP
-//				else
-//					i.operation = ARM64_FMINNMP
-//			 }
-//			 else
-//				 return 1
-//			 break
-//		case 13:
-//			 i.operation = ARM64_FADDP
-//			 break
-//		case 15:
-//			if (decode.U() == 1)
-//			{
-//				if (decode.Size() < 2)
-//					i.operation = ARM64_FMAXP
-//				else
-//					i.operation = ARM64_FMINP
-//			}
-//			else
-//				return 1
-//			break
-//		default:
-//			 return 1
-//	}
-//	return 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_scalar_shift_imm() (*Instruction, error) {
-//{
-//	/* C4.6.8 Advanced SIMD scalar shift by immediate
-//	 *
-//	 * SSHR	 <V><d>, <V><n>, #<shift>
-//	 * SSRA	 <V><d>, <V><n>, #<shift>
-//	 * SRSHR	<V><d>, <V><n>, #<shift>
-//	 * SRSRA	<V><d>, <V><n>, #<shift>
-//	 * SHL	  <V><d>, <V><n>, #<shift>
-//	 * SQSHL	<V><d>, <V><n>, #<shift>
-//	 * SQSHRN   <Vb><d>, <Va><n>, #<shift>
-//	 * SQRSHRN  <Vb><d>, <Va><n>, #<shift>
-//	 * SCVTF	<V><d>, <V><n>, #<fbits>
-//	 * FCVTZS   <V><d>, <V><n>, #<fbits>
-//	 * USHR	 <V><d>, <V><n>, #<shift>
-//	 * USRA	 <V><d>, <V><n>, #<shift>
-//	 * URSHR	<V><d>, <V><n>, #<shift>
-//	 * URSRA	<V><d>, <V><n>, #<shift>
-//	 * SRI	  <V><d>, <V><n>, #<shift>
-//	 * SLI	  <V><d>, <V><n>, #<shift>
-//	 * SQSHLU   <V><d>, <V><n>, #<shift>
-//	 * UQSHL	<V><d>, <V><n>, #<shift>
-//	 * SQSHRUN  <Vb><d>, <Va><n>, #<shift>
-//	 * SQRSHRUN <Vb><d>, <Va><n>, #<shift>
-//	 * UQSHRN   <Vb><d>, <Va><n>, #<shift>
-//	 * UQRSHRN  <Vb><d>, <Va><n>, #<shift>
-//	 * UCVTF	<V><d>, <V><n>, #<fbits>
-//	 * FCVTZU   <V><d>, <V><n>, #<fbits>
-//	 */
-//	typedef enum _shiftCalc {SH_3, SH_HB, SH_IH} shiftCalc
-//	struct decodeOperation {
-//		Operation op
-//		uint32_t esize
-//		shiftCalc calc
-//		uint32_t regBase
-//	}
-//	SIMD_SHIFT_BY_IMM decode = *(SIMD_SHIFT_BY_IMM*)&instructionValue
-//	var struct decodeOperation operation[2][32] = {
-//		{
-//			{ARM64_SSHR,      8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SSRA,      8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SRSHR,     8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SRSRA,     8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SHL,       8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SQSHL,     8, SH_HB, 1},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SQSHRN,    8, SH_HB, 2},  {ARM64_SQRSHRN,   8, SH_HB, 2},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SCVTF,    32, SH_IH, 3},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_FCVTZS,   32, SH_IH, 3}
-//		},{
-//			{ARM64_USHR,      8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_USRA,      8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_URSHR,     8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_URSRA,     8, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SRI,       8, SH_3,  1},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SLI,       8, SH_3,  1},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SQSHLU,    8, SH_HB, 1},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UQSHL,     8, SH_HB, 1},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_SQSHRUN,   8, SH_HB, 2},  {ARM64_SQRSHRUN,  8, SH_HB, 2},
-//			{ARM64_UQSHRN,    8, SH_HB, 2},  {ARM64_UQRSHRN,   8, SH_HB, 2},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UCVTF,    32, SH_IH, 3},  {ARM64_UNDEFINED, 0, SH_3, 0},
-//			{ARM64_UNDEFINED, 0, SH_3,  0},  {ARM64_FCVTZU,   32, SH_IH, 3}
-//		}
-//	}
-//
-//	var uint32_t regBaseMap[4][16] = {
-//		{
-//			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE,
-//			REG_D_BASE,REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE
-//		},{
-//			REG_NONE, REG_B_BASE, REG_H_BASE, REG_H_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE,
-//			REG_D_BASE,REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE
-//		},{
-//			REG_NONE, REG_B_BASE, REG_H_BASE, REG_H_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE,
-//			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE,
-//		},{
-//			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_S_BASE,	REG_S_BASE, REG_S_BASE,	REG_S_BASE,
-//			REG_D_BASE,REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE
-//		}
-//	}
-//
-//	const struct decodeOperation* decodeOp = &operation[decode.U()][decode.Opcode()]
-//	uint32_t regBase = regBaseMap[decodeOp->regBase][decode.immh]
-//	if (regBase == REG_NONE)
-//		return 1
-//	i.operation = decodeOp->op
-//	i.operands[0].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, regBase, int(decode.Rd()))
-//
-//	i.operands[1].OpClass = REG
-//	uint32_t regOffset = 0
-//	if (decode.Opcode() >= 16 && decode.Opcode() <= 19)
-//	{
-//		regOffset = 1
-//	}
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, regBase+regOffset, int(decode.Rn()))
-//
-//	uint32_t esize = 0
-//	switch (decodeOp->calc)
-//	{
-//		case SH_3:   esize = decodeOp->esize << 3; break
-//		case SH_HB:  esize = decodeOp->esize << HighestSetBit(decode.immh); break
-//		case SH_IH:  esize = decodeOp->esize << ((decode.immh >> 3)&1); break
-//	}
-//	if (decode.Opcode() == 10 || decode.Opcode() == 14 || i.operation == ARM64_SQSHLU)
-//	{
-//		i.operands[2].Immediate = ((decode.immh << 3)|decode.immb) - (esize)
-//	}
-//	else
-//	{
-//		i.operands[2].Immediate = (esize*2) - ((decode.immh << 3)|decode.immb)
-//	}
-//	i.operands[2].OpClass = IMM32
-//	i.operands[2].SignedImm = decode.U
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_shift_imm() (*Instruction, error) {
-//{
-//	/* C4.6.13 Advanced SIMD shift by immediate
-//	 *
-//	 * SSHR		<Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SSRA		<Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SRSHR	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SRSRA	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SHL		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SQSHL	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SHRN{2}	 <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * RSHRN{2}	<Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * SQSHRN{2}   <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * SQRSHRN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * SSHLL{2}	<Vd>.<Ta>, <Vn>.<Tb>, #<shift>
-//	 * SCVTF	   <Vd>.<T>,  <Vn>.<T>,  #<fbits>
-//	 * FCVTZS	  <Vd>.<T>,  <Vn>.<T>,  #<fbits>
-//	 * USHR		<Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * USRA		<Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * URSHR	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * URSRA	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SRI		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SLI		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SQSHLU	  <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * UQSHL	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
-//	 * SQSHRUN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * SQRSHRUN{2} <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * UQSHRN{2}   <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * UQRSHRN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
-//	 * USHLL{2}	<Vd>.<Ta>, <Vn>.<Tb>, #<shift>
-//	 * UCVTF	   <Vd>.<T>,  <Vn>.<T>,  #<fbits>
-//	 * FCVTZU	  <Vd>.<T>,  <Vn>.<T>,  #<fbits>
-//	 *
-//	 * Alias
-//	 * SSHLL{2} <Vd>.<Ta>, <Vn>.<Tb>, #0 -> SCVTF <V><d>, <V><n>, #<fbits>
-//	 * USHLL{2} <Vd>.<Ta>, <Vn>.<Tb>, #0 -> UXTL{2} <Vd>.<Ta>, <Vn>.<Tb>
-//	 */
-//	struct OpInfo {
-//		Operation op
-//		uint32_t var
-//	}
-//
-//	var struct OpInfo operation[2][32] = {
-//	  {
-//		{ARM64_SSHR,       0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SSRA,       0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SRSHR,      0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SRSRA,      0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SHL,        3},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SQSHL,      3},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SHRN,       1},
-//		{ARM64_RSHRN,      1},
-//		{ARM64_SQSHRN,     1},
-//		{ARM64_SQRSHRN,    1},
-//		{ARM64_SSHLL,      4},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SCVTF,      2},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_FCVTZS,     2},
-//	},{
-//		{ARM64_USHR,       0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_USRA,       0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_URSHR,      0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_URSRA,      0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SRI,        0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SLI,        3},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SQSHLU,     3},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UQSHL,      3},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_SQSHRUN,    1},
-//		{ARM64_SQRSHRUN,   1},
-//		{ARM64_UQSHRN,     1},
-//		{ARM64_UQRSHRN,    1},
-//		{ARM64_USHLL,      4},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UCVTF,      2},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_UNDEFINED,  0},
-//		{ARM64_FCVTZU,     2},
-//	  }
-//	}
-//	SIMD_SHIFT_BY_IMM  decode = *(SIMD_SHIFT_BY_IMM *)&instructionValue
-//	const struct OpInfo* opinfo = &operation[decode.U()][decode.Opcode()]
-//	//printf("opcod: %d U: %d '%s'\n", decode.Opcode(), decode.U, OperationString[opinfo->op])
-//	var uint8_t sizemap[2] = {64,128}
-//	uint32_t size = 0
-//	for (; size < 4; size++)
-//		if ((decode.immh >> size) == 1)
-//			break
-//	i.operation = opinfo->op
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = IMM32
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[2].Immediate = (16 << size) - (decode.immh << 3 | decode.immb)
-//	switch (opinfo->var)
-//	{
-//		case 0:
-//			i.operands[0].ElementSize = 1 << size
-//			i.operands[1].ElementSize = 1 << size
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(8<<size)
-//			i.operands[1].DataSize = sizemap[decode.Q()]/(8<<size)
-//			//i.operands[2].Immediate =(decode.immh << 3 | decode.immb) - (8 << size)
-//			break
-//		case 1:
-//			i.operation = (Operation)(i.operation + decode.Q)
-//			i.operands[0].ElementSize = 1 << size
-//			i.operands[1].ElementSize = 2 << size
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(8<<size)
-//			i.operands[1].DataSize = 64/(8<<size)
-//			break
-//		case 2:
-//			if (decode.immh >> 2 == 1)
-//				size = 0
-//			else if (decode.immh >> 3 == 1)
-//				size = 1
-//			else
-//				return 1
-//			i.operands[0].ElementSize = 4 << size
-//			i.operands[1].ElementSize = 4 << size
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(32 << size)
-//			i.operands[1].DataSize = sizemap[decode.Q()]/(32 << size)
-//			break
-//		case 3:
-//			i.operands[0].ElementSize = 1 << size
-//			i.operands[1].ElementSize = 1 << size
-//			i.operands[0].DataSize = sizemap[decode.Q()]/(8<<size)
-//			i.operands[1].DataSize = sizemap[decode.Q()]/(8<<size)
-//			i.operands[2].Immediate =(decode.immh << 3 | decode.immb) - (8 << size)
-//			break
-//		case 4:
-//			i.operation = (Operation)(i.operation + decode.Q)
-//			i.operands[0].ElementSize = 2 << size
-//			i.operands[1].ElementSize = 1 << size
-//			i.operands[0].DataSize = 64/(8<<size)
-//			i.operands[1].DataSize = sizemap[decode.Q()]/(8<<size)
-//			i.operands[2].Immediate =(decode.immh << 3 | decode.immb) - (8 << size)
-//			break
-//
-//	}
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
-//
-//
-//func (i *Instruction) decompose_simd_table_lookup() (*Instruction, error) {
-//{
-//	/* C4.6.14 Advanced SIMD table lookup
-//	 *
-//	 * TBL <Vd>.<Ta>, { <Vn>.16B }, <Vm>.<Ta>
-//	 * TBX <Vd>.<Ta>, { <Vn>.16B }, <Vm>.<Ta>
-//	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
-//	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
-//	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
-//	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B }, <Vm>.<Ta>
-//	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B }, <Vm>.<Ta>
-//	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B, <Vn+3>.16B }, <Vm>.<Ta>
-//	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B, <Vn+3>.16B }, <Vm>.<Ta>
-//	 */
-//	SIMD_TABLE_LOOKUP decode = *(SIMD_TABLE_LOOKUP*)&instructionValue
-//	var operation = []Operation{
-//		ARM64_TBL,
-//		ARM64_TBX,
-//	}
-//	i.operation = operation[decode.Op()]
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = MULTI_REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	for (uint32_t i = 0; i < (uint32_t)(decode.len+1); i++)
-//		i.operands[1].reg[idx] = reg(REGSET_ZR, REG_V_BASE, ((decode.Rn+i)%32))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//	i.operands[0].ElementSize = 1
-//	i.operands[1].ElementSize = 1
-//	i.operands[2].ElementSize = 1
-//	i.operands[0].DataSize = 8<<decode.Q
-//	i.operands[1].DataSize = 16
-//	i.operands[2].DataSize = 8<<decode.Q
-//	return 0
-//}
-//
-//
-//func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, error) {
-//{
-//	/* C4.6.18 Advanced SIMD vector x indexed element
-//	 *
-//	 * SMLAL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * SQDMLAL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * SMLSL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * SQDMLSL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * MUL        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * SMULL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * SQDMULL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * SQDMULH    <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * SQRDMULH   <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * FMLA       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * FMLS       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * FMUL       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * MLA        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * UMLAL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * MLS        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 * UMLSL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * UMULL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
-//	 * FMULX      <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
-//	 */
-//	struct OpInfo {
-//		Operation op
-//		uint32_t var
-//	}
-//	const struct OpInfo* opinfo
-//	var struct OpInfo operation[2][16] = {
-//	{
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_FMLA,      3},
-//		{ARM64_SMLAL,     1},
-//		{ARM64_SQDMLAL,   1},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_FMLS,      3},
-//		{ARM64_SMLSL,     1},
-//		{ARM64_SQDMLSL,   1},
-//		{ARM64_MUL,       0},
-//		{ARM64_FMUL,      3},
-//		{ARM64_SMULL,     1},
-//		{ARM64_SQDMULL,   1},
-//		{ARM64_SQDMULH,   0},
-//		{ARM64_SQRDMULH,  0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//	},{
-//		{ARM64_MLA,       0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UMLAL,     1},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_MLS,       0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UMLSL,     1},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_FMULX,     3},
-//		{ARM64_UMULL,     1},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//		{ARM64_UNDEFINED, 0},
-//	}
-//	}
-//	SIMD_VECTOR_X_INDEXED_ELEMENT decode = *(SIMD_VECTOR_X_INDEXED_ELEMENT*)&instructionValue
-//	opinfo = &operation[decode.U()][decode.Opcode()]
-//	i.operation = opinfo->op
-//
-//	i.operands[0].OpClass = REG
-//	i.operands[1].OpClass = REG
-//	i.operands[2].OpClass = REG
-//	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-//	uint32_t index = decode.H << 2 | decode.L << 1 | decode.M
-//	if (opinfo->var == 1)
-//	{
-//		if (decode.Size() == 0 || decode.Size() == 3)
-//			return 1
-//		uint32_t reghi = decode.Size() == 2?(decode.M() << 4):0
-//		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, reghi | decode.Rm())
-//		//'2' variant is always the next enumeration value
-//		i.operation = (Operation)(i.operation + decode.Q)
-//		i.operands[0].ElementSize = 2 << decode.Size()
-//		i.operands[1].ElementSize = 1 << decode.Size()
-//		i.operands[2].ElementSize = 1 << decode.Size()
-//		i.operands[0].DataSize = 8 >> decode.Size()
-//		i.operands[1].DataSize = 8 >> (decode.Size()-decode.Q)
-//		i.operands[2].DataSize = 0
-//		i.operands[2].scale = 0x80000000 | (index >> (decode.Size()-1))
-//	}
-//	else if (opinfo->var == 2)
-//	{
-//		if (((decode.Size() & 1) == 1 && decode.Q == 0) || (decode.Size() == 1 && decode.L == 1))
-//			return 1
-//		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, decode.M() << 4 | decode.Rm())
-//		i.operands[0].ElementSize = 2 << (decode.Size() & 1)
-//		i.operands[1].ElementSize = 2 << (decode.Size() & 1)
-//		i.operands[2].ElementSize = 4 << (decode.Size() & 1)
-//		i.operands[0].DataSize = 2 << ((decode.Size() & 1) - decode.Q)
-//		i.operands[1].DataSize = 2 << ((decode.Size() & 1) - decode.Q)
-//		i.operands[2].DataSize = 0
-//		i.operands[2].scale = 0x80000000 | (index >> ((decode.Size() & 1) + 1))
-//	}
-//	else if (opinfo->var == 3)
-//	{
-//		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, (decode.M() << 4) | decode.Rm())
-//		i.operands[0].ElementSize = 1 << decode.Size()
-//		i.operands[1].ElementSize = 1 << decode.Size()
-//		i.operands[2].ElementSize = 1 << decode.Size()
-//		i.operands[0].DataSize = 8 >> (decode.Size() - decode.Q)
-//		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q)
-//		i.operands[2].DataSize = 0
-//		i.operands[2].scale = 0x80000000 | (index >> (decode.Size()-1))
-//	}
-//	else
-//	{
-//		uint32_t reghi = decode.Size() == 2?(decode.M() << 4):0
-//		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-//		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-//		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, reghi | decode.Rm())
-//		i.operands[0].ElementSize = 1 << decode.Size()
-//		i.operands[1].ElementSize = 1 << decode.Size()
-//		i.operands[2].ElementSize = 1 << decode.Size()
-//		i.operands[0].DataSize = 8 >> (decode.Size() - decode.Q)
-//		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q)
-//		i.operands[2].DataSize = 0
-//		i.operands[2].scale = 0x80000000 | (index >> (decode.Size()-1))
-//	}
-//	if i.operation == ARM64_UNDEFINED {
-//		return nil, failedToDisassembleOperation
-//	}
-//
-//	return i, nil
-//}
+func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
+	/* C4.6.2 - Advanced SIMD copy
+	 *
+	 * DUP  <V><d>, <Vn>.<T>[<index>]
+	 * DUP  <Vd>.<T>, <R><n>
+	 * SMOV <Wd>, <Vn>.<Ts>[<index>]
+	 * SMOV <Xd>, <Vn>.<Ts>[<index>]
+	 * UMOV <Wd>, <Vn>.<Ts>[<index>]
+	 * UMOV <Xd>, <Vn>.<Ts>[<index>]
+	 * INS  <Vd>.<Ts>[<index>], <R><n>
+	 * INS  <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>]
+	 *
+	 * Aliases:
+	 * INS  <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>] -> MOV <Vd>.<Ts>[<index1>], <Vn>.<Ts>[<index2>]
+	 * DUP  <V><d>, <Vn>.<T>[<index>] -> MOV <V><d>, <Vn>.<T>[<index>]
+	 * UMOV <Wd>, <Vn>.S[<index>] -> MOV <Wd>, <Vn>.S[<index>]
+	 * UMOV <Xd>, <Vn>.D[<index>] -> MOV <Xd>, <Vn>.D[<index>]
+	 */
+
+	decode := SimdCopy(i.raw)
+
+	var elemSize1 uint32
+	var size uint32
+	var dsizeMap = [2]uint32{64, 128}
+	var dupRegMap = [5]uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE, REG_X_BASE}
+	for ; size < 4; size++ {
+		if ((decode.Imm5() >> size) & 1) == 1 {
+			break
+		}
+	}
+	elemSize1 = 1 << size
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].OpClass = REG
+	if decode.Op() == 0 {
+		switch decode.Imm4() {
+		case 0:
+			i.operation = ARM64_DUP
+			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+			i.operands[0].ElementSize = elemSize1
+			i.operands[0].DataSize = dsizeMap[decode.Q()] / (8 << size)
+			i.operands[1].ElementSize = 1 << size
+			i.operands[1].Scale = (0x80000000 | (decode.Imm5() >> (size + 1)))
+			break
+		case 1:
+			i.operation = ARM64_DUP
+			i.operands[1].Reg[0] = reg(REGSET_ZR, int(dupRegMap[size]), int(decode.Rn()))
+			i.operands[0].ElementSize = elemSize1
+			i.operands[0].DataSize = dsizeMap[decode.Q()] / (8 << size)
+			break
+		case 3:
+			i.operation = ARM64_INS
+			i.operands[1].Reg[0] = reg(REGSET_ZR, int(dupRegMap[size]), int(decode.Rn()))
+			i.operands[0].ElementSize = elemSize1
+			i.operands[0].Scale = 0x80000000 | (decode.Imm5() >> (size + 1))
+			break
+		case 5:
+			i.operation = ARM64_SMOV
+			i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Q()]), int(decode.Rd()))
+			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+			i.operands[1].ElementSize = elemSize1
+			i.operands[1].Scale = 0x80000000 | (decode.Imm5() >> (size + 1))
+			if (decode.Q() == 0 && (decode.Imm5()&3) == 0) || (decode.Q() == 1 && (decode.Imm5()&7) == 0) {
+				// return 1
+			}
+			break
+		case 7:
+			i.operation = ARM64_UMOV
+			if elemSize1 == uint32(4<<decode.Q()) {
+				i.operation = ARM64_MOV
+			}
+			i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Q()]), int(decode.Rd()))
+			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+			i.operands[1].ElementSize = elemSize1
+			i.operands[1].Scale = 0x80000000 | (decode.Imm5() >> (size + 1))
+			/*printf("Q %d imm5 %d\n", decode.Q, decode.Imm5() )
+			if ((decode.Q() == 0 && (decode.Imm5()  & 3) == 0) || (decode.Q() == 1 &&
+					(((decode.Imm5()  & 15) == 0) ||
+					 ((decode.Imm5()  & 1) == 1) ||
+					 ((decode.Imm5()  & 3) == 2) ||
+					 ((decode.Imm5()  & 7) == 4))))
+				return 1
+			*/
+			break
+		default:
+			// return 1
+		}
+	} else {
+		i.operation = ARM64_INS
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+		i.operands[0].ElementSize = elemSize1
+		i.operands[0].Scale = 0x80000000 | (decode.Imm5() >> (size + 1))
+
+		i.operands[1].ElementSize = elemSize1
+		i.operands[1].Scale = decode.Imm4() >> size
+		if (decode.Imm5() & 15) == 0 {
+			// return 1
+		}
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_extract() (*Instruction, error) {
+	decode := SimdExtract(i.raw)
+	var sizeMap = []uint8{8, 16}
+	i.operation = ARM64_EXT
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[3].OpClass = IMM32
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+	i.operands[0].ElementSize = 1
+	i.operands[1].ElementSize = 1
+	i.operands[2].ElementSize = 1
+	i.operands[0].DataSize = uint32(sizeMap[decode.Q()])
+	i.operands[1].DataSize = uint32(sizeMap[decode.Q()])
+	i.operands[2].DataSize = uint32(sizeMap[decode.Q()])
+	if decode.Q() == 0 {
+		i.operands[3].Immediate = uint64(decode.Imm()) & 7
+	} else {
+		i.operands[3].Immediate = uint64(decode.Imm())
+	}
+
+	if decode.Imm() > 7 {
+		return nil, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_load_store_multiple() (*Instruction, error) {
+	/* C4.3.1 Advanced SIMD load/store multiple structures
+	 *
+	 * LD1/ST1 { <Vt>.<T> },								  [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },						  [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			  [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
+	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },						  [<Xn|SP>]
+	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			  [<Xn|SP>]
+	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
+	 */
+	decode := SimdLdstMult(i.raw)
+	var regCount = []byte{4, 0, 4, 0, 3, 0, 3, 1, 2, 0, 2, 0, 0, 0, 0, 0}
+	var elementDataSize = [4][2]byte{{8, 16}, {4, 8}, {2, 4}, {1, 2}}
+	var operation = [2][16]Operation{
+		{
+			ARM64_ST4, ARM64_UNDEFINED, ARM64_ST1, ARM64_UNDEFINED,
+			ARM64_ST3, ARM64_UNDEFINED, ARM64_ST1, ARM64_ST1,
+			ARM64_ST2, ARM64_UNDEFINED, ARM64_ST1, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		}, {
+			ARM64_LD4, ARM64_UNDEFINED, ARM64_LD1, ARM64_UNDEFINED,
+			ARM64_LD3, ARM64_UNDEFINED, ARM64_LD1, ARM64_LD1,
+			ARM64_LD2, ARM64_UNDEFINED, ARM64_LD1, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		},
+	}
+
+	i.operation = operation[decode.L()][decode.Opcode()]
+	elements := uint32(regCount[decode.Opcode()])
+	i.operands[0].OpClass = MULTI_REG
+	for idx := uint32(0); idx < elements; idx++ {
+		i.operands[0].Reg[idx] = reg(REGSET_ZR, REG_V_BASE, int((decode.Rt())+idx)%32)
+	}
+
+	i.operands[0].DataSize = uint32(elementDataSize[decode.Size()][decode.Q()])
+	i.operands[0].ElementSize = 1 << decode.Size()
+	i.operands[1].OpClass = MEM_REG
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_load_store_multiple_post_idx() (*Instruction, error) {
+	/* C4.3.2 Advanced SIMD load/store multiple structures (post-indexed)
+	 *
+	 * LD1/ST1 { <Vt>.<T> }								   [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
+	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <Xm>
+	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <Xm>
+	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.<T> },								  [<Xn|SP>], <imm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <imm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <imm>
+	 * LD1/ST1 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
+	 * LD2/ST2 { <Vt>.<T>, <Vt2>.<T> },					   [<Xn|SP>], <imm>
+	 * LD3/ST3 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> },			[<Xn|SP>], <imm>
+	 * LD4/ST4 { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
+	 */
+	decode := SimdLdstMultPi(i.raw)
+	var regCount = []byte{4, 0, 4, 0, 3, 0, 3, 1, 2, 0, 2, 0, 0, 0, 0, 0}
+	var elementDataSize = [4][2]byte{{8, 16}, {4, 8}, {2, 4}, {1, 2}}
+	var operation = [2][16]Operation{
+		{
+			ARM64_ST4, ARM64_UNDEFINED, ARM64_ST1, ARM64_UNDEFINED,
+			ARM64_ST3, ARM64_UNDEFINED, ARM64_ST1, ARM64_ST1,
+			ARM64_ST2, ARM64_UNDEFINED, ARM64_ST1, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		}, {
+			ARM64_LD4, ARM64_UNDEFINED, ARM64_LD1, ARM64_UNDEFINED,
+			ARM64_LD3, ARM64_UNDEFINED, ARM64_LD1, ARM64_LD1,
+			ARM64_LD2, ARM64_UNDEFINED, ARM64_LD1, ARM64_UNDEFINED,
+			ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED, ARM64_UNDEFINED,
+		}}
+	var imm = [4][2]byte{{8, 16}, {16, 32}, {24, 48}, {32, 64}}
+	i.operation = operation[decode.L()][decode.Opcode()]
+	elements := uint32(regCount[decode.Opcode()])
+	if elements == 0 {
+		// return 1
+	}
+	i.operands[0].OpClass = MULTI_REG
+	for idx := uint32(0); idx < elements; idx++ {
+		i.operands[0].Reg[idx] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rt()+idx)%32)
+	}
+
+	i.operands[0].DataSize = uint32(elementDataSize[decode.Size()][decode.Q()])
+	i.operands[0].ElementSize = 1 << decode.Size()
+
+	i.operands[1].OpClass = MEM_POST_IDX
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	if decode.Rm() == 31 {
+		i.operands[1].Immediate = uint64(imm[elements-1][decode.Q()])
+		i.operands[1].Reg[1] = uint32(REG_NONE)
+	} else {
+		i.operands[1].Reg[1] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rm()))
+	}
+
+	if (i.operation == ARM64_UNDEFINED) || ((i.operation != ARM64_ST1 && i.operation != ARM64_LD1) && decode.Q() == 0 && decode.Size() == 3) {
+		return nil, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_load_store_single() (*Instruction, error) {
+	/* C4.3.3  Advanced SIMD load/store single structure
+	 *
+	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>]
+	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>]
+	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>]
+	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>]
+	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>]
+	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>]
+	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>]
+	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>]
+	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>]
+	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>]
+	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>]
+	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>]
+	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>]
+	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>]
+	 * LD1R { <Vt>.<T> }, [<Xn|SP>]
+	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>]
+	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>]
+	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>]
+	 */
+	decode := SimdLdstSingle(i.raw)
+	var operation = [4][8]Operation{
+		{ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1R, ARM64_LD3R},
+		{ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2R, ARM64_LD4R}}
+
+	var elementMap = [4][8]byte{
+		{1, 3, 1, 3, 1, 3, 0, 0},
+		{2, 4, 2, 4, 2, 4, 0, 0},
+		{1, 3, 1, 3, 1, 3, 1, 3},
+		{2, 4, 2, 4, 2, 4, 2, 4},
+	}
+	i.operation = operation[(decode.L()<<1)+decode.R()][decode.Opcode()]
+	i.operands[0].OpClass = MULTI_REG
+	elements := uint32(elementMap[(decode.L()<<1)+decode.R()][decode.Opcode()])
+	for idx := uint32(0); idx < elements; idx++ {
+		i.operands[0].Reg[idx] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rt()+idx)%32)
+	}
+
+	var sizemap = [2]uint32{64, 128}
+	switch decode.Opcode() >> 1 {
+	case 0:
+		i.operands[0].ElementSize = 1
+		i.operands[0].Index = (decode.Q() << 3) | (decode.S() << 2) | (decode.Size())
+		break
+	case 1:
+		if decode.Size() == 2 || decode.Size() == 0 {
+			i.operands[0].ElementSize = 2
+			i.operands[0].Index = (decode.Q() << 2) | (decode.S() << 1) | (decode.Size() >> 1)
+		} else {
+			// return 1
+		}
+		break
+	case 2:
+		if decode.Size() == 0 {
+			i.operands[0].ElementSize = 4
+			i.operands[0].Index = (decode.Q() << 1) | decode.S()
+		} else if decode.Size() == 1 && decode.S() == 0 {
+			i.operands[0].ElementSize = 8
+			i.operands[0].Index = decode.Q()
+		} else {
+			// return 1
+		}
+		break
+	case 3:
+		i.operands[0].ElementSize = 1 << decode.Size()
+		i.operands[0].DataSize = sizemap[decode.Q()] / (8 << decode.Size())
+		break
+	default:
+		// return 1
+	}
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_load_store_single_post_idx() (*Instruction, error) {
+	/* C4.3.4 Advanced SIMD load/store single structure (post-indexed)
+	 *
+	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>], #1
+	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>], #2
+	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>], #4
+	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>], #8
+	 * LD1/ST1 { <Vt>.B }[<index>], [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.H }[<index>], [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.S }[<index>], [<Xn|SP>], <Xm>
+	 * LD1/ST1 { <Vt>.D }[<index>], [<Xn|SP>], <Xm>
+	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>], #2
+	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>], #4
+	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>], #8
+	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>], #16
+	 * LD2/ST2 { <Vt>.B, <Vt2>.B }[<index>], [<Xn|SP>], <Xm>
+	 * LD2/ST2 { <Vt>.H, <Vt2>.H }[<index>], [<Xn|SP>], <Xm>
+	 * LD2/ST2 { <Vt>.S, <Vt2>.S }[<index>], [<Xn|SP>], <Xm>
+	 * LD2/ST2 { <Vt>.D, <Vt2>.D }[<index>], [<Xn|SP>], <Xm>
+	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>], #3
+	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>], #6
+	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>], #12
+	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>], #24
+	 * LD3/ST3 { <Vt>.B, <Vt2>.B, <Vt3>.B }[<index>], [<Xn|SP>], <Xm>
+	 * LD3/ST3 { <Vt>.H, <Vt2>.H, <Vt3>.H }[<index>], [<Xn|SP>], <Xm>
+	 * LD3/ST3 { <Vt>.S, <Vt2>.S, <Vt3>.S }[<index>], [<Xn|SP>], <Xm>
+	 * LD3/ST3 { <Vt>.D, <Vt2>.D, <Vt3>.D }[<index>], [<Xn|SP>], <Xm>
+	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>], #4
+	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>], #8
+	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>], #16
+	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>], #32
+	 * LD4/ST4 { <Vt>.B, <Vt2>.B, <Vt3>.B, <Vt4>.B }[<index>], [<Xn|SP>], <Xm>
+	 * LD4/ST4 { <Vt>.H, <Vt2>.H, <Vt3>.H, <Vt4>.H }[<index>], [<Xn|SP>], <Xm>
+	 * LD4/ST4 { <Vt>.S, <Vt2>.S, <Vt3>.S, <Vt4>.S }[<index>], [<Xn|SP>], <Xm>
+	 * LD4/ST4 { <Vt>.D, <Vt2>.D, <Vt3>.D, <Vt4>.D }[<index>], [<Xn|SP>], <Xm>
+	 * LD1R { <Vt>.<T> }, [<Xn|SP>], <imm>
+	 * LD1R { <Vt>.<T> }, [<Xn|SP>], <Xm>
+	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>], <imm>
+	 * LD2R { <Vt>.<T>, <Vt2>.<T> }, [<Xn|SP>], <Xm>
+	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>], <imm>
+	 * LD3R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T> }, [<Xn|SP>], <Xm>
+	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <imm>
+	 * LD4R { <Vt>.<T>, <Vt2>.<T>, <Vt3>.<T>, <Vt4>.<T> }, [<Xn|SP>], <Xm>
+	 */
+	decode := SimdLdstSinglePi(i.raw)
+	var immIdx uint32
+	var operation = [4][8]Operation{
+		{ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_ST1, ARM64_ST3, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_ST2, ARM64_ST4, ARM64_UNDEFINED, ARM64_UNDEFINED},
+		{ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1, ARM64_LD3, ARM64_LD1R, ARM64_LD3R},
+		{ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2, ARM64_LD4, ARM64_LD2R, ARM64_LD4R}}
+
+	var elementMap = [4][8]byte{
+		{1, 3, 1, 3, 1, 3, 0, 0},
+		{2, 4, 2, 4, 2, 4, 0, 0},
+		{1, 3, 1, 3, 1, 3, 1, 3},
+		{2, 4, 2, 4, 2, 4, 2, 4},
+	}
+
+	var immediateValues = [4][4]byte{
+		{1, 2, 4, 8},
+		{2, 4, 8, 16},
+		{3, 6, 12, 24},
+		{4, 8, 16, 32},
+	}
+	i.operation = operation[(decode.L()<<1)+decode.R()][decode.Opcode()]
+	i.operands[0].OpClass = MULTI_REG
+	i.operands[1].OpClass = MEM_POST_IDX
+	elements := uint32(elementMap[(decode.L()<<1)+decode.R()][decode.Opcode()])
+	for idx := uint32(0); idx < elements; idx++ {
+		i.operands[0].Reg[idx] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rt()+idx)%32)
+	}
+	var sizemap = [2]uint32{64, 128}
+	switch decode.Opcode() >> 1 {
+	case 0:
+		i.operands[0].ElementSize = 1
+		i.operands[0].Index = (decode.Q() << 3) | (decode.S() << 2) | (decode.Size())
+		immIdx = 0
+		break
+	case 1:
+		if decode.Size() == 2 || decode.Size() == 0 {
+			i.operands[0].ElementSize = 2
+			i.operands[0].Index = (decode.Q() << 2) | (decode.S() << 1) | (decode.Size() >> 1)
+			immIdx = 1
+		} else {
+			// return 1
+		}
+		break
+	case 2:
+		if decode.Size() == 0 {
+			i.operands[0].ElementSize = 4
+			i.operands[0].Index = (decode.Q() << 1) | decode.S()
+			immIdx = 2
+		} else if decode.Size() == 1 && decode.S() == 0 {
+			i.operands[0].ElementSize = 8
+			i.operands[0].Index = decode.Q()
+			immIdx = 3
+		} else {
+			// return 1
+		}
+		break
+	case 3:
+		i.operands[0].ElementSize = 1 << decode.Size()
+		i.operands[0].DataSize = sizemap[decode.Q()] / (8 << decode.Size())
+		break
+	default:
+		// return 1
+	}
+
+	if decode.Rm() == 31 && elements != 0 {
+		if decode.Opcode()>>1 == 3 {
+			i.operands[1].Immediate = uint64(immediateValues[elements-1][decode.Size()])
+		} else {
+			i.operands[1].Immediate = uint64(immediateValues[elements-1][immIdx])
+		}
+		i.operands[1].Reg[1] = uint32(REG_NONE)
+	} else {
+		i.operands[1].Reg[1] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rm()))
+	}
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_modified_imm() (*Instruction, error) {
+	/* C4.6.4 Advanced SIMD modified immediate
+	 *
+	 * MOVI <Vd>.<T>, #<imm8>{, LSL #0}
+	 * MOVI <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * MOVI <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * MOVI <Vd>.<T>, #<imm8>, MSL #<amount>
+	 * ORR  <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * ORR  <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * FMOV <Vd>.<T>, #<imm>
+	 * FMOV <Vd>.2D, #<imm>
+	 * MVNI <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * MVNI <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * MVNI <Vd>.<T>, #<imm8>, MSL #<amount>
+	 * BIC  <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 * BIC  <Vd>.<T>, #<imm8>{, LSL #<amount>}
+	 */
+	decode := SimdModifiedImm(i.raw)
+	type opInfo struct {
+		op      Operation
+		variant uint32
+	}
+	var operation = [2][16]opInfo{
+		{
+			{ARM64_MOVI, 4},
+			{ARM64_ORR, 4},
+			{ARM64_MOVI, 4},
+			{ARM64_ORR, 4},
+			{ARM64_MOVI, 4},
+			{ARM64_ORR, 4},
+			{ARM64_MOVI, 4},
+			{ARM64_ORR, 4},
+			{ARM64_MOVI, 2},
+			{ARM64_ORR, 2},
+			{ARM64_MOVI, 2},
+			{ARM64_ORR, 2},
+			{ARM64_MOVI, 6},
+			{ARM64_MOVI, 6},
+			{ARM64_MOVI, 1},
+			{ARM64_FMOV, 5},
+		}, {
+			{ARM64_MVNI, 4},
+			{ARM64_BIC, 4},
+			{ARM64_MVNI, 4},
+			{ARM64_BIC, 4},
+			{ARM64_MVNI, 4},
+			{ARM64_BIC, 4},
+			{ARM64_MVNI, 4},
+			{ARM64_BIC, 4},
+			{ARM64_MVNI, 2},
+			{ARM64_BIC, 2},
+			{ARM64_MVNI, 2},
+			{ARM64_BIC, 2},
+			{ARM64_MVNI, 6},
+			{ARM64_MVNI, 6},
+			{ARM64_MOVI, 8},
+			{ARM64_FMOV, 7},
+		},
+	}
+	opinfo := operation[decode.Op()][decode.Cmode()]
+	i.operation = opinfo.op
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = IMM32
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	var esize uint32
+	var dsize uint32
+	var shiftValue uint32
+	shiftType := SHIFT_NONE
+	immediate := uint64(decode.A()<<7 | decode.B()<<6 | decode.C()<<5 | decode.D()<<4 | decode.E()<<3 | decode.F()<<2 | decode.G()<<1 | decode.H())
+	var sign = [2]int32{1, -1}
+	var fvalue ieee754
+	switch opinfo.variant {
+	case 1:
+		esize = 1
+		dsize = 8 << decode.Q()
+		shiftType = SHIFT_LSL
+		break
+	case 2:
+		esize = 2
+		dsize = 4 << decode.Q()
+		shiftValue = 8 * ((decode.Cmode() & 2) >> 1)
+		shiftType = SHIFT_LSL
+		break
+	case 4:
+		esize = 4
+		dsize = 2 << decode.Q()
+		shiftValue = 8 * ((decode.Cmode() & 6) >> 1)
+		shiftType = SHIFT_LSL
+		break
+	case 5:
+		esize = 4
+		dsize = 2 << decode.Q()
+		i.operands[1].OpClass = FIMM32
+		fvalue = fvalue.SetSign(uint32(immediate >> 7))
+		fvalue = fvalue.SetExponent(uint32(immediate>>4) & 7)
+		fvalue = fvalue.SetFraction(uint32(immediate & 15))
+		fvalue = fvalue.SetFloat(float32(sign[fvalue.Sign()] * int32(1<<(fvalue.Exponent()-7)) * int32(1.0+(float32(fvalue.Fraction())/16))))
+		immediate = uint64(fvalue.Value())
+		break
+	case 6:
+		esize = 4
+		dsize = 2 << decode.Q()
+		shiftValue = 8 << (decode.Cmode() & 1)
+		shiftType = SHIFT_MSL
+		break
+	case 7:
+		esize = 8
+		dsize = 2
+		i.operands[1].OpClass = FIMM32
+		fvalue = fvalue.SetSign(uint32(immediate & 1))
+		fvalue = fvalue.SetExponent(uint32(immediate>>4) & 7)
+		fvalue = fvalue.SetFraction(uint32(immediate & 15))
+		fvalue = fvalue.SetFloat(float32(sign[fvalue.Sign()] * int32(1<<(fvalue.Exponent()-7)) * int32(1.0+(float32(fvalue.Fraction())/16))))
+		immediate = uint64(fvalue.Value())
+		break
+	case 8:
+		if decode.Q() == 1 {
+			esize = 8
+			dsize = 2
+			i.operands[1].OpClass = IMM64
+			shiftType = SHIFT_NONE
+		} else {
+			i.operands[0].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rd()))
+			i.operands[1].OpClass = IMM64
+			shiftType = SHIFT_NONE
+		}
+		//ugh this encoding is terrible
+		//Is a 64-bit immediate 'aaaaaaaabbbbbbbbccccccccddddddddeeeeeeeeffffffffgggggggghhhhhhhh',
+		// encoded in "a:b:c:d:e:f:g:h".
+		// To do this we pretend that the bit is a sign bit in each byte then right shift them
+		var li [8]byte
+		li[7] = byte(decode.A() << 7)
+		li[6] = byte(decode.B() << 7)
+		li[5] = byte(decode.C() << 7)
+		li[4] = byte(decode.D() << 7)
+		li[3] = byte(decode.E() << 7)
+		li[2] = byte(decode.F() << 7)
+		li[1] = byte(decode.G() << 7)
+		li[0] = byte(decode.H() << 7)
+		for idx := uint32(0); idx < 8; idx++ {
+			li[idx] >>= 7
+		}
+		immediate = binary.LittleEndian.Uint64(li[:])
+		break
+	}
+	i.operands[0].ElementSize = esize
+	i.operands[0].DataSize = dsize
+	i.operands[1].Immediate = uint64(immediate)
+
+	if shiftValue == 0 && shiftType == SHIFT_LSL {
+		shiftType = SHIFT_NONE
+	}
+	i.operands[1].ShiftValue = shiftValue
+	i.operands[1].ShiftType = shiftType
+	i.operands[1].ShiftValueUsed = 1
+
+	if decode.O2() != 0 {
+		return i, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_permute() (*Instruction, error) {
+	/* C4.6.5 Advanced SIMD permute
+	 *
+	 * UZP1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 * TRN1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 * ZIP1 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 * UZP2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 * TRN2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 * ZIP2 <Vd>.<T>, <Vn>.<T>, <Vm>.<T>
+	 */
+	var operation = []Operation{
+		ARM64_UNDEFINED,
+		ARM64_UZP1,
+		ARM64_TRN1,
+		ARM64_ZIP1,
+		ARM64_UNDEFINED,
+		ARM64_UZP2,
+		ARM64_TRN2,
+		ARM64_ZIP2,
+	}
+	decode := SimdPermute(i.raw)
+	var esizeMap = [2]uint8{64, 128}
+	i.operation = operation[decode.Opcode()]
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+	i.operands[0].ElementSize = 1 << decode.Size()
+	i.operands[0].DataSize = uint32(esizeMap[decode.Q()]) / (8 << decode.Size())
+	i.operands[1].ElementSize = 1 << decode.Size()
+	i.operands[1].DataSize = uint32(esizeMap[decode.Q()]) / (8 << decode.Size())
+	i.operands[2].ElementSize = 1 << decode.Size()
+	i.operands[2].DataSize = uint32(esizeMap[decode.Q()]) / (8 << decode.Size())
+
+	if i.operation == ARM64_UNDEFINED || (decode.Size() == 3 && decode.Q() == 0) {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
+	/* C4.6.11 Advanced SIMD scalar two-register miscellaneous
+	 *
+	 * SUQADD  <V><d>, <V><n>
+	 * SQABS   <V><d>, <V><n>
+	 * CMGT	<V><d>, <V><n>, #0
+	 * CMEQ	<V><d>, <V><n>, #0
+	 * CMLT	<V><d>, <V><n>, #0
+	 * ABS	 <V><d>, <V><n>
+	 * SQXTN   <Vb><d>, <Va><n>
+	 * FCVTNS  <V><d>, <V><n>
+	 * FCVTMS  <V><d>, <V><n>
+	 * FCVTAS  <V><d>, <V><n>
+	 * SCVTF   <V><d>, <V><n>
+	 * FCMGT   <V><d>, <V><n>, #0.0
+	 * FCMEQ   <V><d>, <V><n>, #0.0
+	 * FCMLT   <V><d>, <V><n>, #0.0
+	 * FCVTPS  <V><d>, <V><n>
+	 * FCVTZS  <V><d>, <V><n>
+	 * FRECPE  <V><d>, <V><n>
+	 * FRECPX  <V><d>, <V><n>
+	 * FRECPX  <V><d>, <V><n>
+	 * USQADD  <V><d>, <V><n>
+	 * SQNEG   <V><d>, <V><n>
+	 * CMGE	<V><d>, <V><n>, #0
+	 * CMLE	<V><d>, <V><n>, #0
+	 * NEG	 <V><d>, <V><n>
+	 * SQXTUN  <Vb><d>, <Va><n>
+	 * UQXTN   <Vb><d>, <Va><n>
+	 * FCVTXN  <Vb><d>, <Va><n>
+	 * FCVTNU  <V><d>, <V><n>
+	 * FCVTMU  <V><d>, <V><n>
+	 * FCVTAU  <V><d>, <V><n>
+	 * UCVTF   <V><d>, <V><n>
+	 * FCMGE   <V><d>, <V><n>, #0.0
+	 * FCMLE   <V><d>, <V><n>, #0.0
+	 * FCVTPU  <V><d>, <V><n>
+	 * FCVTZU  <V><d>, <V><n>
+	 * FRSQRTE <V><d>, <V><n>
+	 *
+	 * 0: <V><d>,  <V><n>
+	 * 1: <V><d>,  <V><n>, #0.0
+	 * 2: <Vb><d>, <Va><n>
+	 * 3: (decode.Size() < 2)->  <V><d>, <V><n>
+	 * 4: (decode.Size() < 2)->  <V><d>, <V><n>, #0.0
+	 * 5: (decode.Size() < 2)->  <Vb><d>, <Va><n>
+	 * 6: (decode.Size() > 1)->  <V><d>, <V><n>
+	 * 7: (decode.Size() > 1)->  <V><d>, <V><n>, #0.0
+	 * 8: (decode.Size() > 2)->  <Vb><d>, <Va><n>
+	 */
+	/*var operation = []Operation{*/
+	/*0 - xx - 3  - v: 0 {ARM64_SUQADD,  0},*/
+	/*0 - xx - 7  - v: 0 {ARM64_SQABS,   0},*/
+	/*0 - xx - 8  - v: 1 {ARM64_CMGT,	1},*/
+	/*0 - xx - 9  - v: 1 {ARM64_CMEQ,	1},*/
+	/*0 - xx - 10 - v: 1 {ARM64_CMLT,	1},*/
+	/*0 - xx - 11 - v: 0 {ARM64_ABS,	 0},*/
+	/*0 - xx - 20 - v: 2 {ARM64_SQXTN,   2},*/
+	/*0 - 0x - 26 - v: 3 {ARM64_FCVTNS,  3},*/
+	/*0 - 0x - 27 - v: 3 {ARM64_FCVTMS,  3},*/
+	/*0 - 0x - 28 - v: 3 {ARM64_FCVTAS,  3},*/
+	/*0 - 0x - 29 - v: 3 {ARM64_SCVTF,   3},*/
+	/*0 - 1x - 12 - v: 7 {ARM64_FCMGT,   7},*/
+	/*0 - 1x - 13 - v: 7 {ARM64_FCMEQ,   7},*/
+	/*0 - 1x - 14 - v: 7 {ARM64_FCMLT,   7},*/
+	/*0 - 1x - 26 - v: 6 {ARM64_FCVTPS,  6},*/
+	/*0 - 1x - 27 - v: 6 {ARM64_FCVTZS,  6},*/
+	/*0 - 1x - 29 - v: 6 {ARM64_FRECPE,  6},*/
+	/*0 - 1x - 31 - v: 6 {ARM64_FRECPX,  6},*/
+	/*1 - xx - 3  - v: 0 {ARM64_USQADD,  0},*/
+	/*1 - xx - 7  - v: 0 {ARM64_SQNEG,   0},*/
+	/*1 - xx - 8  - v: 1 {ARM64_CMGE,	1},*/
+	/*1 - xx - 9  - v: 1 {ARM64_CMLE,	1},*/
+	/*1 - xx - 11 - v: 0 {ARM64_NEG,	 0},*/
+	/*1 - xx - 18 - v: 2 {ARM64_SQXTUN,  2},*/
+	/*1 - xx - 20 - v: 2 {ARM64_UQXTN,   2},*/
+	/*1 - 0x - 22 - v: 5 {ARM64_FCVTXN,  5},*/
+	/*1 - 0x - 26 - v: 3 {ARM64_FCVTNU,  3},*/
+	/*1 - 0x - 27 - v: 3 {ARM64_FCVTMU,  3},*/
+	/*1 - 0x - 28 - v: 6 {ARM64_FCVTAU,  6},*/
+	/*1 - 0x - 29 - v: 6 {ARM64_UCVTF,   6},*/
+	/*1 - 1x - 12 - v: 7 {ARM64_FCMGE,   7},*/
+	/*1 - 1x - 13 - v: 7 {ARM64_FCMLE,   7},*/
+	/*1 - 1x - 26 - v: 6 {ARM64_FCVTPU,  6},*/
+	/*1 - 1x - 27 - v: 6 {ARM64_FCVTZU,  6},*/
+	/*1 - 1x - 29 - v: 6 {ARM64_FRSQRTE, 6},*/
+	/*};*/
+	type OpInfo struct {
+		op   Operation
+		ovar uint32
+	}
+	var operation = [2][2][32]OpInfo{
+		{
+			{
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SUQADD, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQABS, 0},
+				{ARM64_CMGT, 1}, {ARM64_CMEQ, 1}, {ARM64_CMLT, 1}, {ARM64_ABS, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_SQXTN, 2}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FCVTNS, 3}, {ARM64_FCVTMS, 3},
+				{ARM64_FCVTAS, 3}, {ARM64_SCVTF, 3}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+			}, {
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SUQADD, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQABS, 0},
+				{ARM64_CMGT, 1}, {ARM64_CMEQ, 1}, {ARM64_CMLT, 1}, {ARM64_ABS, 0},
+				{ARM64_FCMGT, 7}, {ARM64_FCMEQ, 7}, {ARM64_FCMLT, 7}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_SQXTN, 2}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FCVTPS, 6}, {ARM64_FCVTZS, 6},
+				{ARM64_UNDEFINED, 0}, {ARM64_FRECPE, 6}, {ARM64_UNDEFINED, 0}, {ARM64_FRECPX, 6},
+			},
+		}, {
+			{
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_USQADD, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQNEG, 0},
+				{ARM64_CMGE, 1}, {ARM64_CMLE, 1}, {ARM64_UNDEFINED, 0}, {ARM64_NEG, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQXTUN, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UQXTN, 2}, {ARM64_UNDEFINED, 0}, {ARM64_FCVTXN, 5}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FCVTNU, 3}, {ARM64_FCVTMU, 3},
+				{ARM64_FCVTAU, 6}, {ARM64_UCVTF, 6}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+			}, {
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_USQADD, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQNEG, 0},
+				{ARM64_CMGE, 1}, {ARM64_CMLE, 1}, {ARM64_UNDEFINED, 0}, {ARM64_NEG, 0},
+				{ARM64_FCMGE, 7}, {ARM64_FCMLE, 7}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQXTUN, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UQXTN, 2}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FCVTPU, 6}, {ARM64_FCVTZU, 6},
+				{ARM64_UNDEFINED, 0}, {ARM64_FRSQRTE, 6}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+			},
+		},
+	}
+	decode := SimdScalar2RegisterMisc(i.raw)
+	opinfo := operation[decode.U()][decode.Size()>>1][decode.Opcode()]
+	var regbase = [4]uint8{REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE}
+	var regbase2 = [3]uint8{REG_H_BASE, REG_S_BASE, REG_D_BASE}
+	var regbase3 = [2]uint8{REG_S_BASE, REG_D_BASE}
+	i.operation = opinfo.op
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	switch opinfo.ovar {
+	case 0:
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rn()))
+		break
+	case 6:
+	case 3:
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rn()))
+		break
+	case 1:
+	case 4:
+		if decode.Size() != 3 {
+			// return 1
+		}
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rn()))
+		i.operands[2].OpClass = IMM32
+		i.operands[2].Immediate = 0
+		break
+	case 7:
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rn()))
+		i.operands[2].OpClass = IMM32
+		i.operands[2].Immediate = 0
+		break
+	case 2:
+	case 8:
+		if decode.Size() == 3 {
+			// return 1
+		}
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		break
+	case 5:
+		if (decode.Size() & 1) == 0 {
+			// return 1
+		}
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_S_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rn()))
+		break
+	}
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_3_different() (*Instruction, error) {
+	/* C4.6.9 Advanced SIMD scalar three different
+	 *
+	 * SQDMLAL <Va><d>, <Vb><n>, <Vb><m>
+	 * SQDMLSL <Va><d>, <Vb><n>, <Vb><m>
+	 * SQDMULL <Va><d>, <Vb><n>, <Vb><m>
+	 */
+	var operation = []Operation{
+		ARM64_UNDEFINED,
+		ARM64_SQDMLAL,
+		ARM64_UNDEFINED,
+		ARM64_SQDMLSL,
+		ARM64_UNDEFINED,
+		ARM64_SQDMULL,
+		ARM64_UNDEFINED,
+		ARM64_UNDEFINED,
+	}
+	decode := SimdScalar3Different(i.raw)
+	var regbase1 = [4]uint8{0, REG_S_BASE, REG_D_BASE, 0}
+	var regbase2 = [4]uint8{0, REG_H_BASE, REG_S_BASE, 0}
+	i.operation = operation[decode.Opcode()&7]
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase1[decode.Size()]), int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rm()))
+
+	if decode.Opcode() < 7 || decode.Size() == 0 || decode.Size() == 3 || i.operation == ARM64_UNDEFINED {
+		return i, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_3_same() (*Instruction, error) {
+	/* C4.6.10 Advanced SIMD scalar three same
+	 *
+	 * SQADD	<V><d>, <V><n>, <V><m>
+	 * SQSUB	<V><d>, <V><n>, <V><m>
+	 * CMGT	 <V><d>, <V><n>, <V><m>
+	 * CMGE	 <V><d>, <V><n>, <V><m>
+	 * SSHL	 <V><d>, <V><n>, <V><m>
+	 * SQSHL	<V><d>, <V><n>, <V><m>
+	 * SQRSHL   <V><d>, <V><n>, <V><m>
+	 * ADD	  <V><d>, <V><n>, <V><m>
+	 * CMTST	<V><d>, <V><n>, <V><m>
+	 * SQDMULH  <V><d>, <V><n>, <V><m>
+	 * FMULX	<V><d>, <V><n>, <V><m>
+	 * FCMEQ	<V><d>, <V><n>, <V><m>
+	 * FRECPS   <V><d>, <V><n>, <V><m>
+	 * FRSQRTS  <V><d>, <V><n>, <V><m>
+	 * UQADD	<V><d>, <V><n>, <V><m>
+	 * UQSUB	<V><d>, <V><n>, <V><m>
+	 * CMHI	 <V><d>, <V><n>, <V><m>
+	 * CMHS	 <V><d>, <V><n>, <V><m>
+	 * USHL	 <V><d>, <V><n>, <V><m>
+	 * UQRSHL   <V><d>, <V><n>, <V><m>
+	 * URSHL	<V><d>, <V><n>, <V><m>
+	 * SUB	  <V><d>, <V><n>, <V><m>
+	 * CMEQ	 <V><d>, <V><n>, <V><m>
+	 * CMEQ	 <V><d>, <V><n>, <V><m>
+	 * SQRDMULH <V><d>, <V><n>, <V><m>
+	 * FCMGE	<V><d>, <V><n>, <V><m>
+	 * FACGE	<V><d>, <V><n>, <V><m>
+	 * FABD	 <V><d>, <V><n>, <V><m>
+	 * FCMGT	<V><d>, <V><n>, <V><m>
+	 * FACGT	<V><d>, <V><n>, <V><m>
+	 *
+	 * Variants:
+	 * 0: BHSD
+	 * 1: D
+	 * 2: HS
+	 * 3: SD
+	 */
+	type OpInfo struct {
+		op   Operation
+		ovar uint32
+	}
+	/*var operation = []Operation{*/
+	/*0 - xx - 0 	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 1 	{ARM64_SQADD,	 0},*/
+	/*0 - xx - 2 	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 3 	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 4 	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 5 	{ARM64_SQSUB,	 0},*/
+	/*0 - xx - 6 	{ARM64_CMGT,	  1},*/
+	/*0 - xx - 7 	{ARM64_CMGE,	  1},*/
+	/*0 - xx - 8 	{ARM64_SSHL,	  1},*/
+	/*0 - xx - 9 	{ARM64_SQSHL,	 0},*/
+	/*0 - xx - 10 	{ARM64_SRSHL,	 0},*/
+	/*0 - xx - 11	{ARM64_SQRSHL,	0},*/
+	/*0 - xx - 12	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 13	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 14	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 15	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 16	{ARM64_ADD,	   1},*/
+	/*0 - xx - 17	{ARM64_CMTST,	 1},*/
+	/*0 - xx - 18	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 19	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 20	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 21	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 22	{ARM64_SQDMULH,   3},*/
+	/*0 - xx - 23	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 24	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 25	{ARM64_UNDEFINED, 0},*/
+	/*0 - xx - 26	{ARM64_UNDEFINED, 0},*/
+	/*0 - 0x - 27	{ARM64_FMULX,	 3},*/
+	/*0 - 0x - 28	{ARM64_FCMEQ,	 3},*/
+	/*0 - xx - 30	{ARM64_UNDEFINED, 0},*/
+	/*0 - 0x - 31	{ARM64_FRECPS,	3},*/
+	/*0 - 1x - 31	{ARM64_FRSQRTS,   3},*/
+
+	/*1 - xx - 0 	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 1 	{ARM64_UQADD,	 0},*/
+	/*1 - xx - 2 	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 3 	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 4 	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 5 	{ARM64_UQSUB,	 0},*/
+	/*1 - xx - 6 	{ARM64_CMHI,	  1},*/
+	/*1 - xx - 7 	{ARM64_CMHS,	  1},*/
+	/*1 - xx - 8 	{ARM64_USHL,	  1},*/
+	/*1 - xx - 9 	{ARM64_UQRSHL,	0},*/
+	/*1 - xx - 10	{ARM64_URSHL,	 1},*/
+	/*1 - xx - 11	{ARM64_UQRSHL,	0},*/
+	/*1 - xx - 12	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 13	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 14	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 15	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 16	{ARM64_SUB,	   1},*/
+	/*1 - xx - 17	{ARM64_CMEQ,	  1},*/
+	/*1 - xx - 18	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 19	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 20	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 21	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 22	{ARM64_SQRDMULH,  2},*/
+	/*1 - xx - 23	{ARM64_UNDEFINED, 0},*/
+	/*1 - 0x - 24	{ARM64_FCMGE,	 3},*/
+	/*1 - 0x - 25	{ARM64_FACGE,	 3},*/
+	/*1 - 1x - 26	{ARM64_FABD,	  3},*/
+	/*1 - 1x - 27	{ARM64_UNDEFINED, 0},*/
+	/*1 - 1x - 28	{ARM64_FCMGT,	 3},*/
+	/*1 - 1x - 29	{ARM64_FACGT,	  3},*/
+	/*1 - xx - 30	{ARM64_UNDEFINED, 0},*/
+	/*1 - xx - 31	{ARM64_UNDEFINED, 0},*/
+	/*};*/
+	decode := SimdScalar3Same(i.raw)
+	var operation = [2][2][32]OpInfo{
+		{
+			{
+				{ARM64_UNDEFINED, 0}, {ARM64_SQADD, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_SQSUB, 0}, {ARM64_CMGT, 1}, {ARM64_CMGE, 1},
+				{ARM64_SSHL, 1}, {ARM64_SQSHL, 0}, {ARM64_SRSHL, 0}, {ARM64_SQRSHL, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_ADD, 1}, {ARM64_CMTST, 1}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQDMULH, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FMULX, 3},
+				{ARM64_FCMEQ, 3}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FRECPS, 3},
+			}, {
+				{ARM64_UNDEFINED, 0}, {ARM64_SQADD, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_SQSUB, 0}, {ARM64_CMGT, 1}, {ARM64_CMGE, 1},
+				{ARM64_SSHL, 1}, {ARM64_SQSHL, 0}, {ARM64_SRSHL, 0}, {ARM64_SQRSHL, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_ADD, 1}, {ARM64_CMTST, 1}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQDMULH, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FMULX, 3},
+				{ARM64_FCMEQ, 3}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FRSQRTS, 3},
+			},
+		}, {
+			{
+				{ARM64_UNDEFINED, 0}, {ARM64_UQADD, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UQSUB, 0}, {ARM64_CMHI, 1}, {ARM64_CMHS, 1},
+				{ARM64_USHL, 1}, {ARM64_UQSHL, 0}, {ARM64_URSHL, 1}, {ARM64_UQRSHL, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_SUB, 1}, {ARM64_CMEQ, 1}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQRDMULH, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_FCMGE, 3}, {ARM64_FACGE, 3}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+			}, {
+				{ARM64_UNDEFINED, 0}, {ARM64_UQADD, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UQSUB, 0}, {ARM64_CMHI, 1}, {ARM64_CMHS, 1},
+				{ARM64_USHL, 1}, {ARM64_UQSHL, 0}, {ARM64_URSHL, 1}, {ARM64_UQRSHL, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_SUB, 1}, {ARM64_CMEQ, 1}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_SQRDMULH, 2}, {ARM64_UNDEFINED, 0},
+				{ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}, {ARM64_FABD, 3}, {ARM64_UNDEFINED, 0},
+				{ARM64_FCMGT, 3}, {ARM64_FACGT, 3}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0},
+			},
+		},
+	}
+
+	opinfo := operation[decode.U()][decode.Size()>>1][decode.Opcode()]
+	var regbase = [4][4]uint8{
+		{REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE},
+		{REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE},
+		{REG_S_BASE, REG_H_BASE, REG_S_BASE, REG_H_BASE},
+		{REG_S_BASE, REG_D_BASE, REG_S_BASE, REG_D_BASE},
+	}
+	i.operation = opinfo.op
+	//printf("U: %d s: %d opc: %d - str: %s\n", decode.U, decode.Size()>>1, decode.Opcode(), OperationString[opinfo.op])
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[opinfo.ovar][decode.Size()]), int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase[opinfo.ovar][decode.Size()]), int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, int(regbase[opinfo.ovar][decode.Size()]), int(decode.Rm()))
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_copy() (*Instruction, error) {
+	/* C4.6.6 Advanced SIMD scalar copy
+	 *
+	 * DUP <V><d>, <Vn>.<T>[<index>]
+	 */
+	decode := SimdScalarCopy(i.raw)
+	var size uint32
+	if decode.Imm5() == 0 || decode.Imm5() == 16 {
+		// return 1
+	}
+	for ; size < 4; size++ {
+		if ((decode.Imm5() >> size) & 1) == 1 {
+			break
+		}
+	}
+	i.operation = ARM64_MOV
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	var regset = [4]uint8{REG_B_BASE, REG_H_BASE, REG_S_BASE, REG_D_BASE}
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regset[size]), int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[1].ElementSize = 1 << size
+	i.operands[1].Scale = 0x80000000 | (decode.Imm5() >> (1 + size))
+
+	if decode.Op() != 0 || decode.Imm4() != 0 {
+		return i, failedToDecodeInstruction
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_indexed_element() (*Instruction, error) {
+	/* C4.6.12 Advanced SIMD scalar x indexed element
+	 *
+	 * SQDMLAL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
+	 * SQDMLSL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
+	 * SQDMULL  <Va><d>, <Vb><n>, <Vm>.<Ts>[<index>]
+	 * SQDMULH  <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 * SQRDMULH <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 * FMLA	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 * FMLS	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 * FMUL	 <V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 * FMULX	<V><d>,  <V><n>,  <Vm>.<Ts>[<index>]
+	 */
+	decode := SimdScalarXIndexedElement(i.raw)
+	var index uint32
+	hireg := decode.M() << 4
+	var regbase = [4]uint32{0, REG_S_BASE, REG_D_BASE, 0}
+	var regbase2 = [4]uint32{0, REG_H_BASE, REG_S_BASE, 0}
+	var regbase3 = [2]uint32{REG_S_BASE, REG_D_BASE}
+
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rn()))
+
+	if decode.Size() == 1 {
+		index = decode.H()<<2 | decode.L()<<1 | decode.M()
+	} else if decode.Size() == 2 {
+		index = decode.H()<<1 | decode.L()
+	}
+	i.operands[2].ElementSize = 4 << (decode.Size() & 1)
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(hireg|decode.Rm()))
+	switch decode.Opcode() {
+	case 1:
+		if decode.Size() < 2 {
+			// return 1
+		}
+		i.operation = ARM64_FMLA
+		if (decode.Size() & 1) == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()<<1 | decode.L()
+		} else if (decode.Size()&1) == 1 && decode.L() == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()
+		}
+		break
+	case 3:
+		i.operation = ARM64_SQDMLAL
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		if decode.Size() == 1 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+		} else if decode.Size() == 2 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int((decode.M()<<4)|decode.Rm()))
+		}
+		i.operands[2].Scale = 0x80000000 | index
+		i.operands[2].ElementSize = 1 << decode.Size()
+		break
+	case 5:
+		if decode.Size() < 2 {
+			// return 1
+		}
+		i.operation = ARM64_FMLS
+		if (decode.Size() & 1) == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()<<1 | decode.L()
+		} else if (decode.Size()&1) == 1 && decode.L() == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()
+		}
+		break
+	case 7:
+		i.operation = ARM64_SQDMLSL
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		if decode.Size() == 1 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+		} else if decode.Size() == 2 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int((decode.M()<<4)|decode.Rm()))
+		}
+		i.operands[2].Scale = 0x80000000 | index
+		i.operands[2].ElementSize = 1 << decode.Size()
+		break
+	case 9:
+		if decode.Size() < 2 {
+			// return 1
+		}
+		if decode.U() == 0 {
+			i.operation = ARM64_FMUL
+		} else {
+			i.operation = ARM64_FMULX
+		}
+		if (decode.Size() & 1) == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()<<1 | decode.L()
+		} else if (decode.Size()&1) == 1 && decode.L() == 0 {
+			i.operands[2].Scale = 0x80000000 | decode.H()
+		}
+		break
+	case 11:
+		i.operation = ARM64_SQDMULL
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		if decode.Size() == 1 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+		} else if decode.Size() == 2 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int((decode.M()<<4)|decode.Rm()))
+		}
+		i.operands[2].Scale = 0x80000000 | index
+		i.operands[2].ElementSize = 1 << decode.Size()
+		break
+	case 12:
+		i.operation = ARM64_SQDMULH
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		if decode.Size() == 1 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+		} else if decode.Size() == 2 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int((decode.M()<<4)|decode.Rm()))
+		}
+		i.operands[2].Scale = 0x80000000 | index
+		i.operands[2].ElementSize = 1 << decode.Size()
+		break
+	case 13:
+		i.operation = ARM64_SQRDMULH
+		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
+		if decode.Size() == 1 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+		} else if decode.Size() == 2 {
+			i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int((decode.M()<<4)|decode.Rm()))
+		}
+		i.operands[2].Scale = 0x80000000 | index
+		i.operands[2].ElementSize = 1 << decode.Size()
+		break
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_pairwise() (*Instruction, error) {
+	/* C4.6.7 Advanced SIMD scalar pairwise
+	 *
+	 * ADDP	<V><d>, <Vn>.<T>
+	 * FMAXNMP <V><d>, <Vn>.<T>
+	 * FADDP   <V><d>, <Vn>.<T>
+	 * FADDP   <V><d>, <Vn>.<T>
+	 * FMAXP   <V><d>, <Vn>.<T>
+	 * FMINNMP <V><d>, <Vn>.<T>
+	 * FMINP   <V><d>, <Vn>.<T>
+	 */
+	decode := SimdScalarPairwise(i.raw)
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	var regset = [2]uint8{REG_S_BASE, REG_D_BASE}
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regset[decode.Size()&1]), int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[1].ElementSize = 4 << decode.Size()
+	i.operands[1].DataSize = 2
+	switch decode.Opcode() {
+	case 27:
+		if decode.U() == 0 {
+			i.operation = ARM64_ADDP
+			if decode.Size() != 3 {
+				// return 1
+			}
+			i.operands[0].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rd()))
+			i.operands[1].ElementSize = 8
+			i.operands[1].DataSize = 2
+		}
+		break
+	case 12:
+		if decode.U() == 1 {
+			if decode.Size() < 2 {
+				i.operation = ARM64_FMAXNMP
+			} else {
+				i.operation = ARM64_FMINNMP
+			}
+		}
+		// return 1
+		break
+	case 13:
+		i.operation = ARM64_FADDP
+		break
+	case 15:
+		if decode.U() == 1 {
+			if decode.Size() < 2 {
+				i.operation = ARM64_FMAXP
+			} else {
+				i.operation = ARM64_FMINP
+			}
+		}
+		// return 1
+		break
+	default:
+		//  return 1
+	}
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_scalar_shift_imm() (*Instruction, error) {
+	/* C4.6.8 Advanced SIMD scalar shift by immediate
+	 *
+	 * SSHR	 <V><d>, <V><n>, #<shift>
+	 * SSRA	 <V><d>, <V><n>, #<shift>
+	 * SRSHR	<V><d>, <V><n>, #<shift>
+	 * SRSRA	<V><d>, <V><n>, #<shift>
+	 * SHL	  <V><d>, <V><n>, #<shift>
+	 * SQSHL	<V><d>, <V><n>, #<shift>
+	 * SQSHRN   <Vb><d>, <Va><n>, #<shift>
+	 * SQRSHRN  <Vb><d>, <Va><n>, #<shift>
+	 * SCVTF	<V><d>, <V><n>, #<fbits>
+	 * FCVTZS   <V><d>, <V><n>, #<fbits>
+	 * USHR	 <V><d>, <V><n>, #<shift>
+	 * USRA	 <V><d>, <V><n>, #<shift>
+	 * URSHR	<V><d>, <V><n>, #<shift>
+	 * URSRA	<V><d>, <V><n>, #<shift>
+	 * SRI	  <V><d>, <V><n>, #<shift>
+	 * SLI	  <V><d>, <V><n>, #<shift>
+	 * SQSHLU   <V><d>, <V><n>, #<shift>
+	 * UQSHL	<V><d>, <V><n>, #<shift>
+	 * SQSHRUN  <Vb><d>, <Va><n>, #<shift>
+	 * SQRSHRUN <Vb><d>, <Va><n>, #<shift>
+	 * UQSHRN   <Vb><d>, <Va><n>, #<shift>
+	 * UQRSHRN  <Vb><d>, <Va><n>, #<shift>
+	 * UCVTF	<V><d>, <V><n>, #<fbits>
+	 * FCVTZU   <V><d>, <V><n>, #<fbits>
+	 */
+
+	decode := SimdShiftByImm(i.raw)
+
+	type shiftCalc int
+	const (
+		SH_3 shiftCalc = iota
+		SH_HB
+		SH_IH
+	)
+	type decodeOperation struct {
+		op      Operation
+		esize   uint32
+		calc    shiftCalc
+		regBase uint32
+	}
+	var operation = [2][32]decodeOperation{
+		{
+			{ARM64_SSHR, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SSRA, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SRSHR, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SRSRA, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SHL, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SQSHL, 8, SH_HB, 1}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SQSHRN, 8, SH_HB, 2}, {ARM64_SQRSHRN, 8, SH_HB, 2},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SCVTF, 32, SH_IH, 3}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_FCVTZS, 32, SH_IH, 3},
+		}, {
+			{ARM64_USHR, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_USRA, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_URSHR, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_URSRA, 8, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SRI, 8, SH_3, 1}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SLI, 8, SH_3, 1}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SQSHLU, 8, SH_HB, 1}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UQSHL, 8, SH_HB, 1}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_SQSHRUN, 8, SH_HB, 2}, {ARM64_SQRSHRUN, 8, SH_HB, 2},
+			{ARM64_UQSHRN, 8, SH_HB, 2}, {ARM64_UQRSHRN, 8, SH_HB, 2},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UCVTF, 32, SH_IH, 3}, {ARM64_UNDEFINED, 0, SH_3, 0},
+			{ARM64_UNDEFINED, 0, SH_3, 0}, {ARM64_FCVTZU, 32, SH_IH, 3},
+		},
+	}
+
+	var regBaseMap = [4][16]Register{
+		{
+			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE,
+			REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE,
+		}, {
+			REG_NONE, REG_B_BASE, REG_H_BASE, REG_H_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE,
+			REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE,
+		}, {
+			REG_NONE, REG_B_BASE, REG_H_BASE, REG_H_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE,
+			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_NONE,
+		}, {
+			REG_NONE, REG_NONE, REG_NONE, REG_NONE, REG_S_BASE, REG_S_BASE, REG_S_BASE, REG_S_BASE,
+			REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE, REG_D_BASE,
+		},
+	}
+
+	decodeOp := operation[decode.U()][decode.Opcode()]
+	regBase := uint32(regBaseMap[decodeOp.regBase][decode.Immh()])
+	if regBase == uint32(REG_NONE) {
+		// return 1
+	}
+	i.operation = decodeOp.op
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase), int(decode.Rd()))
+
+	i.operands[1].OpClass = REG
+	var regOffset uint32
+	if decode.Opcode() >= 16 && decode.Opcode() <= 19 {
+		regOffset = 1
+	}
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regBase+regOffset), int(decode.Rn()))
+
+	var esize uint32
+	switch decodeOp.calc {
+	case SH_3:
+		esize = decodeOp.esize << 3
+		break
+	case SH_HB:
+		esize = decodeOp.esize << highestSetBit(decode.Immh())
+		break
+	case SH_IH:
+		esize = decodeOp.esize << ((decode.Immh() >> 3) & 1)
+		break
+	}
+	if decode.Opcode() == 10 || decode.Opcode() == 14 || i.operation == ARM64_SQSHLU {
+		i.operands[2].Immediate = uint64(((decode.Immh() << 3) | decode.Immb()) - (esize))
+	} else {
+		i.operands[2].Immediate = uint64((esize * 2) - ((decode.Immh() << 3) | decode.Immb()))
+	}
+	i.operands[2].OpClass = IMM32
+	i.operands[2].SignedImm = decode.U()
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_shift_imm() (*Instruction, error) {
+	/* C4.6.13 Advanced SIMD shift by immediate
+	 *
+	 * SSHR		<Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SSRA		<Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SRSHR	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SRSRA	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SHL		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SQSHL	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SHRN{2}	 <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * RSHRN{2}	<Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * SQSHRN{2}   <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * SQRSHRN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * SSHLL{2}	<Vd>.<Ta>, <Vn>.<Tb>, #<shift>
+	 * SCVTF	   <Vd>.<T>,  <Vn>.<T>,  #<fbits>
+	 * FCVTZS	  <Vd>.<T>,  <Vn>.<T>,  #<fbits>
+	 * USHR		<Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * USRA		<Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * URSHR	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * URSRA	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SRI		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SLI		 <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SQSHLU	  <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * UQSHL	   <Vd>.<T>,  <Vn>.<T>,  #<shift>
+	 * SQSHRUN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * SQRSHRUN{2} <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * UQSHRN{2}   <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * UQRSHRN{2}  <Vd>.<Tb>, <Vn>.<Ta>, #<shift>
+	 * USHLL{2}	<Vd>.<Ta>, <Vn>.<Tb>, #<shift>
+	 * UCVTF	   <Vd>.<T>,  <Vn>.<T>,  #<fbits>
+	 * FCVTZU	  <Vd>.<T>,  <Vn>.<T>,  #<fbits>
+	 *
+	 * Alias
+	 * SSHLL{2} <Vd>.<Ta>, <Vn>.<Tb>, #0 -> SCVTF <V><d>, <V><n>, #<fbits>
+	 * USHLL{2} <Vd>.<Ta>, <Vn>.<Tb>, #0 -> UXTL{2} <Vd>.<Ta>, <Vn>.<Tb>
+	 */
+	type OpInfo struct {
+		op   Operation
+		ovar uint32
+	}
+
+	var operation = [2][32]OpInfo{
+		{
+			{ARM64_SSHR, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SSRA, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SRSHR, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SRSRA, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SHL, 3},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SQSHL, 3},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SHRN, 1},
+			{ARM64_RSHRN, 1},
+			{ARM64_SQSHRN, 1},
+			{ARM64_SQRSHRN, 1},
+			{ARM64_SSHLL, 4},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SCVTF, 2},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_FCVTZS, 2},
+		}, {
+			{ARM64_USHR, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_USRA, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_URSHR, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_URSRA, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SRI, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SLI, 3},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SQSHLU, 3},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UQSHL, 3},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_SQSHRUN, 1},
+			{ARM64_SQRSHRUN, 1},
+			{ARM64_UQSHRN, 1},
+			{ARM64_UQRSHRN, 1},
+			{ARM64_USHLL, 4},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UCVTF, 2},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_FCVTZU, 2},
+		},
+	}
+	decode := SimdShiftByImm(i.raw)
+	opinfo := operation[decode.U()][decode.Opcode()]
+	//printf("opcod: %d U: %d '%s'\n", decode.Opcode(), decode.U, OperationString[opinfo.op])
+	var sizemap = [2]uint8{64, 128}
+	var size uint32
+	for ; size < 4; size++ {
+		if (decode.Immh() >> size) == 1 {
+			break
+		}
+	}
+	i.operation = opinfo.op
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = IMM32
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Immediate = uint64((16 << size) - (decode.Immh()<<3 | decode.Immb()))
+	switch opinfo.ovar {
+	case 0:
+		i.operands[0].ElementSize = 1 << size
+		i.operands[1].ElementSize = 1 << size
+		i.operands[0].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		i.operands[1].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		//i.operands[2].Immediate =(decode.Immh() << 3 | decode.Immb()) - (8 << size)
+		break
+	case 1:
+		i.operation = i.operation + Operation(decode.Q())
+		i.operands[0].ElementSize = 1 << size
+		i.operands[1].ElementSize = 2 << size
+		i.operands[0].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		i.operands[1].DataSize = 64 / (8 << size)
+		break
+	case 2:
+		if decode.Immh()>>2 == 1 {
+			size = 0
+		} else if decode.Immh()>>3 == 1 {
+			size = 1
+		} else {
+			// return 1
+		}
+		i.operands[0].ElementSize = 4 << size
+		i.operands[1].ElementSize = 4 << size
+		i.operands[0].DataSize = uint32(sizemap[decode.Q()] / (32 << size))
+		i.operands[1].DataSize = uint32(sizemap[decode.Q()] / (32 << size))
+		break
+	case 3:
+		i.operands[0].ElementSize = 1 << size
+		i.operands[1].ElementSize = 1 << size
+		i.operands[0].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		i.operands[1].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		i.operands[2].Immediate = uint64((decode.Immh()<<3 | decode.Immb()) - (8 << size))
+		break
+	case 4:
+		i.operation = i.operation + Operation(decode.Q())
+		i.operands[0].ElementSize = 2 << size
+		i.operands[1].ElementSize = 1 << size
+		i.operands[0].DataSize = 64 / (8 << size)
+		i.operands[1].DataSize = uint32(sizemap[decode.Q()] / (8 << size))
+		i.operands[2].Immediate = uint64((decode.Immh()<<3 | decode.Immb()) - (8 << size))
+		break
+
+	}
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_table_lookup() (*Instruction, error) {
+	/* C4.6.14 Advanced SIMD table lookup
+	 *
+	 * TBL <Vd>.<Ta>, { <Vn>.16B }, <Vm>.<Ta>
+	 * TBX <Vd>.<Ta>, { <Vn>.16B }, <Vm>.<Ta>
+	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
+	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
+	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B }, <Vm>.<Ta>
+	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B }, <Vm>.<Ta>
+	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B }, <Vm>.<Ta>
+	 * TBL <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B, <Vn+3>.16B }, <Vm>.<Ta>
+	 * TBX <Vd>.<Ta>, { <Vn>.16B, <Vn+1>.16B, <Vn+2>.16B, <Vn+3>.16B }, <Vm>.<Ta>
+	 */
+	decode := SimdTableLookup(i.raw)
+	var operation = []Operation{
+		ARM64_TBL,
+		ARM64_TBX,
+	}
+	i.operation = operation[decode.Op()]
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = MULTI_REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	for idx := uint32(0); idx < decode.Len()+1; idx++ {
+		i.operands[1].Reg[idx] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()+idx)%32)
+	}
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+	i.operands[0].ElementSize = 1
+	i.operands[1].ElementSize = 1
+	i.operands[2].ElementSize = 1
+	i.operands[0].DataSize = 8 << decode.Q()
+	i.operands[1].DataSize = 16
+	i.operands[2].DataSize = 8 << decode.Q()
+
+	return i, nil
+}
+
+func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, error) {
+	/* C4.6.18 Advanced SIMD vector x indexed element
+	 *
+	 * SMLAL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * SQDMLAL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * SMLSL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * SQDMLSL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * MUL        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * SMULL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * SQDMULL{2} <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * SQDMULH    <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * SQRDMULH   <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * FMLA       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * FMLS       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * FMUL       <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * MLA        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * UMLAL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * MLS        <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 * UMLSL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * UMULL{2}   <Vd>.<Ta>, <Vn>.<Tb>, <Vm>.<Ts>[<index>]
+	 * FMULX      <Vd>.<T>,  <Vn>.<T>,  <Vm>.<Ts>[<index>]
+	 */
+	type OpInfo struct {
+		op   Operation
+		ovar uint32
+	}
+	var opinfo OpInfo
+	var operation = [2][16]OpInfo{
+		{
+			{ARM64_UNDEFINED, 0},
+			{ARM64_FMLA, 3},
+			{ARM64_SMLAL, 1},
+			{ARM64_SQDMLAL, 1},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_FMLS, 3},
+			{ARM64_SMLSL, 1},
+			{ARM64_SQDMLSL, 1},
+			{ARM64_MUL, 0},
+			{ARM64_FMUL, 3},
+			{ARM64_SMULL, 1},
+			{ARM64_SQDMULL, 1},
+			{ARM64_SQDMULH, 0},
+			{ARM64_SQRDMULH, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+		}, {
+			{ARM64_MLA, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UMLAL, 1},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_MLS, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UMLSL, 1},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_FMULX, 3},
+			{ARM64_UMULL, 1},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+			{ARM64_UNDEFINED, 0},
+		},
+	}
+	decode := SimdVectorXIndexedElement(i.raw)
+	opinfo = operation[decode.U()][decode.Opcode()]
+	i.operation = opinfo.op
+
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+	index := uint32(decode.H()<<2 | decode.L()<<1 | decode.M())
+	if opinfo.ovar == 1 {
+		if decode.Size() == 0 || decode.Size() == 3 {
+			// return 1
+		}
+		var reghi uint32
+		if decode.Size() == 2 {
+			reghi = decode.M() << 4
+		}
+		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(reghi|decode.Rm()))
+		//'2' variant is always the next enumeration value
+		i.operation = i.operation + Operation(decode.Q())
+		i.operands[0].ElementSize = 2 << decode.Size()
+		i.operands[1].ElementSize = 1 << decode.Size()
+		i.operands[2].ElementSize = 1 << decode.Size()
+		i.operands[0].DataSize = 8 >> decode.Size()
+		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q())
+		i.operands[2].DataSize = 0
+		i.operands[2].Scale = 0x80000000 | (index >> (decode.Size() - 1))
+	} else if opinfo.ovar == 2 {
+		if ((decode.Size()&1) == 1 && decode.Q() == 0) || (decode.Size() == 1 && decode.L() == 1) {
+			// return 1
+		}
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.M()<<4|decode.Rm()))
+		i.operands[0].ElementSize = 2 << (decode.Size() & 1)
+		i.operands[1].ElementSize = 2 << (decode.Size() & 1)
+		i.operands[2].ElementSize = 4 << (decode.Size() & 1)
+		i.operands[0].DataSize = 2 << ((decode.Size() & 1) - decode.Q())
+		i.operands[1].DataSize = 2 << ((decode.Size() & 1) - decode.Q())
+		i.operands[2].DataSize = 0
+		i.operands[2].Scale = 0x80000000 | (index >> ((decode.Size() & 1) + 1))
+	} else if opinfo.ovar == 3 {
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.M()<<4|decode.Rm()))
+		i.operands[0].ElementSize = 1 << decode.Size()
+		i.operands[1].ElementSize = 1 << decode.Size()
+		i.operands[2].ElementSize = 1 << decode.Size()
+		i.operands[0].DataSize = 8 >> (decode.Size() - decode.Q())
+		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q())
+		i.operands[2].DataSize = 0
+		i.operands[2].Scale = 0x80000000 | (index >> (decode.Size() - 1))
+	} else {
+		var reghi uint32
+		if decode.Size() == 2 {
+			reghi = decode.M() << 4
+		}
+		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+		i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(reghi|decode.Rm()))
+		i.operands[0].ElementSize = 1 << decode.Size()
+		i.operands[1].ElementSize = 1 << decode.Size()
+		i.operands[2].ElementSize = 1 << decode.Size()
+		i.operands[0].DataSize = 8 >> (decode.Size() - decode.Q())
+		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q())
+		i.operands[2].DataSize = 0
+		i.operands[2].Scale = 0x80000000 | (index >> (decode.Size() - 1))
+	}
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
 
 func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, error) {
 	switch decode.Crn() {
@@ -6991,7 +6976,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		address:   address,
 		operation: ARM64_UNDEFINED,
 	}
-	fmt.Println("main switch:", ExtractBits(instructionValue, 25, 4))
+
 	switch ExtractBits(instructionValue, 25, 4) {
 	case 0:
 		fallthrough
@@ -7078,16 +7063,16 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 
 			if (op0&0b1011) == 0 && (op1 == 1) {
 				if op2 == 0 && op3 == 0 {
-					// return instruction.decompose_simd_load_store_multiple()
+					return instruction.decompose_simd_load_store_multiple()
 				}
 				if op2 == 1 && (op3>>5) == 0 {
-					// return instruction.decompose_simd_load_store_multiple_post_idx()
+					return instruction.decompose_simd_load_store_multiple_post_idx()
 				}
 				if op2 == 2 && (op3&0x1f) == 0 {
-					// return instruction.decompose_simd_load_store_single()
+					return instruction.decompose_simd_load_store_single()
 				}
 				if op2 == 3 {
-					// return instruction.decompose_simd_load_store_single_post_idx()
+					return instruction.decompose_simd_load_store_single_post_idx()
 				}
 			}
 
@@ -7136,7 +7121,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 					if (op3 >> 5) == 1 {
 						// if(op4==0) return instruction.decompose_atomic_memory_ops() // TODO: remove ?
 						if op4 == 2 {
-							// return instruction.decompose_load_store_reg_reg_offset()
+							return instruction.decompose_load_store_reg_reg_offset()
 						}
 						if op4 == 1 || op4 == 3 {
 							return instruction.decompose_load_store_pac()
@@ -7221,7 +7206,6 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		fallthrough
 	case 15:
 		instruction.group = GROUP_DATA_PROCESSING_SIMD
-		fmt.Println("case 15:", ExtractBits(instructionValue, 24, 8))
 		switch ExtractBits(instructionValue, 24, 8) {
 		case 0x1e:
 			fallthrough
@@ -7285,19 +7269,19 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 				}
 			}
 			if (instructionValue & 0x9fe08400) == 0x0e000400 {
-				// return instruction.decompose_simd_copy()
+				return instruction.decompose_simd_copy()
 			}
 			if (instructionValue & 0x003e0c00) == 0x00280800 {
 				return instruction.decompose_cryptographic_aes()
 			}
 			if (instructionValue & 0xbf208c00) == 0x0e000000 {
-				// return instruction.decompose_simd_table_lookup()
+				return instruction.decompose_simd_table_lookup()
 			}
 			if (instructionValue & 0xbf208c00) == 0x0e000800 {
-				// return instruction.decompose_simd_permute()
+				return instruction.decompose_simd_permute()
 			}
 			if (instructionValue & 0x00208400) == 0 {
-				// return instruction.decompose_simd_extract()
+				return instruction.decompose_simd_extract()
 			}
 			break
 		case 0x0f:
@@ -7308,12 +7292,12 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			fallthrough
 		case 0x6f:
 			if ExtractBits(instructionValue, 10, 1) == 0 {
-				// return instruction.decompose_simd_vector_indexed_element()
+				return instruction.decompose_simd_vector_indexed_element()
 			}
 			if ExtractBits(instructionValue, 19, 5) == 0 {
-				// return instruction.decompose_simd_modified_imm()
+				return instruction.decompose_simd_modified_imm()
 			}
-			// return instruction.decompose_simd_shift_imm()
+			return instruction.decompose_simd_shift_imm()
 		case 0x5e:
 			fallthrough
 		case 0x7e:
@@ -7322,19 +7306,19 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 				case 1:
 					fallthrough
 				case 3:
-					// return instruction.decompose_simd_scalar_3_same()
+					return instruction.decompose_simd_scalar_3_same()
 				case 0:
-					// return instruction.decompose_simd_scalar_3_different()
+					return instruction.decompose_simd_scalar_3_different()
 				case 2:
 					if ExtractBits(instructionValue, 17, 4) == 0 {
-						// return instruction.decompose_simd_scalar_2_reg_misc()
+						return instruction.decompose_simd_scalar_2_reg_misc()
 					} else if ExtractBits(instructionValue, 17, 4) == 8 {
-						// return instruction.decompose_simd_scalar_pairwise()
+						return instruction.decompose_simd_scalar_pairwise()
 					}
 				}
 			}
 			if (instructionValue & 0xdfe08400) == 0x5e000400 {
-				// return instruction.decompose_simd_scalar_copy()
+				return instruction.decompose_simd_scalar_copy()
 			} else if (instructionValue & 0xff208c00) == 0x5e000000 {
 				return instruction.decompose_cryptographic_3_register_sha()
 			} else if (instructionValue & 0xff3e0c00) == 0x5e280800 {
@@ -7345,9 +7329,9 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			fallthrough
 		case 0x7f:
 			if ExtractBits(instructionValue, 10, 1) == 0 {
-				// return instruction.decompose_simd_scalar_indexed_element()
+				return instruction.decompose_simd_scalar_indexed_element()
 			} else if ExtractBits(instructionValue, 23, 1) == 0 && ExtractBits(instructionValue, 10, 1) == 1 {
-				// return instruction.decompose_simd_scalar_shift_imm()
+				return instruction.decompose_simd_scalar_shift_imm()
 			}
 			break
 		}
