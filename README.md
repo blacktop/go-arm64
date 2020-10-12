@@ -74,6 +74,13 @@ _test:
 0x100007ee8:    d4200020        brk     #0x1
 ```
 
+## TODO
+
+- [ ] fix 🐛🐛🐛
+- [ ] add option for dec/hex immediates
+- [ ] display opcodes like `7f 23 03 d5`
+- [ ] benchmarks 🏃‍♂️💨
+
 ## Credit
 
 This is a complete Go re-write of [Vector35/arch-arm64](https://github.com/Vector35/arch-arm64/tree/master/disassembler)
