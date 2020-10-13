@@ -44,7 +44,7 @@ func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
 				addr = 0
 			}
 
-			i, err := decompose(instrValue, 0)
+			i, err := decompose(instrValue, uint64(addr))
 			if err != nil {
 				out <- Result{
 					Error: fmt.Errorf("failed to decompose instruction: 0x%08x; %v", instrValue, err),
