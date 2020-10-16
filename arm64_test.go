@@ -20,6 +20,15 @@ func Test_decompose_MTE(t *testing.T) {
 		wantErr bool
 	}{
 		{
+			name: "bti	c",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x24, 0x03, 0xd5}),
+				address:          0,
+			},
+			want: "bti	c",
+			wantErr: false,
+		},
+		{
 			name: "nop",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x20, 0x3, 0xd5}),
@@ -15085,6 +15094,15 @@ func Test_decompose_ALL(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
+		{
+			name: "mov	x20, x1",
+			args: args{
+				instructionValue: 0xaa0103f4,
+				address:          0,
+			},
+			want: "mov	x20, x1",
+			wantErr: false,
+		},
 		{
 			name: "lsl	w8, w8, #0x17",
 			args: args{

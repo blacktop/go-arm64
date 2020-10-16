@@ -552,6 +552,8 @@ const (
 	ARM64_ZIP1
 	ARM64_ZIP2
 
+	ARM64_BTI
+
 	AMD64_END_TYPE //Not real instruction
 )
 
@@ -1097,6 +1099,7 @@ func (o Operation) String() string {
 		"yield",
 		"zip1",
 		"zip2",
+		"bti",
 		"END_OPERATION_LIST", //NOT AN INSTRUCTION
 	}[o]
 }
@@ -3846,6 +3849,11 @@ const (
 	REG_ICC_SGI0R_EL1
 	REG_ICC_ASGI1R_EL1
 	REG_ICC_SEIEN_EL1
+
+	REG_TGT_C
+	REG_TGT_J
+	REG_TGT_JC
+
 	REG_END_REG
 )
 
@@ -4334,6 +4342,11 @@ func (s SystemReg) String() string {
 		"icc_sgi0r_el1",
 		"icc_asgi1r_el1",
 		"icc_seien_el1",
+
+		"c",
+		"j",
+		"jc",
+
 		"END_REG",
 	}[s]
 }
@@ -5097,6 +5110,7 @@ type Instruction struct {
 	group     Group
 	operation Operation
 	operands  [MAX_OPERANDS]InstructionOperand
+	// operands []InstructionOperand
 }
 
 var lsb32Mtable = [33]uint32{

@@ -10,7 +10,10 @@ func reg(arg1, arg2, arg3 int) uint32 {
 }
 
 func (i *Instruction) deleteOperand(index int) {
-	i.operands[0] = InstructionOperand{OpClass: NONE}
+	copy(i.operands[index:], i.operands[index+1:])                    // Shift a[i+1:] left one index.
+	i.operands[len(i.operands)-1] = InstructionOperand{OpClass: NONE} // Erase last element (write zero value).
+	// i.operands = i.operands[:len(i.operands)-1]                       // Truncate slice.
+	i.operands[len(i.operands)-1] = InstructionOperand{OpClass: NONE}
 }
 
 func (i *Instruction) decompose_add_sub_carry() (*Instruction, error) {
@@ -2628,6 +2631,7 @@ func (i *Instruction) decompose_logical_shifted_reg() (*Instruction, error) {
 		{ARM64_BIC, ARM64_ORN, ARM64_EON, ARM64_BICS}}
 	var shiftMap = [4]ShiftType{SHIFT_LSL, SHIFT_LSR, SHIFT_ASR, SHIFT_ROR}
 	i.operation = operation[decode.N()][decode.Opc()]
+	// i.operands = make([]InstructionOperand, 3)
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
 	i.operands[2].OpClass = REG
@@ -5555,6 +5559,20 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			break
 		case 31:
 			i.operation = ARM64_AUTIBSP
+			break
+		case 34:
+			i.operation = ARM64_BTI
+			i.operands[0].OpClass = SYS_REG
+			switch ExtractBits(decode.Op2(), 1, 1) {
+			case 0b00:
+				i.operands[0].Reg[0] = uint32(REG_NONE)
+			case 0b01:
+				i.operands[0].Reg[0] = uint32(REG_TGT_C)
+			case 0b10:
+				i.operands[0].Reg[0] = uint32(REG_TGT_J)
+			case 0b11:
+				i.operands[0].Reg[0] = uint32(REG_TGT_JC)
+			}
 			break
 		}
 		break
