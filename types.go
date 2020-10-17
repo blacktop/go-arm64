@@ -5095,6 +5095,33 @@ type InstructionOperand struct {
 func (op InstructionOperand) String() string {
 	return op.strRepr
 }
+func (op InstructionOperand) Registers() []Register {
+	var regs []Register
+	for _, reg := range op.Reg {
+		if op.OpClass != REG && reg != uint32(REG_NONE) {
+			regs = append(regs, Register(reg))
+		}
+	}
+	return regs
+}
+func (op InstructionOperand) SystemRegisters() []SystemReg {
+	var regs []SystemReg
+	for _, reg := range op.Reg {
+		if op.OpClass != SYS_REG && reg != uint32(SYSREG_NONE) {
+			regs = append(regs, SystemReg(reg))
+		}
+	}
+	return regs
+}
+func (op InstructionOperand) Conditions() []Condition {
+	var conds []Condition
+	for _, reg := range op.Reg {
+		if op.OpClass != CONDITION {
+			conds = append(conds, Condition(reg))
+		}
+	}
+	return conds
+}
 
 type Instruction struct {
 	raw       uint32
@@ -5103,6 +5130,39 @@ type Instruction struct {
 	operation Operation
 	operands  [MAX_OPERANDS]InstructionOperand
 	// operands []InstructionOperand
+}
+
+func (i *Instruction) Raw() uint32 {
+	return i.raw
+}
+func (i *Instruction) OpCodes() string {
+	return getOpCodeByteString(i.raw)
+}
+func (i *Instruction) Address() uint64 {
+	return i.address
+}
+func (i *Instruction) Group() Group {
+	return i.group
+}
+func (i *Instruction) Operation() Operation {
+	return i.operation
+}
+func (i *Instruction) Operands() []InstructionOperand {
+	var ops []InstructionOperand
+	for _, op := range i.operands {
+		if op.OpClass != NONE {
+			ops = append(ops, op)
+		}
+	}
+	return ops
+}
+func (i *Instruction) OpStr() string {
+	return fmt.Sprintf("%s%s%s%s%s",
+		i.operands[0],
+		i.operands[1],
+		i.operands[2],
+		i.operands[3],
+		i.operands[4])
 }
 
 var lsb32Mtable = [33]uint32{
