@@ -5098,7 +5098,7 @@ func (op InstructionOperand) String() string {
 func (op InstructionOperand) Registers() []Register {
 	var regs []Register
 	for _, reg := range op.Reg {
-		if op.OpClass != REG && reg != uint32(REG_NONE) {
+		if op.OpClass == REG && reg != uint32(REG_NONE) {
 			regs = append(regs, Register(reg))
 		}
 	}
@@ -5107,7 +5107,7 @@ func (op InstructionOperand) Registers() []Register {
 func (op InstructionOperand) SystemRegisters() []SystemReg {
 	var regs []SystemReg
 	for _, reg := range op.Reg {
-		if op.OpClass != SYS_REG && reg != uint32(SYSREG_NONE) {
+		if op.OpClass == SYS_REG && reg != uint32(SYSREG_NONE) {
 			regs = append(regs, SystemReg(reg))
 		}
 	}
@@ -5116,7 +5116,7 @@ func (op InstructionOperand) SystemRegisters() []SystemReg {
 func (op InstructionOperand) Conditions() []Condition {
 	var conds []Condition
 	for _, reg := range op.Reg {
-		if op.OpClass != CONDITION {
+		if op.OpClass == CONDITION {
 			conds = append(conds, Condition(reg))
 		}
 	}
