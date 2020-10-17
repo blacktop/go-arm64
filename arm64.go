@@ -6,6 +6,11 @@ import (
 	"io"
 )
 
+type Options struct {
+	StartAddress int64
+	DecimalImm   bool
+}
+
 type Result struct {
 	StrRepr     string
 	Instruction *Instruction
@@ -13,7 +18,7 @@ type Result struct {
 }
 
 // Disassemble will output the disassembly of the data of a given io.ReadSeeker
-func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
+func Disassemble(r io.ReadSeeker, options Options) <-chan Result {
 
 	out := make(chan Result)
 
@@ -38,8 +43,8 @@ func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
 				break
 			}
 
-			if startAddr > 0 {
-				addr += startAddr
+			if options.StartAddress > 0 {
+				addr += options.StartAddress
 			} else {
 				addr = 0
 			}
@@ -52,7 +57,7 @@ func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
 				continue
 			}
 
-			instruction, err := i.disassemble()
+			instruction, err := i.disassemble(options.DecimalImm)
 			if err != nil {
 				out <- Result{
 					StrRepr: fmt.Sprintf("0x%08x:\t%08x \t<UNKNOWN>", addr, instrValue),
@@ -62,7 +67,7 @@ func Disassemble(r io.ReadSeeker, startAddr int64) <-chan Result {
 			}
 
 			out <- Result{
-				StrRepr:     fmt.Sprintf("%08x:\t%08x \t%s", addr, instrValue, instruction),
+				StrRepr:     fmt.Sprintf("%#08x:\t%s \t%s", addr, getOpCodeByteString(instrValue), instruction),
 				Instruction: i,
 				Error:       nil,
 			}

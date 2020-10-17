@@ -1,6 +1,8 @@
 package arm64
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"math"
@@ -4351,16 +4353,6 @@ func (s SystemReg) String() string {
 	}[s]
 }
 
-// typedef union _ieee754 {
-// 	uint32_t value;
-// 	struct {
-// 		uint32_t fraction:23;
-// 		uint32_t exponent
-// 		uint32_t sign
-// 	};
-// 	float fvalue;
-// }ieee754;
-
 type OperandClass uint32
 
 const (
@@ -5146,38 +5138,11 @@ func signExtend(value, bits uint32) uint32 {
 	return value
 }
 
-// //Given a uint32_t instructionValue decopose the instruction
-// //into its components -> instruction
-// uint32_t aarch64_decompose(
-// 		uint32_t instructionValue,
-// 		Instruction* restrict instruction,
-// 		uint64_t address);
-
-// //Get a text representation of the decomposed instruction
-// //into outBuffer
-// uint32_t aarch64_disassemble(
-// 		Instruction* restrict instruction,
-// 		char* outBuffer,
-// 		uint32_t outBufferSize);
-
-// //Get the text value of the instruction mnemonic
-// const char* get_operation(const Instruction* restrict instruction);
-
-// //Get the text value of a given register enumeration (including prefetch registers)
-// //This doesn't handle vectored registers
-// const char* get_register_name(Register reg);
-
-// //Get the text value of a given system register
-// const char* get_system_register_name(SystemReg reg);
-
-// //Get the text value of a given shift type
-// const char* get_shift(ShiftType shift);
-
-// const char* get_condition(Condition cond);
-
-// uint32_t get_implementation_specific(
-// 		const InstructionOperand* restrict operand,
-// 		char* outBuffer,
-// 		uint32_t outBufferSize);
-
-// uint32_t get_register_size(Register reg);
+func getOpCodeByteString(opcode uint32) string {
+	op := new(bytes.Buffer)
+	err := binary.Write(op, binary.LittleEndian, opcode)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("% x", op.Bytes())
+}

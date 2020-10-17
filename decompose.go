@@ -5560,7 +5560,13 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 		case 31:
 			i.operation = ARM64_AUTIBSP
 			break
+		case 32:
+			fallthrough
 		case 34:
+			fallthrough
+		case 36:
+			fallthrough
+		case 38:
 			i.operation = ARM64_BTI
 			i.operands[0].OpClass = SYS_REG
 			switch ExtractBits(decode.Op2(), 1, 1) {

@@ -2,7 +2,7 @@ package arm64
 
 import "fmt"
 
-func (i *Instruction) disassemble() (string, error) {
+func (i *Instruction) disassemble(decimalImm bool) (string, error) {
 
 	if i.operation == ARM64_UNDEFINED || i.operation == AMD64_END_TYPE {
 		return "", fmt.Errorf("failed to disassemble operation")
@@ -17,13 +17,13 @@ func (i *Instruction) disassemble() (string, error) {
 		case IMM64:
 			fallthrough
 		case LABEL:
-			if err := operand.getShiftedImmediate(); err != nil {
+			if err := operand.getShiftedImmediate(decimalImm); err != nil {
 				return "", fmt.Errorf("failed to disassemble operation: %v", err)
 			}
 			i.operands[idx].strRepr = operand.strRepr
 			break
 		case REG:
-			if err := operand.getRegister(0); err != nil {
+			if err := operand.getRegister(0, decimalImm); err != nil {
 				return "", fmt.Errorf("failed to disassemble operation: %v", err)
 			}
 			i.operands[idx].strRepr = operand.strRepr
@@ -32,7 +32,7 @@ func (i *Instruction) disassemble() (string, error) {
 			i.operands[idx].strRepr = SystemReg(operand.Reg[0]).String()
 			break
 		case MULTI_REG:
-			if err := operand.getMultiregOperand(); err != nil {
+			if err := operand.getMultiregOperand(decimalImm); err != nil {
 				return "", fmt.Errorf("failed to disassemble operation: %v", err)
 			}
 			i.operands[idx].strRepr = operand.strRepr
@@ -52,7 +52,7 @@ func (i *Instruction) disassemble() (string, error) {
 		case MEM_PRE_IDX:
 			fallthrough
 		case MEM_POST_IDX:
-			if err := operand.getMemoryOperand(); err != nil {
+			if err := operand.getMemoryOperand(decimalImm); err != nil {
 				return "", fmt.Errorf("failed to disassemble operation: %v", err)
 			}
 			i.operands[idx].strRepr = operand.strRepr
@@ -83,7 +83,7 @@ func (i *Instruction) disassemble() (string, error) {
 		i.operands[4]), nil
 }
 
-func (op *InstructionOperand) getShiftedImmediate() error {
+func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 	var shiftBuff string
 	var immBuff string
 	var sign string
@@ -97,19 +97,35 @@ func (op *InstructionOperand) getShiftedImmediate() error {
 	}
 	if op.ShiftType != SHIFT_NONE {
 		if op.ShiftValueUsed != 0 {
-			immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
+			if decimalImm {
+				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
+			} else {
+				immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
+			}
 		}
 		shiftBuff = fmt.Sprintf(", %s%s", op.ShiftType, immBuff)
 	}
 	if op.OpClass == FIMM32 {
 		shiftBuff = fmt.Sprintf("#%f%s", float64(op.Immediate), shiftBuff)
 	} else if op.OpClass == IMM32 {
-		shiftBuff = fmt.Sprintf("#%s%#x%s", sign, uint32(op.Immediate), shiftBuff)
+		if decimalImm {
+			shiftBuff = fmt.Sprintf("#%s%d%s", sign, uint32(op.Immediate), shiftBuff)
+		} else {
+			shiftBuff = fmt.Sprintf("#%s%#x%s", sign, uint32(op.Immediate), shiftBuff)
+		}
 	} else {
 		if op.SignedImm == 1 && int64(op.Immediate) < 0 {
-			shiftBuff = fmt.Sprintf("#%s%#016x%s", sign, int64(op.Immediate), shiftBuff)
+			if decimalImm {
+				shiftBuff = fmt.Sprintf("#%s%d%s", sign, int64(op.Immediate), shiftBuff)
+			} else {
+				shiftBuff = fmt.Sprintf("#%s%#016x%s", sign, int64(op.Immediate), shiftBuff)
+			}
 		}
-		shiftBuff = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
+		if decimalImm {
+			shiftBuff = fmt.Sprintf("#%s%d%s", sign, op.Immediate, shiftBuff)
+		} else {
+			shiftBuff = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
+		}
 	}
 
 	op.strRepr = shiftBuff
@@ -151,7 +167,7 @@ func (op *InstructionOperand) getShiftedImmediate() error {
 // 	return nil
 // }
 
-func (op *InstructionOperand) getRegister(registerNumber int) error {
+func (op *InstructionOperand) getRegister(registerNumber int, decimalImm bool) error {
 	var scale string
 
 	if op.Scale != 0 {
@@ -166,7 +182,7 @@ func (op *InstructionOperand) getRegister(registerNumber int) error {
 	}
 
 	if op.ShiftType != SHIFT_NONE {
-		return op.getShiftedRegister(registerNumber)
+		return op.getShiftedRegister(registerNumber, decimalImm)
 	} else if op.ElementSize == 0 {
 		op.strRepr = fmt.Sprintf("%s", Register(op.Reg[registerNumber]))
 		return nil
@@ -208,7 +224,7 @@ func (op *InstructionOperand) getRegister(registerNumber int) error {
 	return nil
 }
 
-func (op *InstructionOperand) getShiftedRegister(registerNumber int) error {
+func (op *InstructionOperand) getShiftedRegister(registerNumber int, decimalImm bool) error {
 	var immBuff string
 	var shiftBuff string
 
@@ -218,7 +234,11 @@ func (op *InstructionOperand) getShiftedRegister(registerNumber int) error {
 	}
 	if op.ShiftType != SHIFT_NONE {
 		if op.ShiftValueUsed != 0 {
-			immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
+			if decimalImm {
+				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
+			} else {
+				immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
+			}
 		}
 		shiftBuff = fmt.Sprintf(", %s%s", ShiftType(op.ShiftType), immBuff)
 	}
@@ -226,14 +246,14 @@ func (op *InstructionOperand) getShiftedRegister(registerNumber int) error {
 	return nil
 }
 
-func (op *InstructionOperand) getMultiregOperand() error {
+func (op *InstructionOperand) getMultiregOperand(decimalImm bool) error {
 	var indexBuff string
 	var registers []Register
 	var elementCount int
 
 	for _, opReg := range op.Reg {
 		if Register(opReg) != REG_NONE {
-			if err := op.getRegister(elementCount); err != nil {
+			if err := op.getRegister(elementCount, decimalImm); err != nil {
 				return err
 			}
 			registers = append(registers, Register(opReg))
@@ -270,7 +290,7 @@ func (op *InstructionOperand) getImplementationSpecific() error {
 	return nil
 }
 
-func (op *InstructionOperand) getMemoryOperand() error {
+func (op *InstructionOperand) getMemoryOperand(decimalImm bool) error {
 	var immBuff string
 	var extendBuff string
 	var paramBuff string
@@ -296,25 +316,43 @@ func (op *InstructionOperand) getMemoryOperand() error {
 		outBuffer = fmt.Sprintf("[%s]", Register(op.Reg[0]))
 		break
 	case MEM_PRE_IDX:
-		outBuffer = fmt.Sprintf("[%s, #%s%#x]!", Register(op.Reg[0]), sign, uint64(imm))
+		if decimalImm {
+			outBuffer = fmt.Sprintf("[%s, #%s%d]!", Register(op.Reg[0]), sign, uint64(imm))
+		} else {
+			outBuffer = fmt.Sprintf("[%s, #%s%#x]!", Register(op.Reg[0]), sign, uint64(imm))
+		}
 		break
 	case MEM_POST_IDX: // [<reg>], <reg|imm>
 		if Register(op.Reg[1]) != REG_NONE {
 			paramBuff = fmt.Sprintf(", %s", Register(op.Reg[1]))
 		} else {
-			paramBuff = fmt.Sprintf(", #%s%#x", sign, uint64(imm))
+			if decimalImm {
+				paramBuff = fmt.Sprintf(", #%s%d", sign, uint64(imm))
+			} else {
+				paramBuff = fmt.Sprintf(", #%s%#x", sign, uint64(imm))
+			}
 		}
 		outBuffer = fmt.Sprintf("[%s]%s", Register(op.Reg[0]), paramBuff)
 		break
 	case MEM_OFFSET: // [<reg> optional(imm)]
-		immBuff = fmt.Sprintf(", #%s%#x", sign, uint64(imm))
+		if imm != 0 {
+			if decimalImm {
+				immBuff = fmt.Sprintf(", #%s%d", sign, uint64(imm))
+			} else {
+				immBuff = fmt.Sprintf(", #%s%#x", sign, uint64(imm))
+			}
+		}
 		outBuffer = fmt.Sprintf("[%s%s]", Register(op.Reg[0]), immBuff)
 		break
 	case MEM_EXTENDED:
 		if reg1 == REG_NONE || reg2 == REG_NONE {
 			return failedToDisassembleOperand
 		}
-		immBuff = fmt.Sprintf(", #%#x", op.ShiftValue)
+		if decimalImm {
+			immBuff = fmt.Sprintf(", #%d", op.ShiftValue)
+		} else {
+			immBuff = fmt.Sprintf(", #%#x", op.ShiftValue)
+		}
 		if op.ShiftType != SHIFT_NONE {
 			extendBuff = fmt.Sprintf(", %s%s", ShiftType(op.ShiftType), immBuff)
 		}

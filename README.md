@@ -77,8 +77,8 @@ _test:
 ## TODO
 
 - [ ] fix 🐛🐛🐛
-- [ ] add option for dec/hex immediates
-- [ ] display opcodes like `7f 23 03 d5`
+- [x] add option for dec/hex immediates
+- [x] display opcodes like `7f 23 03 d5`
 - [ ] benchmarks 🏃‍♂️💨
 
 ## Credit

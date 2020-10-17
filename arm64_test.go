@@ -15071,13 +15071,14 @@ func Test_decompose_MTE(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
-			out, _ := got.disassemble()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(out, tt.want) {
-				t.Errorf("disassemble() = %v, want %v", out, tt.want)
+			hexOut, _ := got.disassemble(false)
+			decOut, _ := got.disassemble(true)
+			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
+				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
 			}
 		})
 	}
@@ -55913,13 +55914,14 @@ func Test_decompose_ALL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
-			out, _ := got.disassemble()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(out, tt.want) {
-				t.Errorf("disassemble() = %v, want %v", out, tt.want)
+			hexOut, _ := got.disassemble(false)
+			decOut, _ := got.disassemble(true)
+			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
+				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
 			}
 		})
 	}
@@ -55933,8 +55935,8 @@ func TestDisassemble(t *testing.T) {
 	}
 
 	type args struct {
-		r         io.ReadSeeker
-		startAddr int64
+		r       io.ReadSeeker
+		options Options
 	}
 	tests := []struct {
 		name    string
@@ -55944,15 +55946,15 @@ func TestDisassemble(t *testing.T) {
 		{
 			name: "addg x20, x3, #0x330, #0x5",
 			args: args{
-				r:         f,
-				startAddr: 0,
+				r:       f,
+				options: Options{},
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			out := Disassemble(tt.args.r, tt.args.startAddr)
+			out := Disassemble(tt.args.r, tt.args.options)
 			istr := <-out
 			if (istr.Error != nil) != tt.wantErr {
 				t.Errorf("Disassemble() error = %v, wantErr %v", err, tt.wantErr)

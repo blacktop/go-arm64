@@ -33,5 +33,8 @@ jobs:
     - name: Build
       run: go build -v .
 
-    - name: Test
-      run: go test -v .
+    - name: Test - ALL
+      run: go test -v -run Test_decompose_ALL 
+
+    - name: Test - MTE
+      run: go test -v -run Test_decompose_MTE 
