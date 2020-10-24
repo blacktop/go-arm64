@@ -85,6 +85,22 @@ const (
 	ARM64_BSL
 	ARM64_B_VC
 	ARM64_B_VS
+	ARM64_CASB
+	ARM64_CASAB
+	ARM64_CASALB
+	ARM64_CASLB
+	ARM64_CASH
+	ARM64_CASAH
+	ARM64_CASALH
+	ARM64_CASLH
+	ARM64_CASP
+	ARM64_CASPA
+	ARM64_CASPAL
+	ARM64_CASPL
+	ARM64_CAS
+	ARM64_CASA
+	ARM64_CASAL
+	ARM64_CASL
 	ARM64_CBNZ
 	ARM64_CBZ
 	ARM64_CCMN
@@ -633,6 +649,22 @@ func (o Operation) String() string {
 		"bsl",
 		"b.vc",
 		"b.vs",
+		"casb",
+		"casab",
+		"casalb",
+		"caslb",
+		"cash",
+		"casah",
+		"casalh",
+		"caslh",
+		"casp",
+		"caspa",
+		"caspal",
+		"caspl",
+		"cas",
+		"casa",
+		"casal",
+		"casl",
 		"cbnz",
 		"cbz",
 		"ccmn",
@@ -1482,6 +1514,10 @@ func (i LdstExclusive) Group1() uint32 {
 }
 func (i LdstExclusive) Size() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
+}
+func (i LdstExclusive) String() string {
+	return fmt.Sprintf("Rt: %d, Rn: %d, Rt2: %d, O0: %d, Rs: %d, O1: %d, L: %d, O2: %d, Group1: %d, Size: %d",
+		i.Rt(), i.Rn(), i.Rt2(), i.O0(), i.Rs(), i.O1(), i.L(), i.O2(), i.Group1(), i.Size())
 }
 
 type LoadRegisterLiteral uint32

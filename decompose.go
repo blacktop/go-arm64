@@ -582,6 +582,7 @@ func (i *Instruction) decompose_cryptographic_2_register_sha() (*Instruction, er
 		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_S_BASE, int(decode.Rn()))
 		break
 	case 1:
+		fallthrough
 	case 2:
 		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
 		i.operands[0].ElementSize = 4
@@ -941,6 +942,7 @@ func (i *Instruction) decompose_data_processing_3() (*Instruction, error) {
 			i.operation = ARM64_UMNEGL
 			break
 		case ARM64_UMULH:
+			fallthrough
 		case ARM64_SMULH:
 			/*Just so we delete the extra operand*/
 			break
@@ -1469,6 +1471,7 @@ func (i *Instruction) decompose_floating_integer_conversion() (*Instruction, err
 
 	switch i.operation {
 	case ARM64_SCVTF:
+		fallthrough
 	case ARM64_UCVTF:
 		{
 			var sdReg = [2]uint32{REG_S_BASE, REG_D_BASE}
@@ -1730,41 +1733,41 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	 * STLXP <Ws>, <Xt1>, <Xt2>, [<Xn|SP>{,#0}]
 	 * STLR  <Xt>, [<Xn|SP>{,#0}]
 	 */
-	// LDST_EXCLUSIVE decode = *(LDST_EXCLUSIVE*)&instructionValue
 	decode := LdstExclusive(i.raw)
 	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
+	// fmt.Println("decode:", decode, "opcode:", opcode)
 	var operation = [4][2][8]Operation{
 		{
 			{
-				ARM64_STXRB, ARM64_STLXRB, ARM64_UNDEFINED, ARM64_UNDEFINED,
-				ARM64_UNDEFINED, ARM64_STLRB, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_STXRB, ARM64_STLXRB, ARM64_CASP, ARM64_CASPL,
+				ARM64_UNDEFINED, ARM64_STLRB, ARM64_CASAB, ARM64_CASLB,
 			}, {
-				ARM64_LDXRB, ARM64_LDAXRB, ARM64_UNDEFINED, ARM64_UNDEFINED,
-				ARM64_UNDEFINED, ARM64_LDARB, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_LDXRB, ARM64_LDAXRB, ARM64_CASPA, ARM64_CASPAL,
+				ARM64_UNDEFINED, ARM64_LDARB, ARM64_CASAB, ARM64_CASALB,
 			},
 		}, {
 			{
-				ARM64_STXRH, ARM64_STLXRH, ARM64_UNDEFINED, ARM64_UNDEFINED,
-				ARM64_UNDEFINED, ARM64_STLRH, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_STXRH, ARM64_STLXRH, ARM64_CASP, ARM64_CASPL,
+				ARM64_UNDEFINED, ARM64_STLRH, ARM64_CASAB, ARM64_CASLH,
 			}, {
-				ARM64_LDXRH, ARM64_LDAXRH, ARM64_UNDEFINED, ARM64_UNDEFINED,
-				ARM64_UNDEFINED, ARM64_LDARH, ARM64_UNDEFINED, ARM64_UNDEFINED,
-			},
-		}, {
-			{
-				ARM64_STXR, ARM64_STLXR, ARM64_STXP, ARM64_STLXP,
-				ARM64_UNDEFINED, ARM64_STLR, ARM64_UNDEFINED, ARM64_UNDEFINED,
-			}, {
-				ARM64_LDXR, ARM64_LDAXR, ARM64_LDXP, ARM64_LDAXP,
-				ARM64_UNDEFINED, ARM64_LDAR, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_LDXRH, ARM64_LDAXRH, ARM64_CASPA, ARM64_CASPAL,
+				ARM64_UNDEFINED, ARM64_LDARH, ARM64_CASAH, ARM64_CASALH,
 			},
 		}, {
 			{
 				ARM64_STXR, ARM64_STLXR, ARM64_STXP, ARM64_STLXP,
-				ARM64_UNDEFINED, ARM64_STLR, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_UNDEFINED, ARM64_STLR, ARM64_CAS, ARM64_CASL,
 			}, {
 				ARM64_LDXR, ARM64_LDAXR, ARM64_LDXP, ARM64_LDAXP,
-				ARM64_UNDEFINED, ARM64_LDAR, ARM64_UNDEFINED, ARM64_UNDEFINED,
+				ARM64_UNDEFINED, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
+			},
+		}, {
+			{
+				ARM64_STXR, ARM64_STLXR, ARM64_STXP, ARM64_STLXP,
+				ARM64_UNDEFINED, ARM64_STLR, ARM64_CAS, ARM64_CASL,
+			}, {
+				ARM64_LDXR, ARM64_LDAXR, ARM64_LDXP, ARM64_LDAXP,
+				ARM64_UNDEFINED, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
 			},
 		},
 	}
@@ -1781,11 +1784,11 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 		} else {
-			i.operands[idx+1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 			idx++
 		}
 		i.operands[idx].OpClass = REG
-		i.operands[idx+1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt())) // TODO idx++ add before or after?
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt()))
 		idx++
 		i.operands[idx].OpClass = MEM_REG
 		i.operands[idx].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
@@ -1794,15 +1797,15 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 		} else {
-			i.operands[idx+1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 			idx++
 		}
 		i.operands[idx].OpClass = REG
-		i.operands[idx+1].Reg[0] = reg(REGSET_ZR, int(regBase[decodeSizeIs3]), int(decode.Rt()))
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[decodeSizeIs3]), int(decode.Rt()))
 		idx++
 		if opcode == 2 || opcode == 3 {
 			i.operands[idx].OpClass = REG
-			i.operands[idx+1].Reg[0] = reg(REGSET_ZR, int(regBase[decodeSizeIs3]), int(decode.Rt2()))
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[decodeSizeIs3]), int(decode.Rt2()))
 			idx++
 		}
 		i.operands[idx].OpClass = MEM_REG
@@ -1813,7 +1816,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		return nil, failedToDisassembleOperation
 	}
 
-	return i, nil
+	return i, nil // casa	x8, x1, [x0]
 }
 
 func (i *Instruction) decompose_load_store_imm_post_idx() (*Instruction, error) {
@@ -4501,11 +4504,13 @@ func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
 		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rn()))
 		break
 	case 6:
+		fallthrough
 	case 3:
 		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rd()))
 		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase3[decode.Size()&1]), int(decode.Rn()))
 		break
 	case 1:
+		fallthrough
 	case 4:
 		if decode.Size() != 3 {
 			// return 1
@@ -4522,6 +4527,7 @@ func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
 		i.operands[2].Immediate = 0
 		break
 	case 2:
+		fallthrough
 	case 8:
 		if decode.Size() == 3 {
 			// return 1
@@ -5561,24 +5567,22 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			i.operation = ARM64_AUTIBSP
 			break
 		case 32:
-			fallthrough
+			i.operation = ARM64_BTI
+			break
 		case 34:
-			fallthrough
+			i.operation = ARM64_BTI
+			i.operands[0].OpClass = SYS_REG
+			i.operands[0].Reg[0] = uint32(REG_TGT_C)
+			break
 		case 36:
-			fallthrough
+			i.operation = ARM64_BTI
+			i.operands[0].OpClass = SYS_REG
+			i.operands[0].Reg[0] = uint32(REG_TGT_J)
+			break
 		case 38:
 			i.operation = ARM64_BTI
 			i.operands[0].OpClass = SYS_REG
-			switch ExtractBits(decode.Op2(), 1, 1) {
-			case 0b00:
-				i.operands[0].Reg[0] = uint32(REG_NONE)
-			case 0b01:
-				i.operands[0].Reg[0] = uint32(REG_TGT_C)
-			case 0b10:
-				i.operands[0].Reg[0] = uint32(REG_TGT_J)
-			case 0b11:
-				i.operands[0].Reg[0] = uint32(REG_TGT_JC)
-			}
+			i.operands[0].Reg[0] = uint32(REG_TGT_JC)
 			break
 		}
 		break
@@ -7000,7 +7004,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		address:   address,
 		operation: ARM64_UNDEFINED,
 	}
-
+	// fmt.Printf("main SWITCH: %d\n", ExtractBits(instructionValue, 25, 4))
 	switch ExtractBits(instructionValue, 25, 4) {
 	case 0:
 		fallthrough
