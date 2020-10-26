@@ -1516,8 +1516,8 @@ func (i LdstExclusive) Size() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
 }
 func (i LdstExclusive) String() string {
-	return fmt.Sprintf("Rt: %d, Rn: %d, Rt2: %d, O0: %d, Rs: %d, O1: %d, L: %d, O2: %d, Group1: %d, Size: %d",
-		i.Rt(), i.Rn(), i.Rt2(), i.O0(), i.Rs(), i.O1(), i.L(), i.O2(), i.Group1(), i.Size())
+	return fmt.Sprintf("Size: %d, Group1: %d, O2: %d, L: %d, O1: %d, Rs: %d, O0: %d, Rt2: %d, Rn: %d, Rt: %d",
+		i.Size(), i.Group1(), i.O2(), i.L(), i.O1(), i.Rs(), i.O0(), i.Rt2(), i.Rn(), i.Rt())
 }
 
 type LoadRegisterLiteral uint32

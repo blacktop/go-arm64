@@ -1733,14 +1733,12 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	 * STLXP <Ws>, <Xt1>, <Xt2>, [<Xn|SP>{,#0}]
 	 * STLR  <Xt>, [<Xn|SP>{,#0}]
 	 */
-	decode := LdstExclusive(i.raw)
-	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
-	// fmt.Println("decode:", decode, "opcode:", opcode)
+
 	var operation = [4][2][8]Operation{
 		{
 			{
 				ARM64_STXRB, ARM64_STLXRB, ARM64_CASP, ARM64_CASPL,
-				ARM64_UNDEFINED, ARM64_STLRB, ARM64_CASAB, ARM64_CASLB,
+				ARM64_UNDEFINED, ARM64_STLRB, ARM64_CASB, ARM64_CASLB,
 			}, {
 				ARM64_LDXRB, ARM64_LDAXRB, ARM64_CASPA, ARM64_CASPAL,
 				ARM64_UNDEFINED, ARM64_LDARB, ARM64_CASAB, ARM64_CASALB,
@@ -1748,7 +1746,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		}, {
 			{
 				ARM64_STXRH, ARM64_STLXRH, ARM64_CASP, ARM64_CASPL,
-				ARM64_UNDEFINED, ARM64_STLRH, ARM64_CASAB, ARM64_CASLH,
+				ARM64_UNDEFINED, ARM64_STLRH, ARM64_CASH, ARM64_CASLH,
 			}, {
 				ARM64_LDXRH, ARM64_LDAXRH, ARM64_CASPA, ARM64_CASPAL,
 				ARM64_UNDEFINED, ARM64_LDARH, ARM64_CASAH, ARM64_CASALH,
@@ -1771,15 +1769,38 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 			},
 		},
 	}
-
 	var regBase = []uint32{REG_W_BASE, REG_X_BASE}
+
+	decode := LdstExclusive(i.raw)
+
+	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
 	i.operation = operation[decode.Size()][decode.L()][opcode]
+
 	idx := 0
-	var decodeSizeIs3 int
-	if decode.Size() == 3 {
-		decodeSizeIs3 = 1
-	}
-	if decode.Size() < 2 {
+	if i.operation >= ARM64_CASB && i.operation <= ARM64_CASL {
+		var baseIdx int
+		if decode.Size() == 3 || (decode.Size() == 1 && (opcode == 2 || opcode == 3)) {
+			baseIdx = 1
+		}
+		i.operands[idx].OpClass = REG
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[baseIdx]), int(decode.Rs()))
+		idx++
+		if opcode == 2 || opcode == 3 {
+			i.operands[idx].OpClass = REG
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[baseIdx]), int(decode.Rs()+1)%32)
+			idx++
+		}
+		i.operands[idx].OpClass = REG
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[baseIdx]), int(decode.Rt()))
+		idx++
+		if opcode == 2 || opcode == 3 {
+			i.operands[idx].OpClass = REG
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, int(regBase[baseIdx]), int(decode.Rt()+1)%32)
+			idx++
+		}
+		i.operands[idx].OpClass = MEM_REG
+		i.operands[idx].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	} else if decode.Size() < 2 {
 		i.operands[idx].OpClass = REG
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
@@ -1793,6 +1814,10 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		i.operands[idx].OpClass = MEM_REG
 		i.operands[idx].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	} else {
+		var decodeSizeIs3 int
+		if decode.Size() == 3 {
+			decodeSizeIs3 = 1
+		}
 		i.operands[idx].OpClass = REG
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
@@ -1816,7 +1841,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		return nil, failedToDisassembleOperation
 	}
 
-	return i, nil // casa	x8, x1, [x0]
+	return i, nil
 }
 
 func (i *Instruction) decompose_load_store_imm_post_idx() (*Instruction, error) {

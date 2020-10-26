@@ -20,15051 +20,1290 @@ func Test_decompose_MTE(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "bti	c",
+			name: "irg	x0, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x24, 0x03, 0xd5}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x10, 0xdf, 0x9a}),
 				address:          0,
 			},
-			want: "bti	c",
+			want: "irg	x0, x1",
 			wantErr: false,
 		},
 		{
-			name: "nop",
+			name: "irg	sp, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x20, 0x3, 0xd5}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x10, 0xdf, 0x9a}),
 				address:          0,
 			},
-			want:    "nop",
+			want: "irg	sp, x1",
 			wantErr: false,
 		},
 		{
-			name: "addg	x20, x3, #0x330, #0x5",
+			name: "irg	x0, sp",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x14, 0xb3, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x13, 0xdf, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x20, x3, #0x330, #0x5",
+			want: "irg	x0, sp",
 			wantErr: false,
 		},
 		{
-			name: "addg	x30, x26, #0xa0, #0x3",
+			name: "irg	x0, x1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0xf, 0x8a, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x10, 0xc2, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x30, x26, #0xa0, #0x3",
+			want: "irg	x0, x1, x2",
 			wantErr: false,
 		},
 		{
-			name: "addg	x29, x23, #0x10, #0x9",
+			name: "irg	sp, x1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfd, 0x26, 0x81, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x10, 0xc2, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x29, x23, #0x10, #0x9",
+			want: "irg	sp, x1, x2",
 			wantErr: false,
 		},
 		{
-			name: "addg	x21, x19, #0xa0, #0xd",
+			name: "addg	x0, x1, #0, #1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x75, 0x36, 0x8a, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0x80, 0x91}),
 				address:          0,
 			},
-			want: "addg	x21, x19, #0xa0, #0xd",
+			want: "addg	x0, x1, #0, #1",
 			wantErr: false,
 		},
 		{
-			name: "addg	x29, x24, #0xd0, #0x8",
+			name: "addg	sp, x2, #32, #3",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x23, 0x8d, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0c, 0x82, 0x91}),
 				address:          0,
 			},
-			want: "addg	x29, x24, #0xd0, #0x8",
+			want: "addg	sp, x2, #32, #3",
 			wantErr: false,
 		},
 		{
-			name: "addg	x24, x10, #0x350, #0x4",
+			name: "addg	x0, sp, #64, #5",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x11, 0xb5, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x17, 0x84, 0x91}),
 				address:          0,
 			},
-			want: "addg	x24, x10, #0x350, #0x4",
+			want: "addg	x0, sp, #64, #5",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x30, #0x40, #0xb",
+			name: "addg	x3, x4, #1008, #6",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x2f, 0x84, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x18, 0xbf, 0x91}),
 				address:          0,
 			},
-			want: "addg	x6, x30, #0x40, #0xb",
+			want: "addg	x3, x4, #1008, #6",
 			wantErr: false,
 		},
 		{
-			name: "addg	x1, x5, #0x70, #0x2",
+			name: "addg	x5, x6, #112, #15",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x8, 0x87, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x3c, 0x87, 0x91}),
 				address:          0,
 			},
-			want: "addg	x1, x5, #0x70, #0x2",
+			want: "addg	x5, x6, #112, #15",
 			wantErr: false,
 		},
 		{
-			name: "addg	x12, x2, #0x110, #0x5",
+			name: "subg	x0, x1, #0, #1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0x14, 0x91, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0x80, 0xd1}),
 				address:          0,
 			},
-			want: "addg	x12, x2, #0x110, #0x5",
+			want: "subg	x0, x1, #0, #1",
 			wantErr: false,
 		},
 		{
-			name: "addg	x0, x19, #0x3e0, #0x6",
+			name: "subg	sp, x2, #32, #3",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x1a, 0xbe, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0c, 0x82, 0xd1}),
 				address:          0,
 			},
-			want: "addg	x0, x19, #0x3e0, #0x6",
+			want: "subg	sp, x2, #32, #3",
 			wantErr: false,
 		},
 		{
-			name: "addg	x17, x18, #0x280, #0x5",
+			name: "subg	x0, sp, #64, #5",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x51, 0x16, 0xa8, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x17, 0x84, 0xd1}),
 				address:          0,
 			},
-			want: "addg	x17, x18, #0x280, #0x5",
+			want: "subg	x0, sp, #64, #5",
 			wantErr: false,
 		},
 		{
-			name: "addg	x24, x14, #0x1f0, #0",
+			name: "subg	x3, x4, #1008, #6",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x1, 0x9f, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x18, 0xbf, 0xd1}),
 				address:          0,
 			},
-			want: "addg	x24, x14, #0x1f0, #0",
+			want: "subg	x3, x4, #1008, #6",
 			wantErr: false,
 		},
 		{
-			name: "addg	x28, x30, #0x230, #0xf",
+			name: "subg	x5, x6, #112, #15",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdc, 0x3f, 0xa3, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x3c, 0x87, 0xd1}),
 				address:          0,
 			},
-			want: "addg	x28, x30, #0x230, #0xf",
+			want: "subg	x5, x6, #112, #15",
 			wantErr: false,
 		},
 		{
-			name: "addg	x17, x23, #0x110, #0x4",
+			name: "gmi	x0, x1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x12, 0x91, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x14, 0xc2, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x17, x23, #0x110, #0x4",
+			want: "gmi	x0, x1, x2",
 			wantErr: false,
 		},
 		{
-			name: "addg	x4, x24, #0x2e0, #0xe",
+			name: "gmi	x3, sp, x4",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x3b, 0xae, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x17, 0xc4, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x4, x24, #0x2e0, #0xe",
+			want: "gmi	x3, sp, x4",
 			wantErr: false,
 		},
 		{
-			name: "addg	x29, x8, #0x120, #0x6",
+			name: "gmi	xzr, x0, x30",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x19, 0x92, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x14, 0xde, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x29, x8, #0x120, #0x6",
+			want: "gmi	xzr, x0, x30",
 			wantErr: false,
 		},
 		{
-			name: "addg	x25, x8, #0x1e0, #0xe",
+			name: "gmi	x30, x0, xzr",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x39, 0x9e, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0x14, 0xdf, 0x9a}),
 				address:          0,
 			},
-			want: "addg	x25, x8, #0x1e0, #0xe",
+			want: "gmi	x30, x0, xzr",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x10, #0x310, #0x1",
+			name: "stg	x0,  [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x46, 0x5, 0xb1, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x6, x10, #0x310, #0x1",
+			want: "stg	x0,  [x1]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x24, x10, #0x280, #0",
+			name: "stg	x1,  [x1, #-4096]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x1, 0xa8, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x08, 0x30, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x24, x10, #0x280, #0",
+			want: "stg	x1,  [x1, #-4096]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x2, #0x240, #0xf",
+			name: "stg	x2,  [x2, #4080]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x46, 0x3c, 0xa4, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xf8, 0x2f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x6, x2, #0x240, #0xf",
+			want: "stg	x2,  [x2, #4080]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x20, x3, #0x300, #0xa",
+			name: "stg	x3,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x28, 0xb0, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x1b, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x20, x3, #0x300, #0xa",
+			want: "stg	x3,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x22, x19, #0x290, #0x3",
+			name: "stg	sp,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0xe, 0xa9, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1b, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x22, x19, #0x290, #0x3",
+			want: "stg	sp,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x2, x13, #0x190, #0x9",
+			name: "stzg	x0,  [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x25, 0x99, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x2, x13, #0x190, #0x9",
+			want: "stzg	x0,  [x1]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x9, x13, #0x1d0, #0x6",
+			name: "stzg	x1,  [x1, #-4096]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa9, 0x19, 0x9d, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x08, 0x70, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x9, x13, #0x1d0, #0x6",
+			want: "stzg	x1,  [x1, #-4096]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x11, x2, #0x2c0, #0x4",
+			name: "stzg	x2,  [x2, #4080]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0x10, 0xac, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xf8, 0x6f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x11, x2, #0x2c0, #0x4",
+			want: "stzg	x2,  [x2, #4080]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x2, x25, #0x180, #0x9",
+			name: "stzg	x3,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0x27, 0x98, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x1b, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x2, x25, #0x180, #0x9",
+			want: "stzg	x3,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x19, x25, #0x2d0, #0x6",
+			name: "stzg	sp,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x1b, 0xad, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1b, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x19, x25, #0x2d0, #0x6",
+			want: "stzg	sp,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x20, x27, #0x3b0, #0x5",
+			name: "stg	x0,  [x1, #-4096]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x17, 0xbb, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x0c, 0x30, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x20, x27, #0x3b0, #0x5",
+			want: "stg	x0,  [x1, #-4096]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x27, x1, #0x50, #0xc",
+			name: "stg	x1,  [x2, #4080]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3b, 0x30, 0x85, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0x2f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x27, x1, #0x50, #0xc",
+			want: "stg	x1,  [x2, #4080]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x26, x5, #0x260, #0x6",
+			name: "stg	x2,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x18, 0xa6, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x1f, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x26, x5, #0x260, #0x6",
+			want: "stg	x2,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x15, x18, #0x100, #0x5",
+			name: "stg	sp,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0x16, 0x90, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1f, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x15, x18, #0x100, #0x5",
+			want: "stg	sp,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x3, x2, #0x130, #0x7",
+			name: "stzg	x0,  [x1, #-4096]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x43, 0x1c, 0x93, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x0c, 0x70, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x3, x2, #0x130, #0x7",
+			want: "stzg	x0,  [x1, #-4096]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x19, x21, #0x2a0, #0xd",
+			name: "stzg	x1,  [x2, #4080]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0x36, 0xaa, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0x6f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x19, x21, #0x2a0, #0xd",
+			want: "stzg	x1,  [x2, #4080]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x1, x24, #0xc0, #0x8",
+			name: "stzg	x2,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x23, 0x8c, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x1f, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x1, x24, #0xc0, #0x8",
+			want: "stzg	x2,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	sp, x22, #0xc0, #0xa",
+			name: "stzg	sp,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x2a, 0x8c, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1f, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	sp, x22, #0xc0, #0xa",
+			want: "stzg	sp,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x23, x1, #0x20, #0xc",
+			name: "stg	x0,  [x1], #-4096",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x30, 0x82, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0x30, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x23, x1, #0x20, #0xc",
+			want: "stg	x0,  [x1], #-4096",
 			wantErr: false,
 		},
 		{
-			name: "addg	x27, x24, #0x160, #0xf",
+			name: "stg	x1,  [x2], #4080",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x3f, 0x96, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xf4, 0x2f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x27, x24, #0x160, #0xf",
+			want: "stg	x1,  [x2], #4080",
 			wantErr: false,
 		},
 		{
-			name: "addg	x19, x24, #0x1c0, #0x7",
+			name: "stg	x2,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x1f, 0x9c, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x17, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x19, x24, #0x1c0, #0x7",
+			want: "stg	x2,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "addg	x20, x17, #0x140, #0",
+			name: "stg	sp,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x2, 0x94, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x17, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x20, x17, #0x140, #0",
+			want: "stg	sp,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "addg	x13, sp, #0x220, #0x2",
+			name: "stzg	x0,  [x1], #-4096",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0xb, 0xa2, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0x70, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x13, sp, #0x220, #0x2",
+			want: "stzg	x0,  [x1], #-4096",
 			wantErr: false,
 		},
 		{
-			name: "addg	x29, x16, #0x3d0, #0x7",
+			name: "stzg	x1,  [x2], #4080",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x1e, 0xbd, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xf4, 0x6f, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x29, x16, #0x3d0, #0x7",
+			want: "stzg	x1,  [x2], #4080",
 			wantErr: false,
 		},
 		{
-			name: "addg	x3, x21, #0x260, #0x5",
+			name: "stzg	x2,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0x16, 0xa6, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x17, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x3, x21, #0x260, #0x5",
+			want: "stzg	x2,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "addg	x14, x4, #0x310, #0x5",
+			name: "stzg	sp,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x14, 0xb1, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x17, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x14, x4, #0x310, #0x5",
+			want: "stzg	sp,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "addg	x11, x14, #0x280, #0",
+			name: "st2g	x0,  [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x1, 0xa8, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x11, x14, #0x280, #0",
+			want: "st2g	x0,  [x1]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x16, x23, #0x210, #0xb",
+			name: "st2g	x1,  [x1, #-4096]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf0, 0x2e, 0xa1, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x08, 0xb0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x16, x23, #0x210, #0xb",
+			want: "st2g	x1,  [x1, #-4096]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x7, x23, #0x320, #0x4",
+			name: "st2g	x2,  [x2, #4080]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x12, 0xb2, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xf8, 0xaf, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x7, x23, #0x320, #0x4",
+			want: "st2g	x2,  [x2, #4080]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x9, x7, #0x220, #0x2",
+			name: "st2g	x3,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0x8, 0xa2, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x1b, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x9, x7, #0x220, #0x2",
+			want: "st2g	x3,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x20, x7, #0x3a0, #0x7",
+			name: "st2g	sp,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0x1c, 0xba, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1b, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x20, x7, #0x3a0, #0x7",
+			want: "st2g	sp,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x13, x14, #0x80, #0x4",
+			name: "stz2g	x0,  [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x11, 0x88, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x13, x14, #0x80, #0x4",
+			want: "stz2g	x0,  [x1]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x7, #0x80, #0x3",
+			name: "stz2g	x1,  [x1, #-4096]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xc, 0x88, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x08, 0xf0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x6, x7, #0x80, #0x3",
+			want: "stz2g	x1,  [x1, #-4096]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x17, x20, #0x360, #0x3",
+			name: "stz2g	x2,  [x2, #4080]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0xe, 0xb6, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xf8, 0xef, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x17, x20, #0x360, #0x3",
+			want: "stz2g	x2,  [x2, #4080]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x9, x8, #0x60, #0x6",
+			name: "stz2g	x3,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x19, 0x86, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x1b, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x9, x8, #0x60, #0x6",
+			want: "stz2g	x3,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x19, x16, #0, #0xd",
+			name: "stz2g	sp,  [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x36, 0x80, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1b, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x19, x16, #0, #0xd",
+			want: "stz2g	sp,  [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "addg	x19, x13, #0x1c0, #0x3",
+			name: "st2g	x0,  [x1, #-4096]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0xd, 0x9c, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x0c, 0xb0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x19, x13, #0x1c0, #0x3",
+			want: "st2g	x0,  [x1, #-4096]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x1, x20, #0x2a0, #0x1",
+			name: "st2g	x1,  [x2, #4080]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x6, 0xaa, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xaf, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x1, x20, #0x2a0, #0x1",
+			want: "st2g	x1,  [x2, #4080]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x29, x19, #0x130, #0x6",
+			name: "st2g	x2,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x1a, 0x93, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x1f, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x29, x19, #0x130, #0x6",
+			want: "st2g	x2,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x30, #0x190, #0x9",
+			name: "st2g	sp,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x27, 0x99, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1f, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x6, x30, #0x190, #0x9",
+			want: "st2g	sp,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x26, x11, #0, #0xb",
+			name: "stz2g	x0,  [x1, #-4096]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x2d, 0x80, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x0c, 0xf0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x26, x11, #0, #0xb",
+			want: "stz2g	x0,  [x1, #-4096]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x6, x28, #0x70, #0xd",
+			name: "stz2g	x1,  [x2, #4080]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x37, 0x87, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xef, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x6, x28, #0x70, #0xd",
+			want: "stz2g	x1,  [x2, #4080]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x30, x18, #0x80, #0x2",
+			name: "stz2g	x2,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0xa, 0x88, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x1f, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x30, x18, #0x80, #0x2",
+			want: "stz2g	x2,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x10, x27, #0x70, #0",
+			name: "stz2g	sp,  [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x3, 0x87, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1f, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x10, x27, #0x70, #0",
+			want: "stz2g	sp,  [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "addg	x0, x30, #0x3c0, #0xc",
+			name: "st2g	x0,  [x1], #-4096",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0x33, 0xbc, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0xb0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x0, x30, #0x3c0, #0xc",
+			want: "st2g	x0,  [x1], #-4096",
 			wantErr: false,
 		},
 		{
-			name: "addg	x28, x16, #0x120, #0x9",
+			name: "st2g	x1,  [x2], #4080",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x26, 0x92, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xf4, 0xaf, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x28, x16, #0x120, #0x9",
+			want: "st2g	x1,  [x2], #4080",
 			wantErr: false,
 		},
 		{
-			name: "addg	x28, x17, #0x120, #0x8",
+			name: "st2g	x2,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x22, 0x92, 0x91}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x17, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "addg	x28, x17, #0x120, #0x8",
+			want: "st2g	x2,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x0, x0",
+			name: "st2g	sp,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x0, 0xc0, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x17, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x0, x0",
+			want: "st2g	sp,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x20, x25",
+			name: "stz2g	x0,  [x1], #-4096",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x2, 0xd9, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x04, 0xf0, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x20, x25",
+			want: "stz2g	x0,  [x1], #-4096",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x6, x6",
+			name: "stz2g	x1,  [x2], #4080",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x0, 0xc6, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xf4, 0xef, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x6, x6",
+			want: "stz2g	x1,  [x2], #4080",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x2, x7",
+			name: "stz2g	x2,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0, 0xc7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x17, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x2, x7",
+			want: "stz2g	x2,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x29, x13",
+			name: "stz2g	sp,  [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x3, 0xcd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x17, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x29, x13",
+			want: "stz2g	sp,  [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x3",
+			name: "stgp	x0, x1, [x2]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xc3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x04, 0x00, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x15, x3",
+			want: "stgp	x0, x1, [x2]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x4, x9",
+			name: "stgp	x0, x1, [x2, #-1024]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x0, 0xc9, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x04, 0x20, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x4, x9",
+			want: "stgp	x0, x1, [x2, #-1024]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x25, x26",
+			name: "stgp	x0, x1, [x2, #1008]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x3, 0xda, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x84, 0x1f, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x25, x26",
+			want: "stgp	x0, x1, [x2, #1008]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x3, x14",
+			name: "stgp	x0, x1, [sp, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x0, 0xce, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x87, 0x00, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x3, x14",
+			want: "stgp	x0, x1, [sp, #16]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x9, x30",
+			name: "stgp	xzr, x1, [x2, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x1, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x84, 0x00, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x9, x30",
+			want: "stgp	xzr, x1, [x2, #16]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x3, x11",
+			name: "stgp	x0, xzr, [x2, #16]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x0, 0xcb, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xfc, 0x00, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x3, x11",
+			want: "stgp	x0, xzr, [x2, #16]",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x18, sp",
+			name: "stgp	x0, x1, [x2, #-1024]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x2, 0xdf, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x04, 0xa0, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x18, sp",
+			want: "stgp	x0, x1, [x2, #-1024]!",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x13, x30",
+			name: "stgp	x0, x1, [x2, #1008]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x1, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x84, 0x9f, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x13, x30",
+			want: "stgp	x0, x1, [x2, #1008]!",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x6, x24",
+			name: "stgp	x0, x1, [sp, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x0, 0xd8, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x87, 0x80, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x6, x24",
+			want: "stgp	x0, x1, [sp, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x2, x27",
+			name: "stgp	xzr, x1, [x2, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0, 0xdb, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x84, 0x80, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x2, x27",
+			want: "stgp	xzr, x1, [x2, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x0, x2",
+			name: "stgp	x0, xzr, [x2, #16]!",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x0, 0xc2, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xfc, 0x80, 0x69}),
 				address:          0,
 			},
-			want: "cmpp	x0, x2",
+			want: "stgp	x0, xzr, [x2, #16]!",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x4, x14",
+			name: "stgp	x0, x1, [x2], #-1024",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x0, 0xce, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x04, 0xa0, 0x68}),
 				address:          0,
 			},
-			want: "cmpp	x4, x14",
+			want: "stgp	x0, x1, [x2], #-1024",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x3, x23",
+			name: "stgp	x0, x1, [x2], #1008",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x0, 0xd7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x84, 0x9f, 0x68}),
 				address:          0,
 			},
-			want: "cmpp	x3, x23",
+			want: "stgp	x0, x1, [x2], #1008",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x13, x30",
+			name: "stgp	x0, x1, [sp], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x1, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x87, 0x80, 0x68}),
 				address:          0,
 			},
-			want: "cmpp	x13, x30",
+			want: "stgp	x0, x1, [sp], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x5, x24",
+			name: "stgp	xzr, x1, [x2], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x0, 0xd8, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x84, 0x80, 0x68}),
 				address:          0,
 			},
-			want: "cmpp	x5, x24",
+			want: "stgp	xzr, x1, [x2], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x19, x25",
+			name: "stgp	x0, xzr, [x2], #16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x2, 0xd9, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xfc, 0x80, 0x68}),
 				address:          0,
 			},
-			want: "cmpp	x19, x25",
+			want: "stgp	x0, xzr, [x2], #16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x18, x11",
+			name: "dc	igvac, x0",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x2, 0xcb, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x76, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x18, x11",
+			want: "dc	igvac, x0",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x16, x26",
+			name: "dc	igsw, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x2, 0xda, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x76, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x16, x26",
+			want: "dc	igsw, x1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x26, x29",
+			name: "dc	cgsw, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x3, 0xdd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0x7a, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x26, x29",
+			want: "dc	cgsw, x2",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x23, sp",
+			name: "dc	cigsw, x3",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x2, 0xdf, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x7e, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x23, sp",
+			want: "dc	cigsw, x3",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x12, x10",
+			name: "dc	cgvac, x4",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x1, 0xca, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x64, 0x7a, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x12, x10",
+			want: "dc	cgvac, x4",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x28, x24",
+			name: "dc	cgvap, x5",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x3, 0xd8, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x7c, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x28, x24",
+			want: "dc	cgvap, x5",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x29, x2",
+			name: "dc	cgvadp, x6",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x3, 0xc2, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x7d, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x29, x2",
+			want: "dc	cgvadp, x6",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x5, x12",
+			name: "dc	cigvac, x7",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x0, 0xcc, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x67, 0x7e, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x5, x12",
+			want: "dc	cigvac, x7",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x2, x22",
+			name: "dc	gva, x8",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0, 0xd6, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x74, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x2, x22",
+			want: "dc	gva, x8",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x28, x19",
+			name: "dc	igdvac, x9",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x3, 0xd3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa9, 0x76, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x28, x19",
+			want: "dc	igdvac, x9",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x2, x2",
+			name: "dc	igdsw, x10",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0, 0xc2, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0x76, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x2, x2",
+			want: "dc	igdsw, x10",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x25, x20",
+			name: "dc	cgdsw, x11",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x3, 0xd4, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x7a, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x25, x20",
+			want: "dc	cgdsw, x11",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x20, x15",
+			name: "dc	cigdsw, x12",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x2, 0xcf, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0x7e, 0x08, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x20, x15",
+			want: "dc	cigdsw, x12",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	sp, x27",
+			name: "dc	cgdvac, x13",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x3, 0xdb, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0x7a, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	sp, x27",
+			want: "dc	cgdvac, x13",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x29",
+			name: "dc	cgdvap, x14",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xdd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x7c, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x15, x29",
+			want: "dc	cgdvap, x14",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x27, x0",
+			name: "dc	cgdvadp, x15",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x3, 0xc0, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0x7d, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x27, x0",
+			want: "dc	cgdvadp, x15",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x13, x5",
+			name: "dc	cigdvac, x16",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x1, 0xc5, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xb0, 0x7e, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x13, x5",
+			want: "dc	cigdvac, x16",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x26, x23",
+			name: "dc	gzva, x17",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x3, 0xd7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0x74, 0x0b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x26, x23",
+			want: "dc	gzva, x17",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x21",
+			name: "mrs	x0, TCO",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xd5, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x42, 0x3b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x15, x21",
+			want: "mrs	x0, TCO",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x16, x8",
+			name: "mrs	x1, GCR_EL1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x2, 0xc8, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x10, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x16, x8",
+			want: "mrs	x1, GCR_EL1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x5, x19",
+			name: "mrs	x2, RGSR_EL1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x0, 0xd3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x10, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x5, x19",
+			want: "mrs	x2, RGSR_EL1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x20, x17",
+			name: "mrs	x3, TFSR_EL1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x2, 0xd1, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0x56, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x20, x17",
+			want: "mrs	x3, TFSR_EL1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x30, x29",
+			name: "mrs	x4, TFSR_EL2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x3, 0xdd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x04, 0x56, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x30, x29",
+			want: "mrs	x4, TFSR_EL2",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x4, x30",
+			name: "mrs	x5, TFSR_EL3",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x0, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x05, 0x56, 0x3e, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x4, x30",
+			want: "mrs	x5, TFSR_EL3",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x3",
+			name: "mrs	x6, TFSR_EL12",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xc3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x06, 0x56, 0x3d, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x15, x3",
+			want: "mrs	x6, TFSR_EL12",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x6, x4",
+			name: "mrs	x7, TFSRE0_EL1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x0, 0xc4, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x56, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x6, x4",
+			want: "mrs	x7, TFSRE0_EL1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x6, x10",
+			name: "mrs	x7, GMID_EL1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x0, 0xca, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x87, 0x00, 0x39, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x6, x10",
+			want: "mrs	x7, GMID_EL1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x26, x20",
+			name: "msr	TCO, #0",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x3, 0xd4, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x40, 0x03, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x26, x20",
+			want: "msr	TCO, #0",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x14, x19",
+			name: "msr	TCO, x0",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x1, 0xd3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x42, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x14, x19",
+			want: "msr	TCO, x0",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x3, x3",
+			name: "msr	GCR_EL1, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x0, 0xc3, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x10, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x3, x3",
+			want: "msr	GCR_EL1, x1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x13, x26",
+			name: "msr	RGSR_EL1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x1, 0xda, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x10, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x13, x26",
+			want: "msr	RGSR_EL1, x2",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x25, x23",
+			name: "msr	TFSR_EL1, x3",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x3, 0xd7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0x56, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x25, x23",
+			want: "msr	TFSR_EL1, x3",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x1",
+			name: "msr	TFSR_EL2, x4",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xc1, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x04, 0x56, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x15, x1",
+			want: "msr	TFSR_EL2, x4",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x19, x1",
+			name: "msr	TFSR_EL3, x5",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x2, 0xc1, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x05, 0x56, 0x1e, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x19, x1",
+			want: "msr	TFSR_EL3, x5",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x6, x11",
+			name: "msr	TFSR_EL12, x6",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x0, 0xcb, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x06, 0x56, 0x1d, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x6, x11",
+			want: "msr	TFSR_EL12, x6",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x21, x23",
+			name: "msr	TFSRE0_EL1, x7",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x2, 0xd7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x56, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "cmpp	x21, x23",
+			want: "msr	TFSRE0_EL1, x7",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x4, x13",
+			name: "subp	 x0, x1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x0, 0xcd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0xc2, 0x9a}),
 				address:          0,
 			},
-			want: "cmpp	x4, x13",
+			want: "subp	 x0, x1, x2",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x1, x21",
+			name: "subp	 x0, sp, sp",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x0, 0xd5, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x03, 0xdf, 0x9a}),
 				address:          0,
 			},
-			want: "cmpp	x1, x21",
+			want: "subp	 x0, sp, sp",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x1, x7",
+			name: "subps	x0, x1, x2",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x0, 0xc7, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0xc2, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x1, x7",
+			want: "subps	x0, x1, x2",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x2, x16",
+			name: "subps	x0, sp, sp",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x0, 0xd0, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x03, 0xdf, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x2, x16",
+			want: "subps	x0, sp, sp",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x22, x30",
+			name: "subps	xzr, x0, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x2, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x00, 0xc1, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x22, x30",
+			want: "subps	xzr, x0, x1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x17, x30",
+			name: "subps	xzr, x0, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x2, 0xde, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x00, 0xc1, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x17, x30",
+			want: "subps	xzr, x0, x1",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x15, x6",
+			name: "subps	xzr, sp, sp",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x1, 0xc6, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0xdf, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x15, x6",
+			want: "subps	xzr, sp, sp",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x22, x29",
+			name: "subps	xzr, sp, sp",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x2, 0xdd, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0xdf, 0xba}),
 				address:          0,
 			},
-			want: "cmpp	x22, x29",
+			want: "subps	xzr, sp, sp",
 			wantErr: false,
 		},
 		{
-			name: "cmpp	x4, x28",
+			name: "ldg	x0, [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x0, 0xdc, 0xba}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0x60, 0xd9}),
 				address:          0,
 			},
-			want: "cmpp	x4, x28",
+			want: "ldg	x0, [x1]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x14, x10, x29",
+			name: "ldg	x2, [sp, #-4096]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x15, 0xdd, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x03, 0x70, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x14, x10, x29",
+			want: "ldg	x2, [sp, #-4096]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x15, sp, x1",
+			name: "ldg	x3, [x4, #4080]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0x17, 0xc1, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0xf0, 0x6f, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x15, sp, x1",
+			want: "ldg	x3, [x4, #4080]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x7, x25, x26",
+			name: "ldgm	x0, [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x17, 0xda, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x7, x25, x26",
+			want: "ldgm	x0, [x1]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x24, x30, x6",
+			name: "ldgm	x1, [sp]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x17, 0xc6, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x03, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x24, x30, x6",
+			want: "ldgm	x1, [sp]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x7, sp, x21",
+			name: "ldgm	xzr, [x2]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x17, 0xd5, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0xe0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x7, sp, x21",
+			want: "ldgm	xzr, [x2]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x2, x3, x27",
+			name: "stgm	x0, [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x14, 0xdb, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x2, x3, x27",
+			want: "stgm	x0, [x1]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x30, x21, x21",
+			name: "stgm	x1, [sp]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0x16, 0xd5, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x03, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x30, x21, x21",
+			want: "stgm	x1, [sp]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x24, x30, x1",
+			name: "stgm	xzr, [x2]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x17, 0xc1, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0xa0, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x24, x30, x1",
+			want: "stgm	xzr, [x2]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x5, x22, x21",
+			name: "stzgm	x0, [x1]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x16, 0xd5, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x00, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x5, x22, x21",
+			want: "stzgm	x0, [x1]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x11, x12, x21",
+			name: "stzgm	x1, [sp]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0x15, 0xd5, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x03, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x11, x12, x21",
+			want: "stzgm	x1, [sp]",
 			wantErr: false,
 		},
 		{
-			name: "gmi	x13, x26, x0",
+			name: "stzgm	xzr, [x2]",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0x17, 0xc0, 0x9a}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "gmi	x13, x26, x0",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x5, x28, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0x17, 0xd0, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x5, x28, x16",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x20, x18, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x16, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x20, x18, x22",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x2, x3, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x14, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x2, x3, x9",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x10, x24, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0x17, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x10, x24, x18",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x25, x8, x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x15, 0xc4, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x25, x8, x4",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x7, x9, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x15, 0xd9, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x7, x9, x25",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x20, x18, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x16, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x20, x18, x29",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x3, x28, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x17, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x3, x28, x13",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x29, x16, x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x16, 0xc1, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x29, x16, x1",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x23, x8, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x15, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x23, x8, x21",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x25, x21, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x16, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x25, x21, x21",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x22, x13, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0x15, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x22, x13, x9",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x28, x14, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdc, 0x15, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x28, x14, x24",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x3, x25, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x17, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x3, x25, x5",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x12, x4, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0x14, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x12, x4, x7",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x6, x11, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x15, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x6, x11, x7",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x10, x7, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0x14, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x10, x7, x14",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x8, x25, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0x17, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x8, x25, x27",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x28, x8, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x15, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x28, x8, x5",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x15, x19, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0x16, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x15, x19, x13",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x24, x22, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x16, 0xd1, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x24, x22, x17",
-			wantErr: false,
-		},
-		{
-			name: "gmi	xzr, x2, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x14, 0xcc, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	xzr, x2, x12",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x13, x29, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0x17, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x13, x29, x29",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x9, x8, x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x15, 0xc4, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x9, x8, x4",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x13, sp, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0x17, 0xc8, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x13, sp, x8",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x2, x16, x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2, 0x16, 0xd4, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x2, x16, x20",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x12, x17, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x16, 0xd0, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x12, x17, x16",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x28, x23, xzr",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0x16, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x28, x23, xzr",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x30, x17, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3e, 0x16, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x30, x17, x24",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x18, x10, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x15, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x18, x10, x19",
-			wantErr: false,
-		},
-		{
-			name: "gmi	xzr, x9, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x15, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	xzr, x9, x19",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x13, x30, x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x17, 0xc4, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x13, x30, x4",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x28, x15, xzr",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0x15, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x28, x15, xzr",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x12, x3, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x14, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x12, x3, x21",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x6, x8, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x15, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x6, x8, x19",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x5, x10, x26",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x15, 0xda, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x5, x10, x26",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x21, x9, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x35, 0x15, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x21, x9, x19",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x23, x25, x28",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x17, 0xdc, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x23, x25, x28",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x4, x28, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x17, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x4, x28, x14",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x2, x18, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x16, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x2, x18, x22",
-			wantErr: false,
-		},
-		{
-			name: "gmi	xzr, x6, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x14, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	xzr, x6, x13",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x28, x16, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x16, 0xc2, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x28, x16, x2",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x2, x7, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x14, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x2, x7, x9",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x5, x26, x23",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x17, 0xd7, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x5, x26, x23",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x1, x1, xzr",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x14, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x1, x1, xzr",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x13, x30, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x17, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x13, x30, x3",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x1, x13, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x15, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x1, x13, x14",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x2, x7, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x14, 0xd1, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x2, x7, x17",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x17, x12, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0x15, 0xcc, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x17, x12, x12",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x9, x6, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0x14, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x9, x6, x24",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x1, x24, x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x17, 0xd4, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x1, x24, x20",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x5, x4, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0x14, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x5, x4, x19",
-			wantErr: false,
-		},
-		{
-			name: "gmi	x14, x14, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xce, 0x15, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "gmi	x14, x14, x22",
-			wantErr: false,
-		},
-		{
-			name: "irg	x20, x21, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x12, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x20, x21, x29",
-			wantErr: false,
-		},
-		{
-			name: "irg	x5, x19, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x12, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x5, x19, x6",
-			wantErr: false,
-		},
-		{
-			name: "irg	x28, x4, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x10, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x28, x4, x5",
-			wantErr: false,
-		},
-		{
-			name: "irg	x19, x1, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x10, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x19, x1, x5",
-			wantErr: false,
-		},
-		{
-			name: "irg	x16, x26, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0x13, 0xc0, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x16, x26, x0",
-			wantErr: false,
-		},
-		{
-			name: "irg	x2, x18, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x12, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x2, x18, x6",
-			wantErr: false,
-		},
-		{
-			name: "irg	x6, x19, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x12, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x6, x19, x21",
-			wantErr: false,
-		},
-		{
-			name: "irg	x21, x19, x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x75, 0x12, 0xd4, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x21, x19, x20",
-			wantErr: false,
-		},
-		{
-			name: "irg	x24, x19, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x12, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x24, x19, x27",
-			wantErr: false,
-		},
-		{
-			name: "irg	x16, x12, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x11, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x16, x12, x3",
-			wantErr: false,
-		},
-		{
-			name: "irg	x14, x8, x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe, 0x11, 0xde, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x14, x8, x30",
-			wantErr: false,
-		},
-		{
-			name: "irg	x10, x25, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x13, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x10, x25, x3",
-			wantErr: false,
-		},
-		{
-			name: "irg	x23, x3, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x77, 0x10, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x23, x3, x18",
-			wantErr: false,
-		},
-		{
-			name: "irg	x22, x20, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x12, 0xc0, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x22, x20, x0",
-			wantErr: false,
-		},
-		{
-			name: "irg	x3, x20, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x12, 0xd9, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x3, x20, x25",
-			wantErr: false,
-		},
-		{
-			name: "irg	x23, x26, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0x13, 0xc8, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x23, x26, x8",
-			wantErr: false,
-		},
-		{
-			name: "irg	x26, x4, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x10, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x26, x4, x18",
-			wantErr: false,
-		},
-		{
-			name: "irg	x0, x11, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x11, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x0, x11, x6",
-			wantErr: false,
-		},
-		{
-			name: "irg	x28, x10, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5c, 0x11, 0xca, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x28, x10, x10",
-			wantErr: false,
-		},
-		{
-			name: "irg	x13, x26, x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0x13, 0xc1, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x13, x26, x1",
-			wantErr: false,
-		},
-		{
-			name: "irg	x24, x1, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x38, 0x10, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x24, x1, x5",
-			wantErr: false,
-		},
-		{
-			name: "irg	x18, x23, x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0x12, 0xde, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x18, x23, x30",
-			wantErr: false,
-		},
-		{
-			name: "irg	x22, x14, x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0x11, 0xd4, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x22, x14, x20",
-			wantErr: false,
-		},
-		{
-			name: "irg	x4, x30, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc4, 0x13, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x4, x30, x15",
-			wantErr: false,
-		},
-		{
-			name: "irg	x14, x17, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0x12, 0xd1, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x14, x17, x17",
-			wantErr: false,
-		},
-		{
-			name: "irg	x22, x28, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x13, 0xcc, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x22, x28, x12",
-			wantErr: false,
-		},
-		{
-			name: "irg	x11, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0x10, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x11, x5",
-			wantErr: false,
-		},
-		{
-			name: "irg	x29, x26, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x13, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x29, x26, x22",
-			wantErr: false,
-		},
-		{
-			name: "irg	x14, x26, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x13, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x14, x26, x21",
-			wantErr: false,
-		},
-		{
-			name: "irg	x1, x10, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x11, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x1, x10, x29",
-			wantErr: false,
-		},
-		{
-			name: "irg	x8, x13, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x11, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x8, x13, x18",
-			wantErr: false,
-		},
-		{
-			name: "irg	x16, x14, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x11, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x16, x14, x27",
-			wantErr: false,
-		},
-		{
-			name: "irg	x11, x1, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0x10, 0xd0, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x11, x1, x16",
-			wantErr: false,
-		},
-		{
-			name: "irg	x29, x18, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x12, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x29, x18, x3",
-			wantErr: false,
-		},
-		{
-			name: "irg	x29, x3, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x10, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x29, x3, x21",
-			wantErr: false,
-		},
-		{
-			name: "irg	x22, x10, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x11, 0xc2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x22, x10, x2",
-			wantErr: false,
-		},
-		{
-			name: "irg	x12, x12, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0x11, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x12, x12, x7",
-			wantErr: false,
-		},
-		{
-			name: "irg	x26, x1, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x10, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x26, x1, x22",
-			wantErr: false,
-		},
-		{
-			name: "irg	x10, x25, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x13, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x10, x25, x15",
-			wantErr: false,
-		},
-		{
-			name: "irg	x9, sp, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0x13, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x9, sp, x29",
-			wantErr: false,
-		},
-		{
-			name: "irg	x14, x22, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xce, 0x12, 0xca, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x14, x22, x10",
-			wantErr: false,
-		},
-		{
-			name: "irg	x15, x17, x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x12, 0xde, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x15, x17, x30",
-			wantErr: false,
-		},
-		{
-			name: "irg	x5, x30, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x13, 0xd0, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x5, x30, x16",
-			wantErr: false,
-		},
-		{
-			name: "irg	x25, x16, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x12, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x25, x16, x5",
-			wantErr: false,
-		},
-		{
-			name: "irg	x27, x12, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0x11, 0xd9, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x27, x12, x25",
-			wantErr: false,
-		},
-		{
-			name: "irg	x21, x20, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x95, 0x12, 0xc2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x21, x20, x2",
-			wantErr: false,
-		},
-		{
-			name: "irg	x29, x0, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x10, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x29, x0, x24",
-			wantErr: false,
-		},
-		{
-			name: "irg	x9, x27, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0x13, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x9, x27, x13",
-			wantErr: false,
-		},
-		{
-			name: "irg	x19, x6, x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd3, 0x10, 0xc4, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x19, x6, x4",
-			wantErr: false,
-		},
-		{
-			name: "irg	x19, x4, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x10, 0xc8, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x19, x4, x8",
-			wantErr: false,
-		},
-		{
-			name: "irg	x19, x25, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x13, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x19, x25, x22",
-			wantErr: false,
-		},
-		{
-			name: "irg	x2, x16, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2, 0x12, 0xca, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x2, x16, x10",
-			wantErr: false,
-		},
-		{
-			name: "irg	x9, x1, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x29, 0x10, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x9, x1, x7",
-			wantErr: false,
-		},
-		{
-			name: "irg	x20, x9, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x11, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x20, x9, x14",
-			wantErr: false,
-		},
-		{
-			name: "irg	x18, x3, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x10, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x18, x3, x6",
-			wantErr: false,
-		},
-		{
-			name: "irg	x27, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x12, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x27, x16",
-			wantErr: false,
-		},
-		{
-			name: "irg	x12, x1, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x10, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x12, x1, x9",
-			wantErr: false,
-		},
-		{
-			name: "irg	x25, x17, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x39, 0x12, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x25, x17, x13",
-			wantErr: false,
-		},
-		{
-			name: "irg	x8, x18, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x12, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x8, x18, x18",
-			wantErr: false,
-		},
-		{
-			name: "irg	x24, x14, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x11, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x24, x14, x13",
-			wantErr: false,
-		},
-		{
-			name: "irg	x9, x8, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x11, 0xca, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x9, x8, x10",
-			wantErr: false,
-		},
-		{
-			name: "irg	x13, x11, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6d, 0x11, 0xcc, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x13, x11, x12",
-			wantErr: false,
-		},
-		{
-			name: "irg	x20, x27, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x13, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x20, x27, x9",
-			wantErr: false,
-		},
-		{
-			name: "irg	x23, x10, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0x11, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "irg	x23, x10, x27",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x29, [x21]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x29, [x21]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x15, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x15, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x25, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x25, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x4, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x4, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x22, [x2]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x22, [x2]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x26, [x7]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfa, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x26, [x7]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x0, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x0, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x24]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x24]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x28, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x28, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x2]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x2]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x30, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x30, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x1, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x1, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x16, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x16, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x0, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x0, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x11, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x11, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x19, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x19, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x7, [x15]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x7, [x15]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x30, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x30, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x14, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x14, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x24, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x38, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x24, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x26, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x26, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x0, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x0, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x3, [x17]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x3, [x17]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x17, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x17, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x27]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x27]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x19, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x19, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x11, [x21]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x11, [x21]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x7, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x7, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x15, [x17]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x15, [x17]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x19, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x19, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x16, [x24]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x10, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x16, [x24]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x15, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x15, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x8, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x8, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x16, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x70, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x16, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x3, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x3, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x26, [x20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x26, [x20]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	xzr, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	xzr, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x22, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x22, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x26, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x26, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x13, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2d, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x13, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x26, [x21]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x26, [x21]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x0, [x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x0, [x10]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x11, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x11, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x3, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x3, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x21, [x15]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf5, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x21, [x15]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x20, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x20, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x23, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x23, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x23, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x23, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x18, [x24]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x12, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x18, [x24]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x15, [x30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x15, [x30]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x4, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x4, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x10, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x10, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x28, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x28, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x29, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x29, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x29, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x0, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x29, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x1, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x1, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x18, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x18, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x16, [x20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x16, [x20]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x22, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x22, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x14, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x3, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x14, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x3, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x3, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x15, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x15, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x23, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x97, 0x1, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x23, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "ldgm	x2, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x2, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "ldgm	x2, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x13, [sp, #-0xed0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0x33, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x13, [sp, #-0xed0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x15, [x6, #-0x610]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0xf0, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x15, [x6, #-0x610]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x11, [x30, #0x4d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0xd3, 0x64, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x11, [x30, #0x4d0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x12, #-0x8b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x51, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x12, #-0x8b0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x12, [x22, #-0x6e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0x22, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x12, [x22, #-0x6e0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	xzr, [x29, #-0x260]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0xa3, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	xzr, [x29, #-0x260]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x14, [x12, #-0x20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0xe1, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x14, [x12, #-0x20]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x24, [x8, #-0xec0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x41, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x24, [x8, #-0xec0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x20, [x17, #0xd00]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x2, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x20, [x17, #0xd00]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x11, [x2, #-0x410]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0xf0, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x11, [x2, #-0x410]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x17, [x23, #-0x3c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x42, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x17, [x23, #-0x3c0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x28, #-0x2f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x13, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x28, #-0x2f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x4, #0x760]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x60, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x4, #0x760]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x9, [x14, #0xeb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0xb1, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x9, [x14, #0xeb0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x13, [x6, #-0x980]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x80, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x13, [x6, #-0x980]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x22, [x27, #-0x1f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0x13, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x22, [x27, #-0x1f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x19, [x20, #-0x980]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x82, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x19, [x20, #-0x980]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x10, #-0x440]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xc1, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x10, #-0x440]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x10, [x16, #-0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0xe2, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x10, [x16, #-0x820]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x17, [sp, #-0x1f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x13, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x17, [sp, #-0x1f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x8, [x25, #0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0xc3, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x8, [x25, #0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x30, [x26, #0xe00]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0x3, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x30, [x26, #0xe00]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x7, [x9, #0xef0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0xf1, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x7, [x9, #0xef0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x29, [x17, #-0xef0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0x12, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x29, [x17, #-0xef0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x4, [x25, #-0x4e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0x23, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x4, [x25, #-0x4e0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x14, [x23, #0x2d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0xd2, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x14, [x23, #0x2d0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x21, [x18, #0xdf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xf2, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x21, [x18, #0xdf0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x29, #-0xdf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x13, 0x72, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x29, #-0xdf0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x2, [x23, #0x8f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0xf2, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x2, [x23, #0x8f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x27, [x2, #-0x5e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5b, 0x20, 0x7a, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x27, [x2, #-0x5e0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x30, [x4, #-0xe60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0xa0, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x30, [x4, #-0xe60]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x28, [x17, #0x7d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0xd2, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x28, [x17, #0x7d0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x4, [x9, #0xad0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0xd1, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x4, [x9, #0xad0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x12, [x5, #0x310]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0x10, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x12, [x5, #0x310]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x25, [x29, #-0xff0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x13, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x25, [x29, #-0xff0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x4, [x2, #-0xed0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x30, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x4, [x2, #-0xed0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x7, [x8, #-0x3f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7, 0x11, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x7, [x8, #-0x3f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x29, [x11, #-0x470]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x91, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x29, [x11, #-0x470]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x27, [x11, #0xf90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x91, 0x6f, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x27, [x11, #0xf90]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x27, [x15, #-0x970]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0x91, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x27, [x15, #-0x970]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [sp, #0xc80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x83, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [sp, #0xc80]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x16, #0x60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x62, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x16, #0x60]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x12, [x10, #0x380]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0x81, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x12, [x10, #0x380]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x30, [x30, #-0xf80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0x83, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x30, [x30, #-0xf80]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x11, [x6, #-0x770]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x90, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x11, [x6, #-0x770]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x21, [x26, #0xbb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xb3, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x21, [x26, #0xbb0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x6, [x13, #-0x480]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0x81, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x6, [x13, #-0x480]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x19, [x5, #-0xd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0x30, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x19, [x5, #-0xd0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x3, [x27, #0x3b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x63, 0xb3, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x3, [x27, #0x3b0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x30, [x24, #0x2a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xa3, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x30, [x24, #0x2a0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x27, [x29, #0x670]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbb, 0x73, 0x66, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x27, [x29, #0x670]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	xzr, [x27, #0x170]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x73, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	xzr, [x27, #0x170]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x24, [x11, #-0x4f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x11, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x24, [x11, #-0x4f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x15, [x1, #0xa80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x80, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x15, [x1, #0xa80]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x24, [x25, #-0xbb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x38, 0x53, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x24, [x25, #-0xbb0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x1, [x3, #0x220]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x20, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x1, [x3, #0x220]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x6, [x7, #0xbb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xb0, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x6, [x7, #0xbb0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x21, [x29, #0xbb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0xb3, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x21, [x29, #0xbb0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x11, [x18, #0xc10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0x12, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x11, [x18, #0xc10]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x13, [x4, #-0x6f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x10, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x13, [x4, #-0x6f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x13, [x15, #-0x3f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0x11, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x13, [x15, #-0x3f0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x22, [x9, #0xbf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x36, 0xf1, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x22, [x9, #0xbf0]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x6, [x21, #-0xc50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0xb2, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x6, [x21, #-0xc50]",
-			wantErr: false,
-		},
-		{
-			name: "ldg	x9, [x14, #-0x760]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0xa1, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "ldg	x9, [x14, #-0x760]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x16, [x10, #0x280]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0x89, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x16, [x10, #0x280]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x15, #0x360]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x69, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x15, #0x360]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x0, #-0x700]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x15, 0x8, 0xb9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x0, #-0x700]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x17, [x30, #0xa70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd1, 0x7b, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x17, [x30, #0xa70]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x20, [x16, #-0xbf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x1a, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x20, [x16, #-0xbf0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x16, [x21, #-0x930]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb0, 0xda, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x16, [x21, #-0x930]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x4, #0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9d, 0xe8, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x4, #0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x29, #0x110]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x1b, 0xa1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x29, #0x110]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x16, #0xf20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x2a, 0xaf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x16, #0xf20]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x9, #0x360]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0x69, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x9, #0x360]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x4, #-0x8f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x18, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x4, #-0x8f0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x11, #-0xa60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6d, 0xa9, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x11, #-0xa60]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x21, #-0x500]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0xa, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x21, #-0x500]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x8, [x21, #-0xfd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x3a, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x8, [x21, #-0xfd0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x20, [x8, #-0x180]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x89, 0xbe, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x20, [x8, #-0x180]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x4, #0xdd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0xd8, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x4, #0xdd0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x23, #-0x490]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0x7a, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x23, #-0x490]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x4, #-0xd10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0xf8, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x4, #-0xd10]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x1, #-0xd80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x88, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x1, #-0xd80]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x20, #-0xcd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9d, 0x3a, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x20, #-0xcd0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x0, #0xba0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0xa8, 0xab, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x0, #0xba0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x28, #0x350]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x5b, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x28, #0x350]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x26, #-0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0xeb, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x26, #-0x820]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x22, #0xfa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xaa, 0xaf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x22, #0xfa0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x30, #-0x520]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0xeb, 0xba, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x30, #-0x520]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x6, [x14, #0xd70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x79, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x6, [x14, #0xd70]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x5, [x3, #-0xae0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x28, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x5, [x3, #-0xae0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x4, #0x400]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x8, 0xa4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x4, #0x400]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x5, [x18, #0x7d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0xda, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x5, [x18, #0x7d0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x1, #0xa90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x98, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x1, #0xa90]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x4, #-0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x95, 0xe8, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x4, #-0x820]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x20, [x24, #0xd40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x4b, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x20, [x24, #0xd40]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x10, #0xa30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x39, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x10, #0xa30]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x6, [x6, #0x890]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x98, 0xa8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x6, [x6, #0x890]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x6, #0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0xe8, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x6, #0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x1, #-0x20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xe8, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x1, #-0x20]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [sp, #0x260]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0x6b, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [sp, #0x260]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x7, #0xe70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0x78, 0xae, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x7, #0xe70]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x24, #0x940]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x4b, 0xa9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x24, #0x940]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x0, #-0x9a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x68, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x0, #-0x9a0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x21, #0xaa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0xaa, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x21, #0xaa0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x27, #-0xda0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x6b, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x27, #-0xda0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x10, #-0x230]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0xd9, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x10, #-0x230]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x7, [x13, #0x260]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa7, 0x69, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x7, [x13, #0x260]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x17, #-0x260]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x36, 0xaa, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x17, #-0x260]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x10, #0xa00]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0x9, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x10, #0xa00]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x29, #0x360]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0x6b, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x29, #0x360]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x11, #0x170]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x79, 0xa1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x11, #0x170]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x24, [x18, #0xa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0xaa, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x24, [x18, #0xa0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x1, #0x9c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0xc8, 0xa9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x1, #0x9c0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x4, #-0x490]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9d, 0x78, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x4, #-0x490]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x23, [x17, #-0xc50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0xba, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x23, [x17, #-0xc50]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x30, #0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd2, 0xeb, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x30, #0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x9, #-0x240]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xc9, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x9, #-0x240]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x15, #-0x50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0xb9, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x15, #-0x50]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x16, [x10, #-0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0x99, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x16, [x10, #-0x370]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x26, #0x670]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x7b, 0xa6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x26, #0x670]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x3, #-0xfa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x68, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x3, #-0xfa0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x22, #0xa40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0x4a, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x22, #0xa40]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x3, #-0x860]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0xa8, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x3, #-0x860]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x9, #-0x120]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0xe9, 0xbe, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x9, #-0x120]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x22, #0xc20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc4, 0x2a, 0xac, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x22, #0xc20]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x9, #0x620]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x29, 0xa6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x9, #0x620]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x6, #-0xfc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x48, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x6, #-0xfc0]",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x16, [sp], #0x510",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf0, 0x17, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x16, [sp], #0x510",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x24, [x2], #-0xbe0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x24, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x24, [x2], #-0xbe0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x25], #-0x7e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3b, 0x27, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x25], #-0x7e0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x24], #-0xc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x0, 0x47, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x24], #-0xc0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x24, [x1], #-0x630",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x38, 0xd4, 0xb9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x24, [x1], #-0x630",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x7, [x1], #0xbb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0xb4, 0xab, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x7, [x1], #0xbb0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x27], #-0x7b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0x57, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x27], #-0x7b0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x10], #-0x520",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0xe5, 0xba, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x10], #-0x520",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x29], #-0x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0xe7, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x29], #-0x20",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x14, [x4], #0xf10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x14, 0xaf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x14, [x4], #0xf10",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x19], #-0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x86, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x19], #-0x280",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x11, [x20], #-0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0xa6, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x11, [x20], #-0x260",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x2, [x1], #0xb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0xb4, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x2, [x1], #0xb0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x16], #0x550",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x56, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x16], #0x550",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x10], #-0x7e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x25, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x10], #-0x7e0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x23, [x25], #-0x3c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x47, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x23, [x25], #-0x3c0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x18], #-0x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0xf6, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x18], #-0x10",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x28], #0x940",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0x47, 0xa9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x28], #0x940",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [sp], #-0x950",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0xb7, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [sp], #-0x950",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x9, [x0], #0x7f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0xf4, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x9, [x0], #0x7f0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x28], #-0x400",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x7, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x28], #-0x400",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x27], #0x7f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0xf7, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x27], #0x7f0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x21], #-0x60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0xa6, 0xbf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x21], #-0x60",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x6, [x6], #-0xd10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0xf4, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x6, [x6], #-0xd10",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x30], #0xe70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0x77, 0xae, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x30], #0xe70",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x14], #-0xbe0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd3, 0x25, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x14], #-0xbe0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x8], #0xdb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xb5, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x8], #0xdb0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x6], #0x3a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0xa4, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x6], #0x3a0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x12], #0x330",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x35, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x12], #0x330",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x21], #0xf30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0x36, 0xaf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x21], #0xf30",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x10], #0x310",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5a, 0x15, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x10], #0x310",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x18], #0x250",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0x56, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x18], #0x250",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x3], #-0xf60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0xa4, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x3], #-0xf60",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x20], #0x510",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x16, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x20], #0x510",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x10], #0x7a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xa5, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x10], #0x7a0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x25], #-0x410",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x35, 0xf7, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x25], #-0x410",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x6], #0x390",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd2, 0x94, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x6], #0x390",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x29, [x10], #0x670",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x75, 0xa6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x29, [x10], #0x670",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x27, [x25], #-0xb70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3b, 0x97, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x27, [x25], #-0xb70",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x8], #-0x950",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0xb5, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x8], #-0x950",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x6, [x25], #0x270",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x26, 0x77, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x6, [x25], #0x270",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x15], #0x50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x55, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x15], #0x50",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x9], #0xc70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x75, 0xac, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x9], #0xc70",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x9], #-0x9d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x35, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x9], #-0x9d0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x9, [x14], #0xd60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0x65, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x9, [x14], #0xd60",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x8, [x25], #0x7d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0xd7, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x8, [x25], #0x7d0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x14, [x16], #-0xbc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe, 0x46, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x14, [x16], #-0xbc0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x0], #-0x470",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x94, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x0], #-0x470",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x24, [x5], #-0xca0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb8, 0x64, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x24, [x5], #-0xca0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x23, [x24], #-0x9e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x27, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x23, [x24], #-0x9e0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x13], #-0xe10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0xf5, 0xb1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x13], #-0xe10",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x16, [x20], #0xdb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0xb6, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x16, [x20], #0xdb0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x17, [x1], #-0x950",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0xb4, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x17, [x1], #-0x950",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x29], #-0xb80",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x87, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x29], #-0xb80",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x28], #-0xba0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x67, 0xb4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x28], #-0xba0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x20], #0x730",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x36, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x20], #0x730",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x4], #-0x240",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0xc4, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x4], #-0x240",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x11, [x10], #0x200",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0x5, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x11, [x10], #0x200",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x14, [x25], #-0x360",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0xa7, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x14, [x25], #-0x360",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x7], #-0x7e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0x24, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x7], #-0x7e0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x22], #0x3a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd3, 0xa6, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x22], #0x3a0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x5], #-0x500",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb2, 0x4, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x5], #-0x500",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x19], #0x780",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x86, 0xa7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x19], #0x780",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x23], #-0x5a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf5, 0x66, 0xba, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x23], #-0x5a0",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x17, #-0x180]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0x8e, 0xbe, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x17, #-0x180]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x14, #0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0x2d, 0xa1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x14, #0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x28, [x28, #-0x9b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x5f, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x28, [x28, #-0x9b0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x2, #0x330]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x3c, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x2, #0x330]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x9, #0x9f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0xfd, 0xa9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x9, #0x9f0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x17, #-0xfb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0x5e, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x17, #-0xfb0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x11, #0x2a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6d, 0xad, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x11, #0x2a0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x15, [x11, #-0xc90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0x7d, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x15, [x11, #-0xc90]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x23, #-0x800]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xe, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x23, #-0x800]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x10, #-0x990]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x7d, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x10, #-0x990]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x17, [x13, #-0x640]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb1, 0xcd, 0xb9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x17, [x13, #-0x640]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x3, #0x210]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x64, 0x1c, 0xa2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x3, #0x210]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x0, #0x500]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0xc, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x0, #0x500]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x14, [x27, #0xd90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6e, 0x9f, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x14, [x27, #0xd90]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x5, [x14, #-0x1e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x2d, 0xbe, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x5, [x14, #-0x1e0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x30, #0x560]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0x6f, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x30, #0x560]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x23, [x17, #-0x760]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0xae, 0xb8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x23, [x17, #-0x760]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x0, [x19, #0xe00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xe, 0xae, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x0, [x19, #0xe00]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x14, #-0xe60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0xad, 0xb1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x14, #-0xe60]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x26, [x3, #-0xed0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x3c, 0xb1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x26, [x3, #-0xed0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x7, [x4, #-0x410]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x87, 0xfc, 0xbb, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x7, [x4, #-0x410]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x30, [x16, #-0xb00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xe, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x30, [x16, #-0xb00]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x20, [x9, #-0x920]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0xed, 0xb6, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x20, [x9, #-0x920]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x28, #0xb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0xbf, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x28, #0xb0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x7, #0xa80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf5, 0x8c, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x7, #0xa80]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x2, [x30, #-0xa40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0xcf, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x2, [x30, #-0xa40]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x10, #0x810]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x1d, 0xa8, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x10, #0x810]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x2, #-0x260]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0xac, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x2, #-0x260]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x22, #-0x6e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x2e, 0xb9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x22, #-0x6e0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x10, #-0xd10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x43, 0xfd, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x10, #-0xd10]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x23, #0x5c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xce, 0xa5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x23, #0x5c0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x13, #0xdb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0xbd, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x13, #0xdb0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x8, [x1, #-0x8f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0x1c, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x8, [x1, #-0x8f0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x15, #0xbc0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xcd, 0xab, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x15, #0xbc0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x20, [x21, #-0x3d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x3e, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x20, [x21, #-0x3d0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x8, [x28, #-0x370]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x88, 0x9f, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x8, [x28, #-0x370]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x26, #-0xc20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0xef, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x26, #-0xc20]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x23, [x19, #0xa30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x77, 0x3e, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x23, [x19, #0xa30]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x14, [x22, #-0x240]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xce, 0xce, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x14, [x22, #-0x240]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x11, [x23, #-0x270]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x9e, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x11, [x23, #-0x270]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x3, [x12, #0xda0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0xad, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x3, [x12, #0xda0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x12, [x9, #-0x820]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0xed, 0xb7, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x12, [x9, #-0x820]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x21, #-0x3c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0x4e, 0xbc, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x21, #-0x3c0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x18, [x29, #-0xdf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb2, 0x1f, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x18, [x29, #-0xdf0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x8, [x10, #-0xed0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x3d, 0xb1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x8, [x10, #-0xed0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x25, [x20, #-0xd10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x99, 0xfe, 0xb2, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x25, [x20, #-0xd10]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x2, [x20, #0xcb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0xbe, 0xac, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x2, [x20, #0xcb0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x9, [x1, #-0xa30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x29, 0xdc, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x9, [x1, #-0xa30]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	sp, [x25, #-0x520]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xef, 0xba, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	sp, [x25, #-0x520]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x7, [x1, #-0xec0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x4c, 0xb1, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x7, [x1, #-0xec0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [sp, #-0xc30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xdf, 0xb3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [sp, #-0xc30]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x28, [x9, #-0xaa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x6d, 0xb5, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x28, [x9, #-0xaa0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x5, [x9, #0xaf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x25, 0xfd, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x5, [x9, #0xaf0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x8, #0xd80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x8d, 0xad, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x8, #0xd80]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x19, [x28, #0xc20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x2f, 0xac, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x19, [x28, #0xc20]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x21, [x14, #0xf60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0x6d, 0xaf, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x21, [x14, #0xf60]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x9, [x17, #0x480]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x29, 0x8e, 0xa4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x9, [x17, #0x480]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x13, [x23, #0xae0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0xee, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x13, [x23, #0xae0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x2, [x10, #-0x280]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x8d, 0xbd, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x2, [x10, #-0x280]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x7, [x6, #0x480]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x8c, 0xa4, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x7, [x6, #0x480]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x4, [x8, #-0x6c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x4d, 0xb9, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x4, [x8, #-0x6c0]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x1, [x6, #0x320]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x2c, 0xa3, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x1, [x6, #0x320]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x22, [x11, #-0xf10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0xfd, 0xb0, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x22, [x11, #-0xf10]!",
-			wantErr: false,
-		},
-		{
-			name: "st2g	x17, [x9, #0xaf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0xfd, 0xaa, 0xd9}),
-				address:          0,
-			},
-			want: "st2g	x17, [x9, #0xaf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x6, [sp]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x6, [sp]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x2, [x6]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x2, [x6]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x13, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x13, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x21, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x75, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x21, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x27, [x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5b, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x27, [x10]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x9, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa9, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x9, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x29, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x29, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x26, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x26, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x12, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x12, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	xzr, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	xzr, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x1, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x1, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x25, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x25, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x21, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x15, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x21, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x15, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x15, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x11, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x11, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x21, [x21]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x21, [x21]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x0, [x25]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x0, [x25]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x4, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x4, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x10, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x10, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x3, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x3, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x4, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x64, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x4, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x27, [x6]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdb, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x27, [x6]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x8, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x8, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x11, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x11, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x15, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x15, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x17, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x17, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x24, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x24, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x4, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x4, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x7, [x7]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x7, [x7]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x17, [x27]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x17, [x27]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x15, [x4]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x15, [x4]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x20, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x20, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x3, [x17]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x3, [x17]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x20, [sp]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x20, [sp]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x14, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x14, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x25, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x25, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x10, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x10, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x0, [x27]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x0, [x27]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x23, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x23, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x18, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb2, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x18, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x25, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x99, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x25, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x5, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x5, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x3, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x3, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x8, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x8, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x23, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x23, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x27, [x15]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x27, [x15]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x25, [x27]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x25, [x27]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x23, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x77, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x23, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x20, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x94, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x20, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x8, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x8, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x1, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x1, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x15, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x15, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x1, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x1, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x21, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x21, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x13, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x13, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x8, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x8, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x30, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x30, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x4, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc4, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x4, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x10, [x17]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x2, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x10, [x17]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x11, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x11, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x9, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0x1, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x9, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x11, [sp]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x11, [sp]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x26, [x27]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x3, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x26, [x27]",
-			wantErr: false,
-		},
-		{
-			name: "stgm	x10, [x4]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8a, 0x0, 0xa0, 0xd9}),
-				address:          0,
-			},
-			want: "stgm	x10, [x4]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x19, x19, [x4, #0xf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0xcc, 0x7, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x19, x19, [x4, #0xf0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x26, [x13, #-0x280]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x69, 0x2c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x25, x26, [x13, #-0x280]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x15, [x6, #-0x2c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x3c, 0x2a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x20, x15, [x6, #-0x2c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x29, [x5, #-0x120]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbf, 0x74, 0x37, 0x69}),
-				address:          0,
-			},
-			want: "stgp	xzr, x29, [x5, #-0x120]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x0, [x23, #0xe0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0x2, 0x7, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x0, [x23, #0xe0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x30, x30, [x8, #0x240]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0x79, 0x12, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x30, x30, [x8, #0x240]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x24, x12, [x23, #0x290]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0xb2, 0x14, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x24, x12, [x23, #0x290]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x15, x26, [x2, #0x3a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0x68, 0x1d, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x15, x26, [x2, #0x3a0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x24, [x17, #0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0x62, 0x6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x18, x24, [x17, #0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x15, [x17, #0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0xbe, 0x1b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x18, x15, [x17, #0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x24, [x9, #0x190]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xe1, 0xc, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x29, x24, [x9, #0x190]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x19, [x5, #0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0x4c, 0x1f, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x19, [x5, #0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x28, [x9, #0x160]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0x71, 0xb, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x17, x28, [x9, #0x160]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x5, [x26, #-0xa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x17, 0x3b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x29, x5, [x26, #-0xa0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x9, x23, [x2, #0x2c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x49, 0x5c, 0x16, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x9, x23, [x2, #0x2c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x10, [x28, #0x190]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0xab, 0xc, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x5, x10, [x28, #0x190]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x21, x18, [x4, #0x350]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x95, 0xc8, 0x1a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x21, x18, [x4, #0x350]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x17, [x1, #0x1f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0xf, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x0, x17, [x1, #0x1f0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x2, x6, [x22, #-0x1e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x1a, 0x31, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x2, x6, [x22, #-0x1e0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x24, [x10, #-0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0xe1, 0x24, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x24, [x10, #-0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x15, [x6, #0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0xbc, 0x1b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x16, x15, [x6, #0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x7, x25, [sp, #0x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xe7, 0x0, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x7, x25, [sp, #0x10]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x27, [x30, #-0x320]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0x6f, 0x27, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x27, [x30, #-0x320]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x3, xzr, [x3, #-0xe0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x63, 0x7c, 0x39, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x3, xzr, [x3, #-0xe0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x15, x23, [x25, #-0x60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x5f, 0x3d, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x15, x23, [x25, #-0x60]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x0, [x7, #0x2e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x0, 0x17, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x0, [x7, #0x2e0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x3, [x23, #0x1e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0xe, 0xf, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x13, x3, [x23, #0x1e0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x30, [x11, #-0x240]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x79, 0x2e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x1, x30, [x11, #-0x240]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x22, [x6, #0x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0xd8, 0x0, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x13, x22, [x6, #0x10]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x10, [x20, #-0x2c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x88, 0x2a, 0x2a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x10, [x20, #-0x2c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x27, [x7, #-0x1c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0x6c, 0x32, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x14, x27, [x7, #-0x1c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x18, [x1, #-0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc8, 0x24, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x0, x18, [x1, #-0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x28, [x15, #0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0xf1, 0x1b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x17, x28, [x15, #0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x18, [x22, #-0x1c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x4a, 0x32, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x16, x18, [x22, #-0x1c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x6, [x25, #0x390]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2d, 0x9b, 0x1c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x13, x6, [x25, #0x390]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x14, [x4, #0x2c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0x38, 0x16, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x5, x14, [x4, #0x2c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x29, [x5, #0x3c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0x74, 0x1e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x29, [x5, #0x3c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x12, x8, [x16, #-0x1b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc, 0xa2, 0x32, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x12, x8, [x16, #-0x1b0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x2, [x23, #0x300]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0xa, 0x18, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x18, x2, [x23, #0x300]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x21, [x1, #0x2f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0xd4, 0x17, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x20, x21, [x1, #0x2f0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x26, [x18, #0x3c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0x6a, 0x1e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x25, x26, [x18, #0x3c0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x2, [x0, #-0x130]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x88, 0x36, 0x69}),
-				address:          0,
-			},
-			want: "stgp	xzr, x2, [x0, #-0x130]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x11, [x8, #0x80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x2d, 0x4, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x11, [x8, #0x80]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x26, [x17, #0x150]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0xea, 0xa, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x26, [x17, #0x150]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x16, [x30, #-0x1d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0xc3, 0x31, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x16, [x30, #-0x1d0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x15, [x10, #-0xb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5a, 0xbd, 0x3a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, x15, [x10, #-0xb0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x3, xzr, [sp, #0xa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0x5, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x3, xzr, [sp, #0xa0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x3, [x6, #-0x390]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x8c, 0x23, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x13, x3, [x6, #-0x390]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x20, [x3, #-0xa0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x50, 0x3b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x18, x20, [x3, #-0xa0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x11, x2, [x15, #-0x240]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x9, 0x2e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x11, x2, [x15, #-0x240]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x26, [x15, #-0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0x69, 0x21, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x26, [x15, #-0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x24, [x10, #0x310]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0xe1, 0x18, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x24, [x10, #0x310]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x22, x5, [x15, #0x30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf6, 0x95, 0x1, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x22, x5, [x15, #0x30]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x18, [x8, #-0x330]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0xc9, 0x26, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x20, x18, [x8, #-0x330]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x16, [x23, #0x1b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0xc2, 0xd, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x16, [x23, #0x1b0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x11, [x16, #0x1b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0xae, 0xd, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x11, [x16, #0x1b0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x19, [x7, #0x270]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xcc, 0x13, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x19, [x7, #0x270]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x2, [x2, #-0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x46, 0x8, 0x3a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x2, [x2, #-0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x28, x13, [x29, #0x150]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbc, 0xb7, 0xa, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x28, x13, [x29, #0x150]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x12, x9, [x15, #0x380]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xec, 0x25, 0x1c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x12, x9, [x15, #0x380]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x2, x23, [x1, #0x220]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0x5c, 0x11, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x2, x23, [x1, #0x220]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x24, x2, [x14, #0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0x9, 0x6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x24, x2, [x14, #0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x11, x30, [x12, #0x350]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0xf9, 0x1a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x11, x30, [x12, #0x350]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x5, [x19, #0x230]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x96, 0x11, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x5, [x19, #0x230]",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x7, x30, [x10], #-0x270",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x47, 0xf9, 0xac, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x7, x30, [x10], #-0x270",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x21, x27, [x6], #0x1f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xec, 0x8f, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x21, x27, [x6], #0x1f0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x6, [x30], #-0x190",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd1, 0x9b, 0xb3, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x17, x6, [x30], #-0x190",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x3, x1, [x26], #-0x250",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x43, 0x87, 0xad, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x3, x1, [x26], #-0x250",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x11, [x8], #-0x1a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x0, 0x2d, 0xb3, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x0, x11, [x8], #-0x1a0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x18, [x25], #0x2e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x4b, 0x97, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x23, x18, [x25], #0x2e0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x8, [x23], #0x250",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xa2, 0x92, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x6, x8, [x23], #0x250",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x19, x15, [x26], #0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x3f, 0x93, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x19, x15, [x26], #0x260",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x2, x6, [x3], #0x270",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x98, 0x93, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x2, x6, [x3], #0x270",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x2, x22, [x10], #-0x60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x59, 0xbd, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x2, x22, [x10], #-0x60",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x8, [x0], #0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x20, 0x94, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x29, x8, [x0], #0x280",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x24, [x4], #-0x3c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x60, 0xa2, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x6, x24, [x4], #-0x3c0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x11, [x27], #0x380",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x2f, 0x9c, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x25, x11, [x27], #0x380",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x6, [x10], #-0x3d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x99, 0xa1, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x29, x6, [x10], #-0x3d0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x15, x24, [x14], #0x170",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0xe1, 0x8b, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x15, x24, [x14], #0x170",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x16, [x27], #-0x390",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0xc3, 0xa3, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x10, x16, [x27], #-0x390",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x11, x16, [x28], #-0x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0xc3, 0xbe, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x11, x16, [x28], #-0x30",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x29, [x30], #0x2e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x77, 0x97, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x16, x29, [x30], #0x2e0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x13, [x26], #-0x1f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0xb7, 0xb0, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x8, x13, [x26], #-0x1f0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x15, x23, [x28], #0x380",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x5f, 0x9c, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x15, x23, [x28], #0x380",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x26, [x23], #-0x1c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x6a, 0xb2, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x17, x26, [x23], #-0x1c0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x10, [x13], #-0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb0, 0x29, 0xac, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x16, x10, [x13], #-0x280",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x14, [x30], #-0x1d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0xbb, 0xb1, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x16, x14, [x30], #-0x1d0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x14, [x27], #0x200",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x3b, 0x90, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x26, x14, [x27], #0x200",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x9, x14, [x23], #-0xf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0xba, 0xb8, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x9, x14, [x23], #-0xf0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x10, [x25], #0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x2b, 0x93, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x26, x10, [x25], #0x260",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x23, [x1], #0x240",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0x5c, 0x92, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x17, x23, [x1], #0x240",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x17, [x30], #0x40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdb, 0x47, 0x82, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x27, x17, [x30], #0x40",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x8, [x4], #-0x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0x20, 0xbf, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x5, x8, [x4], #-0x20",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x8, [x25], #-0x1d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xa3, 0xb1, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x29, x8, [x25], #-0x1d0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x4, [x2], #-0x90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x90, 0xbb, 0x68}),
-				address:          0,
-			},
-			want: "stgp	xzr, x4, [x2], #-0x90",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x23, [x22], #0x190",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xda, 0xde, 0x8c, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x26, x23, [x22], #0x190",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x27, [x19], #-0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x6e, 0xad, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x27, [x19], #-0x260",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x25, [x16], #0x2d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0xe6, 0x96, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x17, x25, [x16], #0x2d0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x0, [x30], #0x360",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x3, 0x9b, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x8, x0, [x30], #0x360",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x11, [x0], #-0x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0xac, 0xbe, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x29, x11, [x0], #-0x30",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x20, [x26], #0x50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0xd3, 0x82, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x18, x20, [x26], #0x50",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x4, x14, [x29], #0x340",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0x3b, 0x9a, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x4, x14, [x29], #0x340",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x13, [x17], #-0x230",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0xb6, 0xae, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x13, [x17], #-0x230",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x15, [x16], #0xb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0xbe, 0x85, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x20, x15, [x16], #0xb0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x9, [x10], #-0x1e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x25, 0xb1, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x14, x9, [x10], #-0x1e0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x0, [x8], #0x50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x81, 0x82, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x0, [x8], #0x50",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x24, x16, [x28], #-0x3b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x98, 0xc3, 0xa2, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x24, x16, [x28], #-0x3b0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x8, [x20], #0x1a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x22, 0x8d, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x26, x8, [x20], #0x1a0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x25, [x8], #0x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0xe5, 0x80, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x25, [x8], #0x10",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x18, [x19], #-0x2a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0x4a, 0xab, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x18, [x19], #-0x2a0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x18, [x30], #0x3a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x4b, 0x9d, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x20, x18, [x30], #0x3a0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x9, xzr, [x8], #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x7d, 0x80, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x9, xzr, [x8], #0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x23, [x26], #-0x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0xdf, 0xbf, 0x68}),
-				address:          0,
-			},
-			want: "stgp	xzr, x23, [x26], #-0x10",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x12, [x29], #0x1c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x33, 0x8e, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x10, x12, [x29], #0x1c0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x16, [x24], #-0x390",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0xc3, 0xa3, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x5, x16, [x24], #-0x390",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x3, x9, [x13], #-0x70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0xa5, 0xbc, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x3, x9, [x13], #-0x70",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x14, [x18], #0x340",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x3a, 0x9a, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x14, [x18], #0x340",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x2, [x11], #-0x50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0x89, 0xbd, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x17, x2, [x11], #-0x50",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, xzr, [x24], #0xe0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8, 0x7f, 0x87, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x8, xzr, [x24], #0xe0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x22, x3, [x29], #0x360",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0xf, 0x9b, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x22, x3, [x29], #0x360",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x1, [x11], #-0x2e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x5, 0xa9, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x5, x1, [x11], #-0x2e0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x5, [x18], #0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5a, 0x16, 0x94, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x26, x5, [x18], #0x280",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x30, x15, [x4], #0x220",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x3c, 0x91, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x30, x15, [x4], #0x220",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x21, [x22], #-0x170",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0xd6, 0xb4, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x13, x21, [x22], #-0x170",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x7, [x5], #0x2b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x9c, 0x95, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x0, x7, [x5], #0x2b0",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x9, [x26], #0x330",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0xa7, 0x99, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x10, x9, [x26], #0x330",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x22, x29, [x13], #0x180",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0x75, 0x8c, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x22, x29, [x13], #0x180",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x6, [x17], #0x380",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x1a, 0x9c, 0x68}),
-				address:          0,
-			},
-			want: "stgp	x1, x6, [x17], #0x380",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x2, [x16, #-0x250]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x8a, 0xad, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, x2, [x16, #-0x250]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x4, [x11, #0x2e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x11, 0x97, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x4, [x11, #0x2e0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x22, x7, [x6, #-0x20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0x1c, 0xbf, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x22, x7, [x6, #-0x20]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x15, [x17, #-0x1f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xbe, 0xb0, 0x69}),
-				address:          0,
-			},
-			want: "stgp	xzr, x15, [x17, #-0x1f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x15, x23, [x3, #-0x380]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0x5c, 0xa4, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x15, x23, [x3, #-0x380]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x13, [x1, #0x30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0xb4, 0x81, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x13, [x1, #0x30]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x30, [x18, #0x180]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x7a, 0x8c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x30, [x18, #0x180]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x17, [x4, #0xb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0xc4, 0x85, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x17, [x4, #0xb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x30, x9, [x27, #-0x3d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0xa7, 0xa1, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x30, x9, [x27, #-0x3d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x11, x9, [x20, #0x3d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0xa6, 0x9e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x11, x9, [x20, #0x3d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x16, x29, [x4, #-0x140]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x74, 0xb6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x16, x29, [x4, #-0x140]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x19, x14, [x9, #0x150]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0xb9, 0x8a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x19, x14, [x9, #0x150]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x2, x5, [x7, #-0x180]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x14, 0xb4, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x2, x5, [x7, #-0x180]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x4, x28, [x8, #-0x340]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x71, 0xa6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x4, x28, [x8, #-0x340]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x20, x7, [x17, #0x2f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x9e, 0x97, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x20, x7, [x17, #0x2f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x19, x19, [x30, #0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd3, 0x4f, 0x89, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x19, x19, [x30, #0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x22, [x20, #0x30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x97, 0xda, 0x81, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x22, [x20, #0x30]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x22, [x0, #-0x330]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0xd8, 0xa6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x22, [x0, #-0x330]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x21, [x18, #0x140]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5b, 0x56, 0x8a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x21, [x18, #0x140]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	xzr, x19, [x3, #-0x3a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x4c, 0xa3, 0x69}),
-				address:          0,
-			},
-			want: "stgp	xzr, x19, [x3, #-0x3a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x16, [x28, #-0x210]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0xc3, 0xaf, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x14, x16, [x28, #-0x210]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x19, [x30, #0x160]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdb, 0x4f, 0x8b, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x19, [x30, #0x160]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x17, [x9, #0x1d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xc5, 0x8e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x29, x17, [x9, #0x1d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x24, [x25, #-0x60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x63, 0xbd, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, x24, [x25, #-0x60]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x9, [x0, #0x340]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0x24, 0x9a, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x5, x9, [x0, #0x340]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x28, [x9, #0x380]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x39, 0x71, 0x9c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x25, x28, [x9, #0x380]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x10, [x22, #-0x1f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xaa, 0xb0, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x10, [x22, #-0x1f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x11, [x19, #0xa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x2e, 0x85, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x11, [x19, #0xa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x18, x2, [x21, #0x380]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb2, 0xa, 0x9c, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x18, x2, [x21, #0x380]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x22, [x8, #-0x330]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0xd9, 0xa6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x5, x22, [x8, #-0x330]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x28, x7, [x20, #-0x360]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x1e, 0xa5, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x28, x7, [x20, #-0x360]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x19, [x13, #-0x250]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0xcd, 0xad, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x1, x19, [x13, #-0x250]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x29, x10, [x13, #-0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x29, 0xb7, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x29, x10, [x13, #-0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x3, x13, [x12, #0x130]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0xb5, 0x89, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x3, x13, [x12, #0x130]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x7, x13, [x25, #0x3a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x37, 0x9d, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x7, x13, [x25, #0x3a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, xzr, [x5, #-0x2d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0xfc, 0xa9, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, xzr, [x5, #-0x2d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x11, [x17, #0x1d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0xae, 0x8e, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, x11, [x17, #0x1d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x24, x3, [x27, #0xb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x8f, 0x85, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x24, x3, [x27, #0xb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x22, [x18, #0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0x5a, 0x89, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x0, x22, [x18, #0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x13, x7, [x10, #-0x20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0x1d, 0xbf, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x13, x7, [x10, #-0x20]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x18, [x23, #-0x90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xca, 0xbb, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x18, [x23, #-0x90]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x13, [x6, #-0x3a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x34, 0xa3, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x13, [x6, #-0x3a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x23, x16, [x10, #0x320]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0x41, 0x99, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x23, x16, [x10, #0x320]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x5, x3, [x4, #-0x320]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0xc, 0xa7, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x5, x3, [x4, #-0x320]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x8, x1, [x3, #-0xd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x84, 0xb9, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x8, x1, [x3, #-0xd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, xzr, [x22, #-0x290]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xfe, 0xab, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x0, xzr, [x22, #-0x290]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x10, x30, [x15, #-0x230]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xf9, 0xae, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x10, x30, [x15, #-0x230]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x3, [x8, #-0x340]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe, 0xd, 0xa6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x14, x3, [x8, #-0x340]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x30, x15, [x11, #-0x30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0xbd, 0xbe, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x30, x15, [x11, #-0x30]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x30, [x8, #-0x230]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0xf9, 0xae, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x30, [x8, #-0x230]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x12, x12, [x10, #-0xa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0x31, 0xbb, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x12, x12, [x10, #-0xa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x25, [x9, #-0x290]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0xe5, 0xab, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x14, x25, [x9, #-0x290]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x5, [x28, #0x290]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x97, 0x94, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x5, [x28, #0x290]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x28, x28, [x27, #-0x300]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0x73, 0xa8, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x28, x28, [x27, #-0x300]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x12, x1, [x19, #-0x190]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x86, 0xb3, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x12, x1, [x19, #-0x190]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x6, x13, [x19, #-0x330]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0xb6, 0xa6, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x6, x13, [x19, #-0x330]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x3, [x24, #0x1e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0xf, 0x8f, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x25, x3, [x24, #0x1e0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x25, x11, [x24, #-0xf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0xaf, 0xb8, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x25, x11, [x24, #-0xf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x27, x27, [x0, #-0x360]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x6c, 0xa5, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x27, x27, [x0, #-0x360]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x14, x24, [x12, #-0x280]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x61, 0xac, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x14, x24, [x12, #-0x280]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x0, x2, [x11, #-0x3a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x9, 0xa3, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x0, x2, [x11, #-0x3a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x17, x15, [x0, #-0x80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x3c, 0xbc, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x17, x15, [x0, #-0x80]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x26, x29, [x9, #-0x3b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0xf5, 0xa2, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x26, x29, [x9, #-0x3b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stgp	x1, x8, [x4, #0x310]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0xa0, 0x98, 0x69}),
-				address:          0,
-			},
-			want: "stgp	x1, x8, [x4, #0x310]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x23, #-0x9d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x3a, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x23, #-0x9d0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x0, #-0x290]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x78, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x0, #-0x290]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x22, #0xea0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0xaa, 0x2e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x22, #0xea0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x9, [x3, #0xd50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0x58, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x9, [x3, #0xd50]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x6, #-0x510]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0xf8, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x6, #-0x510]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x23, #-0x650]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0xba, 0x39, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x23, #-0x650]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x0, #-0x460]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2, 0xa8, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x0, #-0x460]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x7, [x9, #-0x940]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0xc9, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x7, [x9, #-0x940]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x14, [x15, #0xe90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0x99, 0x2e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x14, [x15, #0xe90]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x17, #-0x760]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0xaa, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x17, #-0x760]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x7, [x14, #-0x600]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x9, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x7, [x14, #-0x600]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x3, #-0x980]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x88, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x3, #-0x980]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x30, #0x8b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0xbb, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x30, #0x8b0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x11, #0xdb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0xb9, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x11, #0xdb0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x20, #0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x7a, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x20, #0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x9, [x16, #0x230]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x3a, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x9, [x16, #0x230]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x23, [x0, #0xf80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x88, 0x2f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x23, [x0, #0xf80]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x4, #-0xe60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0xa8, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x4, #-0xe60]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x10, #-0xed0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x39, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x10, #-0xed0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x25, #0xad0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0xdb, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x25, #0xad0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x7, #-0x750]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0xb8, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x7, #-0x750]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x27, [x15, #-0x2e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0x29, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x27, [x15, #-0x2e0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x27, [x29, #-0x280]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbb, 0x8b, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x27, [x29, #-0x280]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x5, #-0x2e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x28, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x5, #-0x2e0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x8, #0x6d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb, 0xd9, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x8, #0x6d0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x23, #-0x3f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0x1a, 0x3c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x23, #-0x3f0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [x30, #-0x4a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0x6b, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [x30, #-0x4a0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x13, #-0x730]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0xd9, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x13, #-0x730]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x16, [x6, #-0x5a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x68, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x16, [x6, #-0x5a0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [sp, #-0x9b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0x5b, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [sp, #-0x9b0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x13, #-0xf30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0xd9, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x13, #-0xf30]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [x26, #-0xb00]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0xb, 0x35, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [x26, #-0xb00]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x28, [x11, #0x570]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0x79, 0x25, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x28, [x11, #0x570]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x9, [x20, #0x60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x6a, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x9, [x20, #0x60]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x4, #0x920]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x94, 0x28, 0x29, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x4, #0x920]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x13, #0x20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x29, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x13, #0x20]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x11, #0x300]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6d, 0x9, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x11, #0x300]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [sp, #-0xf30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xdb, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [sp, #-0xf30]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [x26, #-0xdd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0x3b, 0x32, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [x26, #-0xdd0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x17, #0xd70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x7a, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x17, #0xd70]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [x7, #-0x2b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0x58, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [x7, #-0x2b0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x11, #-0x7c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x49, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x11, #-0x7c0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x25, #-0x4d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x3b, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x25, #-0x4d0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x4, #-0xfd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x92, 0x38, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x4, #-0xfd0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x16, #-0xf50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0xba, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x16, #-0xf50]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x3, [x24, #0xc40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x4b, 0x2c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x3, [x24, #0xc40]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x28, #-0x8f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x92, 0x1b, 0x37, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x28, #-0x8f0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x15, #0xc60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfa, 0x69, 0x2c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x15, #0xc60]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x1, #-0xed0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3e, 0x38, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x1, #-0xed0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x16, [x7, #0x120]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf0, 0x28, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x16, [x7, #0x120]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x22, #-0x950]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd3, 0xba, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x22, #-0x950]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x0, #0x590]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8, 0x98, 0x25, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x0, #0x590]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x12, [x13, #-0x140]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0xc9, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x12, [x13, #-0x140]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x17, #-0x240]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0xca, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x17, #-0x240]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x19, #-0xfc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x4a, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x19, #-0xfc0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x11, #0x1d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x73, 0xd9, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x11, #0x1d0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [x6, #-0x600]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0x8, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [x6, #-0x600]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x14, [x13, #0x180]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x89, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x14, [x13, #0x180]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x27, [x4, #0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0x28, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x27, [x4, #0x820]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [x13, #-0xf70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0x99, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [x13, #-0xf70]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x14, #-0x1c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x49, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x14, #-0x1c0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x21, [x12, #0x850]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x95, 0x59, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x21, [x12, #0x850]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x21, [x29, #-0xef0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0x1b, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x21, [x29, #-0xef0]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x29, [x9, #-0xa10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0xf9, 0x35, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x29, [x9, #-0xa10]",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x5], #0x270",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x74, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x5], #0x270",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x5], #0x8d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0xd4, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x5], #0x8d0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x6], #-0x2a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0x64, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x6], #-0x2a0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x28, [x25], #0x850",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x57, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x28, [x25], #0x850",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x7], #-0x9a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x64, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x7], #-0x9a0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x26], #0xaf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0xf7, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x26], #0xaf0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x24], #-0xa60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0xa7, 0x35, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x24], #-0xa60",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x2], #0xe40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0x44, 0x2e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x2], #0xe40",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x2], #0x2d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xd4, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x2], #0x2d0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x2], #0xb60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x64, 0x2b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x2], #0xb60",
-			wantErr: false,
-		},
-		{
-			name: "stg	x23, [x21], #0xde0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0xe6, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x23, [x21], #0xde0",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x23], #0xe00",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x6, 0x2e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x23], #0xe00",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x25], #0xd10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x17, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x25], #0xd10",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x21], #-0x740",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb2, 0xc6, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x21], #-0x740",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x12], #-0x4e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x25, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x12], #-0x4e0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x22], #0x300",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0x6, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x22], #0x300",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x8], #0xf60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x65, 0x2f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x8], #0xf60",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x17], #-0x120",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3e, 0xe6, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x17], #-0x120",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [sp], #-0x310",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xf7, 0x3c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [sp], #-0x310",
-			wantErr: false,
-		},
-		{
-			name: "stg	x14, [x27], #0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6e, 0x67, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x14, [x27], #0x260",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x1], #-0x9e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x24, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x1], #-0x9e0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x14, [x12], #-0xf90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x75, 0x30, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x14, [x12], #-0xf90",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x4], #0xaf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xf4, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x4], #0xaf0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x28, [x7], #0xc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0xc4, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x28, [x7], #0xc0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x16], #0x110",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0x16, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x16], #0x110",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x10], #-0xe40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0xc5, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x10], #-0xe40",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x4], #0x4f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0xf4, 0x24, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x4], #0x4f0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x4], #0x2c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0xc4, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x4], #0x2c0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x7], #-0xb30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd4, 0x34, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x7], #-0xb30",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x29], #0x960",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x67, 0x29, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x29], #0x960",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x13], #-0x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0xd5, 0x3f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x13], #-0x30",
-			wantErr: false,
-		},
-		{
-			name: "stg	x22, [x6], #-0x890",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0x74, 0x37, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x22, [x6], #-0x890",
-			wantErr: false,
-		},
-		{
-			name: "stg	x14, [x25], #-0x5f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0x17, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x14, [x25], #-0x5f0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x12, [x18], #0xdd0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0xd6, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x12, [x18], #0xdd0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x2], #-0x760",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xa4, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x2], #-0x760",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x28], #0x1c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0xc7, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x28], #0x1c0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x16], #-0x810",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0xf6, 0x37, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x16], #-0x810",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x3], #-0xd50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0xb4, 0x32, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x3], #-0xd50",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x28], #0x990",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x97, 0x29, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x28], #0x990",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x1], #-0xd30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0xd4, 0x32, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x1], #-0xd30",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x20], #-0x2e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x26, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x20], #-0x2e0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x20], #0xd30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x36, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x20], #0xd30",
-			wantErr: false,
-		},
-		{
-			name: "stg	x2, [x27], #-0xd0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x37, 0x3f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x2, [x27], #-0xd0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x10], #-0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0x85, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x10], #-0x280",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [sp], #-0x570",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x97, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [sp], #-0x570",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x4], #-0x5d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x34, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x4], #-0x5d0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x27, [x24], #0xb50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x57, 0x2b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x27, [x24], #0xb50",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x18], #0x370",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0x76, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x18], #0x370",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x4], #0xc90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x94, 0x2c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x4], #0xc90",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x15], #-0x3b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x55, 0x3c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x15], #-0x3b0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [sp], #0x670",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x77, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [sp], #0x670",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x21], #-0x3d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x36, 0x3c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x21], #-0x3d0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x11], #-0xbf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x73, 0x15, 0x34, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x11], #-0xbf0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x12, [x24], #-0xcd0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc, 0x37, 0x33, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x12, [x24], #-0xcd0",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x24], #0xaa0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0xa7, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x24], #0xaa0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x7, [x23], #-0x460",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xa6, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x7, [x23], #-0x460",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x5], #-0x2a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x64, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x5], #-0x2a0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x19], #0x1b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6b, 0xb6, 0x21, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x19], #0x1b0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x20, [x11], #-0x950",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0xb5, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x20, [x11], #-0x950",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x3], #0xf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0xf4, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x3], #0xf0",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x26], #0x730",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0x37, 0x27, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x26], #0x730",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x1], #-0x520",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x1], #-0x520",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x1], #-0x840",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0xc4, 0x37, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x1], #-0x840",
-			wantErr: false,
-		},
-		{
-			name: "stg	x16, [x4], #-0x600",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x4, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x16, [x4], #-0x600",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x16, #0x580]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x8e, 0x25, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x16, #0x580]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x24, #0x610]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0x1f, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x24, #0x610]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x26, #0x300]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0xf, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x26, #0x300]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x29, [x6, #0x740]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdd, 0x4c, 0x27, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x29, [x6, #0x740]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x10, #0x300]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x46, 0xd, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x10, #0x300]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x17, #-0x1c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x4e, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x17, #-0x1c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x16, #0xfe0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x0, 0xee, 0x2f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x16, #0xfe0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x13, #-0x9b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0x5d, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x13, #-0x9b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x19, [x23, #-0xe70]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf3, 0x9e, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x19, [x23, #-0xe70]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x22, [x27, #0xa80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0x8f, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x22, [x27, #0xa80]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x18, #-0x1a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x6e, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x18, #-0x1a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x24, #-0xe50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0xbf, 0x31, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x24, #-0xe50]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x15, [x10, #0x200]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0xd, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x15, [x10, #0x200]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x12, #0xd70]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x7d, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x12, #0xd70]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x9, #0x6a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x28, 0xad, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x9, #0x6a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x10, #0x370]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x7d, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x10, #0x370]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x14, #-0xc50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xbd, 0x33, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x14, #-0xc50]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x18, #0x7f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0xfe, 0x27, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x18, #0x7f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x23, #-0x910]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0xfe, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x23, #-0x910]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x1, #0x410]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x1c, 0x24, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x1, #0x410]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [x24, #0x50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x5f, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [x24, #0x50]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [x7, #0x810]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0x1c, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [x7, #0x810]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x26, [x24, #-0x790]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x7f, 0x38, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x26, [x24, #-0x790]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x18, [x15, #0x220]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0x2d, 0x22, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x18, [x15, #0x220]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x4, [x3, #0x850]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x64, 0x5c, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x4, [x3, #0x850]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x14, #0x500]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0xd, 0x25, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x14, #0x500]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x14, #-0x260]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd1, 0xad, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x14, #-0x260]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x17, #-0xcb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2d, 0x5e, 0x33, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x17, #-0xcb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x23, #0x9b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xbe, 0x29, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x23, #0x9b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x16, [x21, #-0x70]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb0, 0x9e, 0x3f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x16, [x21, #-0x70]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x29, [sp, #0x6c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfd, 0xcf, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x29, [sp, #0x6c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x13, [x27, #0xd20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6d, 0x2f, 0x2d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x13, [x27, #0xd20]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x6, [x16, #-0x290]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x7e, 0x3d, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x6, [x16, #-0x290]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x14, #-0xcb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0x5d, 0x33, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x14, #-0xcb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x3, [x17, #-0x3c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x4e, 0x3c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x3, [x17, #-0x3c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x4, #0x8f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0xfc, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x4, #0x8f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x5, #0x620]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x2c, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x5, #0x620]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x22, [x22, #0xaa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0xae, 0x2a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x22, [x22, #0xaa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x22, [x24, #0x8a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x16, 0xaf, 0x28, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x22, [x24, #0x8a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x29, [x29, #0xbf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0xff, 0x2b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x29, [x29, #0xbf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x2, #0x690]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x51, 0x9c, 0x26, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x2, #0x690]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x12, [x29, #0x10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0x1f, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x12, [x29, #0x10]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	sp, [x12, #-0xad0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x3d, 0x35, 0xd9}),
-				address:          0,
-			},
-			want: "stg	sp, [x12, #-0xad0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x1, [x7, #0xc30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x3c, 0x2c, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x1, [x7, #0xc30]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x25, [x23, #-0xd60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0xae, 0x32, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x25, [x23, #-0xd60]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x30, [x19, #-0xa20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0xee, 0x35, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x30, [x19, #-0xa20]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x21, [x18, #0x550]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x5e, 0x25, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x21, [x18, #0x550]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [sp, #0x7f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xff, 0x27, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [sp, #0x7f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x11, [x30, #0xf30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x3f, 0x2f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x11, [x30, #0xf30]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x4, #-0x600]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0xc, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x4, #-0x600]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x17, [x19, #-0x60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0xae, 0x3f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x17, [x19, #-0x60]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x21, [x13, #-0x1a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0x6d, 0x3e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x21, [x13, #-0x1a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x0, #-0x5a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0x6c, 0x3a, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x0, #-0x5a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x12, [x1, #-0x6e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x2c, 0x39, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x12, [x1, #-0x6e0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x29, [x8, #-0x450]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0xbd, 0x3b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x29, [x8, #-0x450]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x7, [x23, #-0x8c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x4e, 0x37, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x7, [x23, #-0x8c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x25, #0x4f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0xff, 0x24, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x25, #0x4f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x14, #-0x40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0xcd, 0x3f, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x14, #-0x40]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x10, [x6, #0xbd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xdc, 0x2b, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x10, [x6, #0xbd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x11, #0x330]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x3d, 0x23, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x11, #0x330]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x5, [x29, #-0x9e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x2f, 0x36, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x5, [x29, #-0x9e0]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x0, [x28, #0xe60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x6f, 0x2e, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x0, [x28, #0xe60]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x8, [x5, #0x770]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x7c, 0x27, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x8, [x5, #0x770]!",
-			wantErr: false,
-		},
-		{
-			name: "stg	x24, [x29, #-0x670]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb8, 0x9f, 0x39, 0xd9}),
-				address:          0,
-			},
-			want: "stg	x24, [x29, #-0x670]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x27, [x27, #0xfd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0xdb, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x27, [x27, #0xfd0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x17, #-0x900]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0xa, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x17, #-0x900]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x18, #-0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x51, 0xea, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x18, #-0x820]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x3, #0xf60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x68, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x3, #0xf60]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x16, #-0x8d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x3a, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x16, #-0x8d0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x10, [x17, #-0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x4a, 0xff, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x10, [x17, #-0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x23, #-0xfd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x3a, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x23, #-0xfd0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x18, #-0xb40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x47, 0xca, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x18, #-0xb40]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x25, [x24, #0x4f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0xfb, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x25, [x24, #0x4f0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x15, #-0x550]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0xb9, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x15, #-0x550]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x19, #-0x470]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0x9a, 0xfb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x19, #-0x470]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x9, #0xc90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x99, 0xec, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x9, #0xc90]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x1, #0x520]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x28, 0xe5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x1, #0x520]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x28, [x10, #-0xf10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5c, 0xf9, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x28, [x10, #-0xf10]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x7, #0xa10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0x18, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x7, #0xa10]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x21, [x18, #-0x2a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x6a, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x21, [x18, #-0x2a0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x16, [x30, #0x280]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x8b, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x16, [x30, #0x280]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x2, #-0xf40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0xc8, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x2, #-0xf40]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x30, #0xda0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0xab, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x30, #0xda0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x25, #-0x590]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x37, 0x7b, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x25, #-0x590]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x7, #0x540]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x48, 0xe5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x7, #0x540]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x9, #-0x400]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0x9, 0xfc, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x9, #-0x400]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x10, #0xf90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5a, 0x99, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x10, #0xf90]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x13, [x7, #-0xe70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xed, 0x98, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x13, [x7, #-0xe70]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x14, #0xbb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0xb9, 0xeb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x14, #0xbb0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x19, #-0x640]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0xca, 0xf9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x19, #-0x640]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x22, #0xad0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0xda, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x22, #0xad0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x5, #-0x940]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0xc8, 0xf6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x5, #-0x940]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x9, [x3, #0xe50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0x58, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x9, [x3, #0xe50]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x11, #0xe30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0x39, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x11, #0xe30]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x6, #0x9a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0xa8, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x6, #0x9a0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x13, [x21, #-0x520]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0xea, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x13, [x21, #-0x520]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x25, [x3, #0x30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x38, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x25, [x3, #0x30]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x10, [x11, #-0x820]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0xe9, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x10, [x11, #-0x820]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x27, #-0x2a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0x6b, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x27, #-0x2a0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x24, #0x40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x4b, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x24, #0x40]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x21, #-0xf40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb1, 0xca, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x21, #-0xf40]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x15, #0xfc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xc9, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x15, #0xfc0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x9, [x23, #0xab0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0xba, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x9, [x23, #0xab0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x24, #-0x4e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x2b, 0xfb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x24, #-0x4e0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x27, [x26, #0xc80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5b, 0x8b, 0xec, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x27, [x26, #0xc80]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x7, #-0xfe0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x28, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x7, #-0xfe0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x27, #0xe30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x3b, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x27, #0xe30]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x1, #0xdb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0xb8, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x1, #0xdb0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x10, [x13, #-0x2a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x69, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x10, [x13, #-0x2a0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x23, #-0xe70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf6, 0x9a, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x23, #-0xe70]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x4, #-0x160]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0xa8, 0xfe, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x4, #-0x160]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x19, #-0x550]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x67, 0xba, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x19, #-0x550]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x18, #-0x230]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0xda, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x18, #-0x230]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x12, #0xf30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x39, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x12, #0xf30]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x19, [x24, #-0x350]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0xbb, 0xfc, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x19, [x24, #-0x350]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x13, #-0xfe0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x29, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x13, #-0xfe0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x23, #-0xcd0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x3a, 0xf3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x23, #-0xcd0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x6, #0x710]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc4, 0x18, 0xe7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x6, #0x710]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x20, #-0xd40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0xca, 0xf2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x20, #-0xd40]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x19, #0xd20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x2a, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x19, #0xd20]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x16, [x18, #0xfb0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0xba, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x16, [x18, #0xfb0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x27, [x23, #-0xe30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0xda, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x27, [x23, #-0xe30]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x6, #0xa50]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x58, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x6, #0xa50]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x22, #0xb20]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0x2a, 0xeb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x22, #0xb20]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x29, #-0x5d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x3b, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x29, #-0x5d0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x20, #0x4a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x87, 0xaa, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x20, #0x4a0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x15, #0x320]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0x29, 0xe3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x15, #0x320]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x23, #-0xfe0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x2a, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x23, #-0xfe0]",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x26], #0xfa0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xa7, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x26], #0xfa0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x3], #-0xe20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0xe4, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x3], #-0xe20",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x17], #-0xc00",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0x6, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x17], #-0xc00",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x3], #-0xf90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x74, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x3], #-0xf90",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x27, [x27], #0x640",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x47, 0xe6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x27, [x27], #0x640",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x9, [x19], #-0x5e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0x26, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x9, [x19], #-0x5e0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x19], #0xd10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x16, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x19], #0xd10",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x23], #-0xe90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfd, 0x76, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x23], #-0xe90",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x1], #0x5b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0xb4, 0xe5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x1], #0x5b0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x24], #0x7f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0xf7, 0xe7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x24], #0x7f0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x7], #-0x8f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf6, 0x14, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x7], #-0x8f0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x17], #0x5f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xf6, 0xe5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x17], #0x5f0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x4], #0x1e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xe4, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x4], #0x1e0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x20], #-0x570",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x96, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x20], #-0x570",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x0], #-0x410",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe, 0xf4, 0xfb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x0], #-0x410",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x24], #0x160",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x67, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x24], #0x160",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x25], #-0x900",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x7, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x25], #-0x900",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x10, [x25], #-0x550",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0xb7, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x10, [x25], #-0x550",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x13, [x14], #-0xe70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x95, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x13, [x14], #-0xe70",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x12], #-0xc60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0xa5, 0xf3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x12], #-0xc60",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x13], #-0xac0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0x45, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x13], #-0xac0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x20], #0x870",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0x76, 0xe8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x20], #0x870",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x25], #0x940",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x47, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x25], #0x940",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x5], #-0x590",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x74, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x5], #-0x590",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x16], #-0x250",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xb6, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x16], #-0x250",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x30], #-0xb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0x57, 0xff, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x30], #-0xb0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x9, [x5], #0xcf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa9, 0xf4, 0xec, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x9, [x5], #0xcf0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x26], #-0x7a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x51, 0x67, 0xf8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x26], #-0x7a0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [sp], #-0x80",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0x87, 0xff, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [sp], #-0x80",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x24], #0x530",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf, 0x37, 0xe5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x24], #0x530",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x1, [x19], #-0x220",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x61, 0xe6, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x1, [x19], #-0x220",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x21], #-0xd20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0xe6, 0xf2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x21], #-0xd20",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x12, [x28], #-0xff0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0x17, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x12, [x28], #-0xff0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x28], #0x310",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9d, 0x17, 0xe3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x28], #0x310",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x30], #0x900",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x7, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x30], #0x900",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x21, [x3], #-0xab0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x75, 0x54, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x21, [x3], #-0xab0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x10], #-0xe40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x47, 0xc5, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x10], #-0xe40",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x7], #-0x8b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x54, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x7], #-0x8b0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x29], #0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb1, 0x67, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x29], #0x260",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x19], #0x910",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6b, 0x16, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x19], #0x910",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x10], #-0x590",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x75, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x10], #-0x590",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x9, [x16], #-0xc40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0xc6, 0xf3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x9, [x16], #-0xc40",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x15], #-0x760",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0xa5, 0xf8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x15], #-0x760",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x6], #0x4d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0xd4, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x6], #0x4d0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x7], #-0xe90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfd, 0x74, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x7], #-0xe90",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x25], #-0xa90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x77, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x25], #-0xa90",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x12, [x18], #0xfe0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0xe6, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x12, [x18], #0xfe0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x0], #0xa60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x0, 0x64, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x0], #0xa60",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x3], #0x440",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6e, 0x44, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x3], #0x440",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x27], #0xf70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x77, 0xef, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x27], #0xf70",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x10], #0xed0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5a, 0xd5, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x10], #0xed0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x23], #-0xc30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd6, 0xf3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x23], #-0xc30",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x20], #-0xf60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0xa6, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x20], #-0xf60",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [sp], #0xa90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x97, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [sp], #0xa90",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x27], #-0xa50",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0xb7, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x27], #-0xa50",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x29], #-0x650",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0xb7, 0xf9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x29], #-0x650",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x13], #-0xde0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x25, 0xf2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x13], #-0xde0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x16, [x23], #0x190",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf0, 0x96, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x16, [x23], #0x190",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x10, [x25], #-0x7c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2a, 0x47, 0xf8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x10, [x25], #-0x7c0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x25], #-0x8e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x27, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x25], #-0x8e0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x25, [x17], #-0x850",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x39, 0xb6, 0xf7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x25, [x17], #-0x850",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x29, [x21], #-0x5f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x16, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x29, [x21], #-0x5f0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x15], #-0xee0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0x25, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x15], #-0xee0",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x22, [x26], #-0x110",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0xf7, 0xfe, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x22, [x26], #-0x110",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x21, #-0x7b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0x5e, 0xf8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x21, #-0x7b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x30, #0x8f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd1, 0xff, 0xe8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x30, #0x8f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x15, #-0xa50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xbd, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x15, #-0xa50]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x4, #0x910]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x1c, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x4, #0x910]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x23, #0xdb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xbe, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x23, #0xdb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x28, [x12, #-0x260]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0xad, 0xfd, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x28, [x12, #-0x260]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x26, #-0x970]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x9f, 0xf6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x26, #-0x970]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x20, [x21, #0xf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0xfe, 0xe0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x20, [x21, #0xf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x19, [x16, #0x4b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0xbe, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x19, [x16, #0x4b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x25, #0xd10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0x1f, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x25, #0xd10]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x28, #0x2d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x97, 0xdf, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x28, #0x2d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x7, [x5, #0x750]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa7, 0x5c, 0xe7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x7, [x5, #0x750]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x21, [x26, #-0xd00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xf, 0xf3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x21, [x26, #-0xd00]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x25, [x23, #0x640]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0x4e, 0xe6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x25, [x23, #0x640]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x13, [x28, #0x9b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0xbf, 0xe9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x13, [x28, #0x9b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x25, [x30, #0x2f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0xff, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x25, [x30, #0x2f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x12, [x9, #0x650]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x5d, 0xe6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x12, [x9, #0x650]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x1, #0x4a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0xac, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x1, #0x4a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x21, #-0x9a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x6e, 0xf6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x21, #-0x9a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x8, #0x8c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xcd, 0xe8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x8, #0x8c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x16, #-0xf70]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8, 0x9e, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x16, #-0xf70]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x15, #-0x350]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0xbd, 0xfc, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x15, #-0x350]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x21, [x24, #-0x9b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x15, 0x5f, 0xf6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x21, [x24, #-0x9b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x4, #-0xa90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x7c, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x4, #-0xa90]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x28, [x23, #-0xe40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0xce, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x28, [x23, #-0xe40]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x29, #0x2b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb1, 0xbf, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x29, #0x2b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x30, [x14, #0x760]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0x6d, 0xe7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x30, [x14, #0x760]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x26, #-0xf90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x7f, 0xf0, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x26, #-0xf90]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x20, #0x8a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0xae, 0xe8, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x20, #0x8a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x9, #-0x140]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x38, 0xcd, 0xfe, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x9, #-0x140]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x20, #0x690]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x9e, 0xe6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x20, #0x690]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x20, #0xd20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x2e, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x20, #0xd20]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x3, [x23, #0x1b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xbe, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x3, [x23, #0x1b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x26, [x8, #0x110]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x1d, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x26, [x8, #0x110]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x11, #-0x480]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x8d, 0xfb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x11, #-0x480]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x4, [x13, #-0xdb0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0x5d, 0xf2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x4, [x13, #-0xdb0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x24, [x13, #0xa80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb8, 0x8d, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x24, [x13, #0xa80]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x1, [x7, #0x280]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x8c, 0xe2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x1, [x7, #0x280]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x23, [x14, #-0xb60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xad, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x23, [x14, #-0xb60]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x12, [x28, #-0xb50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0xbf, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x12, [x28, #-0xb50]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x0, [x27, #0x3b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xbf, 0xe3, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x0, [x27, #0x3b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x13, [x30, #0x450]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x5f, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x13, [x30, #0x450]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x28, [x5, #0x410]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbc, 0x1c, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x28, [x5, #0x410]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x21, #-0xbd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa8, 0x3e, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x21, #-0xbd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x0, #0xe20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x2c, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x0, #0xe20]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x18, [x16, #-0x9d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x12, 0x3e, 0xf6, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x18, [x16, #-0x9d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x6, [x24, #-0x420]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0xef, 0xfb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x6, [x24, #-0x420]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x2, [x11, #-0xa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x6d, 0xff, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x2, [x11, #-0xa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x16, [x28, #-0x5b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x5f, 0xfa, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x16, [x28, #-0x5b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x12, [x27, #-0xa70]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x9f, 0xf5, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x12, [x27, #-0xa70]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x15, [x3, #-0xe0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6f, 0x2c, 0xff, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x15, [x3, #-0xe0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x11, #0xb20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x2d, 0xeb, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x11, #0xb20]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x0, #-0xe20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5, 0xec, 0xf1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x0, #-0xe20]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x8, [x30, #-0x6d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x3f, 0xf9, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x8, [x30, #-0x6d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x28, [x16, #0xca0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0xae, 0xec, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x28, [x16, #0xca0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x11, #0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6b, 0x2d, 0xe1, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x11, #0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	sp, [x25, #0xa00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf, 0xea, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	sp, [x25, #0xa00]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x11, [x19, #0xd80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6b, 0x8e, 0xed, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x11, [x19, #0xd80]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x1, [x15, #0x740]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x4d, 0xe7, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x1, [x15, #0x740]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x5, [x18, #0xe40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x4e, 0xee, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x5, [x18, #0xe40]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x28, #0x460]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0x6f, 0xe4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x28, #0x460]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x17, [x6, #-0xd90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd1, 0x7c, 0xf2, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x17, [x6, #-0xd90]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x9, #-0xbe0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0x2d, 0xf4, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x9, #-0xbe0]!",
-			wantErr: false,
-		},
-		{
-			name: "stz2g	x14, [x12, #0xc20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x2d, 0xec, 0xd9}),
-				address:          0,
-			},
-			want: "stz2g	x14, [x12, #0xc20]!",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x22, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x22, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x16, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x90, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x16, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x3, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x3, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x12, [x25]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x12, [x25]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x5, [x17]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x25, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x5, [x17]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x30, [x15]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x30, [x15]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x12, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x12, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x6, [x24]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x6, [x24]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x10]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x5, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x5, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x24, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x98, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x24, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x20, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x20, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x3, [x25]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x3, [x25]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x22, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x22, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x27, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x27, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x30, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3e, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x30, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x5, [x18]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x5, [x18]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x28, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x28, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x16, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x70, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x16, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x22, [x22]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x22, [x22]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x15, [x25]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2f, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x15, [x25]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x1, [x9]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x1, [x9]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x3, [x11]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x63, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x3, [x11]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x28, [x4]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x28, [x4]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x11, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x11, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x9, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x9, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x7, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa7, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x7, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x9, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x9, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x14, [x1]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x14, [x1]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x25, [x6]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd9, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x25, [x6]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x25, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x99, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x25, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x8, [x4]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x88, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x8, [x4]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x26, [x24]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1a, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x26, [x24]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x19, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb3, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x19, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x19, [x12]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x19, [x12]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x19, [x16]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x19, [x16]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x2]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x2]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x6, [x13]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x6, [x13]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x28, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x28, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x23, [x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x23, [x10]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x11, [x6]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x11, [x6]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x8, [sp]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x8, [sp]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x21, [x4]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x95, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x21, [x4]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x0, [x5]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x0, [x5]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x10, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x10, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x1, [x30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x1, [x30]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x20, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x20, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x19, [x2]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x19, [x2]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc4, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x28]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x28]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	xzr, [x25]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	xzr, [x25]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x0, [x29]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x0, [x29]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x15, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x15, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x27, [x19]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x27, [x19]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x6, [x3]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x6, [x3]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x6, [x0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x6, [x0]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x28, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x28, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x30, [sp]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x30, [sp]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x4, [x2]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x4, [x2]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x17, [x8]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x17, [x8]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x22, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf6, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x22, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	xzr, [x14]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x1, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	xzr, [x14]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x8, [x26]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x3, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x8, [x26]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x11, [x6]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcb, 0x0, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x11, [x6]",
-			wantErr: false,
-		},
-		{
-			name: "stzgm	x6, [x23]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x2, 0x20, 0xd9}),
-				address:          0,
-			},
-			want: "stzgm	x6, [x23]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x4, #-0xb70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x86, 0x98, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x4, #-0xb70]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x18, [x30, #-0xba0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd2, 0x6b, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x18, [x30, #-0xba0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [sp, #-0x720]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0xeb, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [sp, #-0x720]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x4, #0xa60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x98, 0x68, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x4, #0xa60]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x14, #0x5e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xe9, 0x65, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x14, #0x5e0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x29, [x10, #-0xdc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x49, 0x72, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x29, [x10, #-0xdc0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x16, #-0x920]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0xea, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x16, #-0x920]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x3, #0xdc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0xc8, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x3, #0xdc0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x14, #-0x800]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x9, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x14, #-0x800]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x8, [x18, #0x270]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x7a, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x8, [x18, #0x270]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x11, #0xd40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x49, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x11, #0xd40]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [x22, #0xd30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdc, 0x3a, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [x22, #0xd30]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [sp, #-0x420]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0xeb, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [sp, #-0x420]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x19, #-0x1b0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x5a, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x19, #-0x1b0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x25, [x12, #-0xc30]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x99, 0xd9, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x25, [x12, #-0xc30]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x7, #0xe10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0x18, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x7, #0xe10]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x7, #-0xb40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0xc8, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x7, #-0xb40]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x4, #0xd60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x68, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x4, #0xd60]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x1, [x13, #0x490]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x99, 0x64, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x1, [x13, #0x490]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x8, #-0x890]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x79, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x8, #-0x890]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x9, #0x5a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0xa9, 0x65, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x9, #0x5a0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x9, [x6, #0x8e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0xe8, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x9, [x6, #0x8e0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x16, #-0x970]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe, 0x9a, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x16, #-0x970]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x10, #0xc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5b, 0xc9, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x10, #0xc0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x2, #0x8a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0xa8, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x2, #0x8a0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [sp, #-0x510]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf7, 0xfb, 0x7a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [sp, #-0x510]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x16, #-0x610]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7, 0xfa, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x16, #-0x610]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [x5, #-0x760]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0xa8, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [x5, #-0x760]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [x2, #-0xf10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5c, 0xf8, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [x2, #-0xf10]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x13, [x25, #0x650]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2d, 0x5b, 0x66, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x13, [x25, #0x650]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x7, #0x3e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xe8, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x7, #0x3e0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [x9, #-0x1e0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x29, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [x9, #-0x1e0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x25, #0x800]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xb, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x25, #0x800]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x18, [x12, #-0x540]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x92, 0xc9, 0x7a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x18, [x12, #-0x540]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x5, #-0xf90]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x78, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x5, #-0xf90]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x1, [x8, #0xcc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0xc9, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x1, [x8, #0xcc0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x11, #-0x8a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x69, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x11, #-0x8a0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x23, #0xc10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0x1a, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x23, #0xc10]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x6, #0x4c0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xda, 0xc8, 0x64, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x6, #0x4c0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x13, #0x60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x69, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x13, #0x60]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x10, #0xb60]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0x69, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x10, #0xb60]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x20, [x16, #0xf0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0xfa, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x20, [x16, #0xf0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x23, #0x8d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xda, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x23, #0x8d0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x8, [x0, #-0x700]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8, 0x8, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x8, [x0, #-0x700]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x15, #-0xe40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0xc9, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x15, #-0xe40]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x30, #-0xb70]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0x9b, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x30, #-0xb70]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x15, #0x360]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x69, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x15, #0x360]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x25, #0xdc0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xcb, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x25, #0xdc0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x27, #-0x120]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0xeb, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x27, #-0x120]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x19, #0x6f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x67, 0xfa, 0x66, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x19, #0x6f0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x24, #-0x9d0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x10, 0x3b, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x24, #-0x9d0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x8, #-0x9f0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x19, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x8, #-0x9f0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x6, #-0x8a0]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x68, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x6, #-0x8a0]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x0, [x11, #0x130]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x39, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x0, [x11, #0x130]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x25, [x27, #0x620]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x2b, 0x66, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x25, [x27, #0x620]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x7, #0xb00]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0x8, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x7, #0xb00]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x22, #0x10]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x1a, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x22, #0x10]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x2, #-0x370]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x46, 0x98, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x2, #-0x370]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x9, #0xf40]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x49, 0x6f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x9, #0xf40]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x13, [x4, #0x210]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x18, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x13, [x4, #0x210]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x26, #-0x480]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x8b, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x26, #-0x480]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [sp, #0xc80]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0x8b, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [sp, #0xc80]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x9, #-0x410]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0xf9, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x9, #-0x410]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x18, [x26, #0x760]",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x6b, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x18, [x26, #0x760]",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x24], #-0x250",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2, 0xb7, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x24], #-0x250",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x30], #0x3c0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd8, 0xc7, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x30], #0x3c0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x29], #0xb60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x67, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x29], #0xb60",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x9], #0xaf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0xf5, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x9], #0xaf0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x18, [x16], #-0x260",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x12, 0xa6, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x18, [x16], #-0x260",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x8], #0x100",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x5, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x8], #0x100",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x21, [x13], #-0x680",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0x85, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x21, [x13], #-0x680",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x25], #0x270",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x77, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x25], #0x270",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [sp], #-0xb40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0xc7, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [sp], #-0xb40",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x26], #0x3b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x57, 0xb7, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x26], #0x3b0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x1, [x7], #0x9f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0xf4, 0x69, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x1, [x7], #0x9f0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x24], #0x3a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xa7, 0x63, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x24], #0x3a0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [x11], #-0xcc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0x45, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [x11], #-0xcc0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x18], #-0xb30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0xd6, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x18], #-0xb30",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [sp], #-0x390",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x77, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [sp], #-0x390",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [sp], #0xdc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0xc7, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [sp], #0xdc0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x19, [x2], #0x990",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x94, 0x69, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x19, [x2], #0x990",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x19, [x3], #0x450",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x73, 0x54, 0x64, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x19, [x3], #0x450",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x7], #-0xf90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf0, 0x74, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x7], #-0xf90",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x15], #-0xa20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfb, 0xe5, 0x75, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x15], #-0xa20",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x30], #-0x4e0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x27, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x30], #-0x4e0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x22], #-0x700",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdb, 0x6, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x22], #-0x700",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x25, [x26], #0xbf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x59, 0xf7, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x25, [x26], #0xbf0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x8, [x30], #-0xd20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0xe7, 0x72, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x8, [x30], #-0xd20",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x3], #0xba0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0xa4, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x3], #0xba0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x16], #-0x5b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x56, 0x7a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x16], #-0x5b0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x21, [x26], #0xd10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x17, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x21, [x26], #0xd10",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [x20], #0xf70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0x76, 0x6f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [x20], #0xf70",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x14], #-0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x85, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x14], #-0x280",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x8, [x6], #-0x480",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x84, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x8, [x6], #-0x480",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x19], #0xb0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7a, 0xb6, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x19], #0xb0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x9], #-0x310",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x25, 0xf5, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x9], #-0x310",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x13], #0xcc0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0xc5, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x13], #0xcc0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x20, [x23], #-0x60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0xa6, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x20, [x23], #-0x60",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x24], #0x530",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x37, 0x65, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x24], #0x530",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [sp], #0x1b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfe, 0xb7, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [sp], #0x1b0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x30], #-0x230",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0xd7, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x30], #-0x230",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x19], #0x7b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0xb6, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x19], #0x7b0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x28, [x11], #-0xe60",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7c, 0xa5, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x28, [x11], #-0xe60",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x1], #0x280",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3e, 0x84, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x1], #0x280",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x9], #-0xc70",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x95, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x9], #-0xc70",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x9], #0xa0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0xa5, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x9], #0xa0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x29], #0x940",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0x47, 0x69, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x29], #0x940",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [x26], #0xed0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4b, 0xd7, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [x26], #0xed0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x29], #0xba0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0xa7, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x29], #0xba0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x1], #0xb30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x34, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x1], #0xb30",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [sp], #-0x40",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xc7, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [sp], #-0x40",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x7], #-0x220",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfa, 0xe4, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x7], #-0x220",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x18, [x10], #0xd00",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x52, 0x5, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x18, [x10], #0xd00",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x25], #0x760",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x36, 0x67, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x25], #0x760",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x13, [x22], #0xd80",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x86, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x13, [x22], #0xd80",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x21, [x26], #-0x290",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x77, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x21, [x26], #-0x290",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x28], #0xb90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x97, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x28], #0xb90",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x21], #0xaf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbe, 0xf6, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x21], #0xaf0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x25, [x5], #-0x2a0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x64, 0x7d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x25, [x5], #-0x2a0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x29, [x13], #0xb30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x35, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x29, [x13], #0xb30",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x20, [x3], #0x750",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x54, 0x67, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x20, [x3], #0x750",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x13], #-0x410",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0xf5, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x13], #-0x410",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x0], #-0x3f0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x14, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x0], #-0x3f0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x28], #-0x6b0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9a, 0x57, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x28], #-0x6b0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x8, [x6], #-0xcf0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x14, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x8, [x6], #-0xcf0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x4], #-0x3d0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x34, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x4], #-0x3d0",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x6], #-0xb90",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0x74, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x6], #-0xb90",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x13], #-0x970",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0x95, 0x76, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x13], #-0x970",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x3, [x21, #0x1b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0xbe, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x3, [x21, #0x1b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x21, #-0xcf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x1e, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x21, #-0xcf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x1, #0x8f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0xfc, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x1, #0x8f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x11, #0x250]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x5d, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x11, #0x250]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x26, [x1, #0x880]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3a, 0x8c, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x26, [x1, #0x880]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x12, #0xb50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x5d, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x12, #0xb50]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x15, #-0x5d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf6, 0x3d, 0x7a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x15, #-0x5d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x20, #-0xa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8a, 0x6e, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x20, #-0xa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x11, #0xd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0xdd, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x11, #0xd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x27, #-0x1d0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x77, 0x3f, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x27, #-0x1d0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x20, [x10, #0x1f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0xfd, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x20, [x10, #0x1f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x22, #-0xb50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xbe, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x22, #-0xb50]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x22, #-0x780]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0x8e, 0x78, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x22, #-0x780]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x12, #0xa90]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x9d, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x12, #0xa90]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x18, #-0x200]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0xe, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x18, #-0x200]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x27, #-0x700]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0xf, 0x79, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x27, #-0x700]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x9, [x12, #-0xf80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x8d, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x9, [x12, #-0xf80]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [sp, #-0xec0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x4f, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [sp, #-0xec0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x21, [x17, #-0x10]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x35, 0xfe, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x21, [x17, #-0x10]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x16, #-0xa50]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0xbe, 0x75, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x16, #-0xa50]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x9, [x19, #-0xb60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0xae, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x9, [x19, #-0xb60]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x10, #0x8e0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4c, 0xed, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x10, #0x8e0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x4, #0x200]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x98, 0xc, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x4, #0x200]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x9, [x6, #0x2f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0xfc, 0x62, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x9, [x6, #0x2f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x28, #0xab0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0xbf, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x28, #0xab0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x17, [x4, #0xba0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0xac, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x17, [x4, #0xba0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	sp, [x18, #-0x900]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0xe, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	sp, [x18, #-0x900]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x0, #-0x400]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1e, 0xc, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x0, #-0x400]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x24, #-0x110]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0xff, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x24, #-0x110]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x12, #0xc00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x87, 0xd, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x12, #0xc00]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [x16, #0xbd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb, 0xde, 0x6b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [x16, #0xbd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x16, [x18, #-0x870]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0x9e, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x16, [x18, #-0x870]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x11, [x20, #-0xf20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0xee, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x11, [x20, #-0xf20]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x30, #0xce0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0xef, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x30, #0xce0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x19, [x2, #-0x8b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x5c, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x19, [x2, #-0x8b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x23, #0x560]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0x6e, 0x65, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x23, #0x560]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x23, #0xd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xde, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x23, #0xd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x15, #0xf0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0xfd, 0x60, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x15, #0xf0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x9, #0x8c0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0xcd, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x9, #0x8c0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x5, [x20, #0xa20]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x85, 0x2e, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x5, [x20, #0xa20]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x12, [x11, #0x810]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x1d, 0x68, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x12, [x11, #0x810]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x20, #0x6b0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0xbe, 0x66, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x20, #0x6b0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x19, #-0x850]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x67, 0xbe, 0x77, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x19, #-0x850]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x25, [x23, #-0xab0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf9, 0x5e, 0x75, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x25, [x23, #-0xab0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x24, [x29, #0xca0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb8, 0xaf, 0x6c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x24, [x29, #0xca0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x15, [x29, #-0xa40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaf, 0xcf, 0x75, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x15, [x29, #-0xa40]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x9, [x19, #0x970]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x69, 0x7e, 0x69, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x9, [x19, #0x970]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x0, #0xfc0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0xcc, 0x6f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x0, #0xfc0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x29, [x25, #-0x180]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3d, 0x8f, 0x7e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x29, [x25, #-0x180]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x4, [x20, #0x120]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x2e, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x4, [x20, #0x120]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x26, #-0xc80]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0x8f, 0x73, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x26, #-0xc80]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x22, [x27, #0xf00]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x76, 0xf, 0x6f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x22, [x27, #0xf00]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x7, [x24, #-0xb30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7, 0xdf, 0x74, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x7, [x24, #-0xb30]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x23, [x14, #-0xfa0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0x6d, 0x70, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x23, [x14, #-0xfa0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x12, #0xe40]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x4d, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x12, #0xe40]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x10, [x5, #0xa30]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x3c, 0x6a, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x10, [x5, #0xa30]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x17, [x2, #-0xec0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x51, 0x4c, 0x71, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x17, [x2, #-0xec0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x8, #0xee0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0xed, 0x6e, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x8, #0xee0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x2, [x28, #-0xd0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0x3f, 0x7f, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x2, [x28, #-0xd0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x14, [x4, #0x4f0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0xfc, 0x64, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x14, [x4, #0x4f0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x27, [x28, #-0x4a0]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0x6f, 0x7b, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x27, [x28, #-0x4a0]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x30, [x4, #-0x310]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0xfc, 0x7c, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x30, [x4, #-0x310]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x29, [x18, #0xd60]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5d, 0x6e, 0x6d, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x29, [x18, #0xd60]!",
-			wantErr: false,
-		},
-		{
-			name: "stzg	x6, [x1, #0x160]!",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x26, 0x6c, 0x61, 0xd9}),
-				address:          0,
-			},
-			want: "stzg	x6, [x1, #0x160]!",
-			wantErr: false,
-		},
-		{
-			name: "subg	sp, x19, #0x160, #0x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0x6, 0x96, 0xd1}),
-				address:          0,
-			},
-			want: "subg	sp, x19, #0x160, #0x1",
-			wantErr: false,
-		},
-		{
-			name: "subg	x4, x26, #0x3a0, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x44, 0x27, 0xba, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x4, x26, #0x3a0, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x3, x28, #0x3a0, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0x1f, 0xba, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x3, x28, #0x3a0, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x18, x17, #0x70, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x32, 0x1e, 0x87, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x18, x17, #0x70, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	sp, x23, #0x240, #0x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x16, 0xa4, 0xd1}),
-				address:          0,
-			},
-			want: "subg	sp, x23, #0x240, #0x5",
-			wantErr: false,
-		},
-		{
-			name: "subg	x13, x26, #0x1e0, #0xb",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0x2f, 0x9e, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x13, x26, #0x1e0, #0xb",
-			wantErr: false,
-		},
-		{
-			name: "subg	x18, x19, #0x1a0, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x26, 0x9a, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x18, x19, #0x1a0, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x6, x3, #0xd0, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x0, 0x8d, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x6, x3, #0xd0, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x27, x5, #0x240, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbb, 0x1c, 0xa4, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x27, x5, #0x240, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x8, x3, #0x70, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x34, 0x87, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x8, x3, #0x70, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subg	x20, x8, #0x50, #0x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x14, 0x15, 0x85, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x20, x8, #0x50, #0x5",
-			wantErr: false,
-		},
-		{
-			name: "subg	sp, x9, #0x110, #0x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x21, 0x91, 0xd1}),
-				address:          0,
-			},
-			want: "subg	sp, x9, #0x110, #0x8",
-			wantErr: false,
-		},
-		{
-			name: "subg	x14, x10, #0x250, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0xd, 0xa5, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x14, x10, #0x250, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x24, x0, #0x1f0, #0x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x8, 0x9f, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x24, x0, #0x1f0, #0x2",
-			wantErr: false,
-		},
-		{
-			name: "subg	x3, x24, #0x1c0, #0x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x13, 0x9c, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x3, x24, #0x1c0, #0x4",
-			wantErr: false,
-		},
-		{
-			name: "subg	x5, sp, #0x2c0, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xf, 0xac, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x5, sp, #0x2c0, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x5, x27, #0x40, #0xb",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x2f, 0x84, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x5, x27, #0x40, #0xb",
-			wantErr: false,
-		},
-		{
-			name: "subg	x6, x23, #0x310, #0x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x12, 0xb1, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x6, x23, #0x310, #0x4",
-			wantErr: false,
-		},
-		{
-			name: "subg	x4, x24, #0x310, #0xa",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x2b, 0xb1, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x4, x24, #0x310, #0xa",
-			wantErr: false,
-		},
-		{
-			name: "subg	x26, x5, #0x50, #0x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x20, 0x85, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x26, x5, #0x50, #0x8",
-			wantErr: false,
-		},
-		{
-			name: "subg	x9, sp, #0x1f0, #0xe",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0x3b, 0x9f, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x9, sp, #0x1f0, #0xe",
-			wantErr: false,
-		},
-		{
-			name: "subg	x13, x18, #0x2d0, #0x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4d, 0x12, 0xad, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x13, x18, #0x2d0, #0x4",
-			wantErr: false,
-		},
-		{
-			name: "subg	x16, x18, #0x330, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x50, 0x2, 0xb3, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x16, x18, #0x330, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x11, x25, #0x130, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2b, 0xf, 0x93, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x11, x25, #0x130, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x14, x20, #0xb0, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8e, 0x1e, 0x8b, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x14, x20, #0xb0, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x8, x27, #0x3a0, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x37, 0xba, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x8, x27, #0x3a0, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subg	x26, x29, #0x300, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x1f, 0xb0, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x26, x29, #0x300, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x12, x7, #0x260, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xec, 0x24, 0xa6, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x12, x7, #0x260, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x1, x4, #0x310, #0x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x20, 0xb1, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x1, x4, #0x310, #0x8",
-			wantErr: false,
-		},
-		{
-			name: "subg	x5, x30, #0x330, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc5, 0x37, 0xb3, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x5, x30, #0x330, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subg	x1, x25, #0xe0, #0x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x17, 0x8e, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x1, x25, #0xe0, #0x5",
-			wantErr: false,
-		},
-		{
-			name: "subg	x25, x24, #0x380, #0xf",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x3f, 0xb8, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x25, x24, #0x380, #0xf",
-			wantErr: false,
-		},
-		{
-			name: "subg	x17, x8, #0x370, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x25, 0xb7, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x17, x8, #0x370, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x30, x19, #0x70, #0x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0x6, 0x87, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x30, x19, #0x70, #0x1",
-			wantErr: false,
-		},
-		{
-			name: "subg	x22, x6, #0x1f0, #0x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0x10, 0x9f, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x22, x6, #0x1f0, #0x4",
-			wantErr: false,
-		},
-		{
-			name: "subg	x2, x15, #0x390, #0x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x19, 0xb9, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x2, x15, #0x390, #0x6",
-			wantErr: false,
-		},
-		{
-			name: "subg	x4, x28, #0x3b0, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x37, 0xbb, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x4, x28, #0x3b0, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subg	x20, x17, #0x320, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x34, 0x26, 0xb2, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x20, x17, #0x320, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x15, x6, #0xa0, #0xf",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0x3c, 0x8a, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x15, x6, #0xa0, #0xf",
-			wantErr: false,
-		},
-		{
-			name: "subg	x5, x18, #0x3c0, #0x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x45, 0x6, 0xbc, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x5, x18, #0x3c0, #0x1",
-			wantErr: false,
-		},
-		{
-			name: "subg	x14, x2, #0x270, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x1c, 0xa7, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x14, x2, #0x270, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x21, x13, #0x2a0, #0x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb5, 0x21, 0xaa, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x21, x13, #0x2a0, #0x8",
-			wantErr: false,
-		},
-		{
-			name: "subg	x20, x10, #0x270, #0xa",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x29, 0xa7, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x20, x10, #0x270, #0xa",
-			wantErr: false,
-		},
-		{
-			name: "subg	x30, x22, #0x3f0, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0x2, 0xbf, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x30, x22, #0x3f0, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x1, x16, #0x210, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0xe, 0xa1, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x1, x16, #0x210, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x8, x6, #0x160, #0xf",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc8, 0x3c, 0x96, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x8, x6, #0x160, #0xf",
-			wantErr: false,
-		},
-		{
-			name: "subg	x14, x10, #0x160, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x1, 0x96, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x14, x10, #0x160, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x30, x20, #0x100, #0x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x26, 0x90, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x30, x20, #0x100, #0x9",
-			wantErr: false,
-		},
-		{
-			name: "subg	x23, x29, #0x250, #0x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0x1f, 0xa5, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x23, x29, #0x250, #0x7",
-			wantErr: false,
-		},
-		{
-			name: "subg	x26, x15, #0x240, #0xe",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfa, 0x39, 0xa4, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x26, x15, #0x240, #0xe",
-			wantErr: false,
-		},
-		{
-			name: "subg	x18, x16, #0x240, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x12, 0x36, 0xa4, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x18, x16, #0x240, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subg	x17, sp, #0x3b0, #0x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x17, 0xbb, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x17, sp, #0x3b0, #0x5",
-			wantErr: false,
-		},
-		{
-			name: "subg	x7, x25, #0x130, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x3, 0x93, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x7, x25, #0x130, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x24, x16, #0x160, #0x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x12, 0x96, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x24, x16, #0x160, #0x4",
-			wantErr: false,
-		},
-		{
-			name: "subg	x24, x18, #0x280, #0xe",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x58, 0x3a, 0xa8, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x24, x18, #0x280, #0xe",
-			wantErr: false,
-		},
-		{
-			name: "subg	x19, x12, #0x230, #0xc",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x31, 0xa3, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x19, x12, #0x230, #0xc",
-			wantErr: false,
-		},
-		{
-			name: "subg	x14, x18, #0x240, #0xe",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x3a, 0xa4, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x14, x18, #0x240, #0xe",
-			wantErr: false,
-		},
-		{
-			name: "subg	x9, x22, #0x1d0, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0xe, 0x9d, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x9, x22, #0x1d0, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x1, x0, #0x160, #0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1, 0x0, 0x96, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x1, x0, #0x160, #0",
-			wantErr: false,
-		},
-		{
-			name: "subg	x30, x27, #0xd0, #0x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0x17, 0x8d, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x30, x27, #0xd0, #0x5",
-			wantErr: false,
-		},
-		{
-			name: "subg	x12, x20, #0xe0, #0x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0xe, 0x8e, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x12, x20, #0xe0, #0x3",
-			wantErr: false,
-		},
-		{
-			name: "subg	x24, x23, #0x380, #0x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0x6, 0xb8, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x24, x23, #0x380, #0x1",
-			wantErr: false,
-		},
-		{
-			name: "subg	x11, x20, #0x120, #0x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0x1a, 0x92, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x11, x20, #0x120, #0x6",
-			wantErr: false,
-		},
-		{
-			name: "subg	x9, x28, #0x1b0, #0xd",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x37, 0x9b, 0xd1}),
-				address:          0,
-			},
-			want: "subg	x9, x28, #0x1b0, #0xd",
-			wantErr: false,
-		},
-		{
-			name: "subps	x6, x8, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x1, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x6, x8, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x17, x0, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x0, 0xca, 0xba}),
-				address:          0,
-			},
-			want: "subps	x17, x0, x10",
-			wantErr: false,
-		},
-		{
-			name: "subps	x27, x3, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7b, 0x0, 0xd8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x27, x3, x24",
-			wantErr: false,
-		},
-		{
-			name: "subps	x30, x18, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5e, 0x2, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x30, x18, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x16, x16, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x10, 0x2, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x16, x16, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x3, x17, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x2, 0xd9, 0xba}),
-				address:          0,
-			},
-			want: "subps	x3, x17, x25",
-			wantErr: false,
-		},
-		{
-			name: "subps	x13, x8, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd, 0x1, 0xc7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x13, x8, x7",
-			wantErr: false,
-		},
-		{
-			name: "subps	x2, x14, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x1, 0xdb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x2, x14, x27",
-			wantErr: false,
-		},
-		{
-			name: "subps	x2, x28, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0x3, 0xcc, 0xba}),
-				address:          0,
-			},
-			want: "subps	x2, x28, x12",
-			wantErr: false,
-		},
-		{
-			name: "subps	x28, x17, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x2, 0xc5, 0xba}),
-				address:          0,
-			},
-			want: "subps	x28, x17, x5",
-			wantErr: false,
-		},
-		{
-			name: "subps	x8, x23, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x2, 0xd2, 0xba}),
-				address:          0,
-			},
-			want: "subps	x8, x23, x18",
-			wantErr: false,
-		},
-		{
-			name: "subps	x10, x23, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0x2, 0xd9, 0xba}),
-				address:          0,
-			},
-			want: "subps	x10, x23, x25",
-			wantErr: false,
-		},
-		{
-			name: "subps	x27, x28, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9b, 0x3, 0xd3, 0xba}),
-				address:          0,
-			},
-			want: "subps	x27, x28, x19",
-			wantErr: false,
-		},
-		{
-			name: "subps	x5, x7, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0x0, 0xcb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x5, x7, x11",
-			wantErr: false,
-		},
-		{
-			name: "subps	x20, x23, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf4, 0x2, 0xc0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x20, x23, x0",
-			wantErr: false,
-		},
-		{
-			name: "subps	x30, x11, x28",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7e, 0x1, 0xdc, 0xba}),
-				address:          0,
-			},
-			want: "subps	x30, x11, x28",
-			wantErr: false,
-		},
-		{
-			name: "subps	x7, x13, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa7, 0x1, 0xd0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x7, x13, x16",
-			wantErr: false,
-		},
-		{
-			name: "subps	x15, x30, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcf, 0x3, 0xc7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x15, x30, x7",
-			wantErr: false,
-		},
-		{
-			name: "subps	x17, x15, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x1, 0xce, 0xba}),
-				address:          0,
-			},
-			want: "subps	x17, x15, x14",
-			wantErr: false,
-		},
-		{
-			name: "subps	x25, x1, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x39, 0x0, 0xca, 0xba}),
-				address:          0,
-			},
-			want: "subps	x25, x1, x10",
-			wantErr: false,
-		},
-		{
-			name: "subps	x2, x7, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x0, 0xc3, 0xba}),
-				address:          0,
-			},
-			want: "subps	x2, x7, x3",
-			wantErr: false,
-		},
-		{
-			name: "subps	x27, x24, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1b, 0x3, 0xc3, 0xba}),
-				address:          0,
-			},
-			want: "subps	x27, x24, x3",
-			wantErr: false,
-		},
-		{
-			name: "subps	x25, x11, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x79, 0x1, 0xd0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x25, x11, x16",
-			wantErr: false,
-		},
-		{
-			name: "subps	x3, x9, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x1, 0xca, 0xba}),
-				address:          0,
-			},
-			want: "subps	x3, x9, x10",
-			wantErr: false,
-		},
-		{
-			name: "subps	x20, x18, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x54, 0x2, 0xcc, 0xba}),
-				address:          0,
-			},
-			want: "subps	x20, x18, x12",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x0, x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x0, 0x0, 0xc1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x0, x1",
-			wantErr: false,
-		},
-		{
-			name: "subps	x28, x4, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x0, 0xcb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x28, x4, x11",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x28, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x3, 0xcb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x28, x11",
-			wantErr: false,
-		},
-		{
-			name: "subps	x23, x22, x10",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0x2, 0xca, 0xba}),
-				address:          0,
-			},
-			want: "subps	x23, x22, x10",
-			wantErr: false,
-		},
-		{
-			name: "subps	x7, x18, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x47, 0x2, 0xc0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x7, x18, x0",
-			wantErr: false,
-		},
-		{
-			name: "subps	x17, x21, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb1, 0x2, 0xc3, 0xba}),
-				address:          0,
-			},
-			want: "subps	x17, x21, x3",
-			wantErr: false,
-		},
-		{
-			name: "subps	x2, x19, x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x2, 0xc1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x2, x19, x1",
-			wantErr: false,
-		},
-		{
-			name: "subps	x26, x21, x4",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xba, 0x2, 0xc4, 0xba}),
-				address:          0,
-			},
-			want: "subps	x26, x21, x4",
-			wantErr: false,
-		},
-		{
-			name: "subps	x6, x24, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6, 0x3, 0xd6, 0xba}),
-				address:          0,
-			},
-			want: "subps	x6, x24, x22",
-			wantErr: false,
-		},
-		{
-			name: "subps	x15, x15, x1",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0x1, 0xc1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x15, x15, x1",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x1, x20",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x0, 0xd4, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x1, x20",
-			wantErr: false,
-		},
-		{
-			name: "subps	x6, x13, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa6, 0x1, 0xdd, 0xba}),
-				address:          0,
-			},
-			want: "subps	x6, x13, x29",
-			wantErr: false,
-		},
-		{
-			name: "subps	x16, x25, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0x3, 0xd8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x16, x25, x24",
-			wantErr: false,
-		},
-		{
-			name: "subps	x14, x1, x23",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2e, 0x0, 0xd7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x14, x1, x23",
-			wantErr: false,
-		},
-		{
-			name: "subps	x19, x11, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x73, 0x1, 0xd1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x19, x11, x17",
-			wantErr: false,
-		},
-		{
-			name: "subps	x19, x24, x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x13, 0x3, 0xde, 0xba}),
-				address:          0,
-			},
-			want: "subps	x19, x24, x30",
-			wantErr: false,
-		},
-		{
-			name: "subps	x10, x2, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0x0, 0xd1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x10, x2, x17",
-			wantErr: false,
-		},
-		{
-			name: "subps	x1, x14, sp",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc1, 0x1, 0xdf, 0xba}),
-				address:          0,
-			},
-			want: "subps	x1, x14, sp",
-			wantErr: false,
-		},
-		{
-			name: "subps	x21, x18, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0x2, 0xc9, 0xba}),
-				address:          0,
-			},
-			want: "subps	x21, x18, x9",
-			wantErr: false,
-		},
-		{
-			name: "subps	x18, x0, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x12, 0x0, 0xd0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x18, x0, x16",
-			wantErr: false,
-		},
-		{
-			name: "subps	x29, x5, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x0, 0xcb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x29, x5, x11",
-			wantErr: false,
-		},
-		{
-			name: "subps	x12, x11, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x1, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x12, x11, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x24, x0, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x0, 0xdd, 0xba}),
-				address:          0,
-			},
-			want: "subps	x24, x0, x29",
-			wantErr: false,
-		},
-		{
-			name: "subps	x11, x0, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb, 0x0, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x11, x0, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x23, x3, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x77, 0x0, 0xc3, 0xba}),
-				address:          0,
-			},
-			want: "subps	x23, x3, x3",
-			wantErr: false,
-		},
-		{
-			name: "subps	x14, x13, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0x1, 0xd1, 0xba}),
-				address:          0,
-			},
-			want: "subps	x14, x13, x17",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x17, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x2, 0xcc, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x17, x12",
-			wantErr: false,
-		},
-		{
-			name: "subps	x10, x30, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0x3, 0xcb, 0xba}),
-				address:          0,
-			},
-			want: "subps	x10, x30, x11",
-			wantErr: false,
-		},
-		{
-			name: "subps	x25, x16, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x19, 0x2, 0xd6, 0xba}),
-				address:          0,
-			},
-			want: "subps	x25, x16, x22",
-			wantErr: false,
-		},
-		{
-			name: "subps	x21, x15, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf5, 0x1, 0xc7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x21, x15, x7",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x23, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x2, 0xd5, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x23, x21",
-			wantErr: false,
-		},
-		{
-			name: "subps	x28, x18, x16",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x5c, 0x2, 0xd0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x28, x18, x16",
-			wantErr: false,
-		},
-		{
-			name: "subps	x3, x5, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0x0, 0xc0, 0xba}),
-				address:          0,
-			},
-			want: "subps	x3, x5, x0",
-			wantErr: false,
-		},
-		{
-			name: "subps	x17, x8, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x11, 0x1, 0xc2, 0xba}),
-				address:          0,
-			},
-			want: "subps	x17, x8, x2",
-			wantErr: false,
-		},
-		{
-			name: "subps	x10, x19, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6a, 0x2, 0xc8, 0xba}),
-				address:          0,
-			},
-			want: "subps	x10, x19, x8",
-			wantErr: false,
-		},
-		{
-			name: "subps	x29, x27, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x3, 0xc7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x29, x27, x7",
-			wantErr: false,
-		},
-		{
-			name: "subps	x29, x16, x26",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1d, 0x2, 0xda, 0xba}),
-				address:          0,
-			},
-			want: "subps	x29, x16, x26",
-			wantErr: false,
-		},
-		{
-			name: "subps	x0, x7, x23",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0x0, 0xd7, 0xba}),
-				address:          0,
-			},
-			want: "subps	x0, x7, x23",
-			wantErr: false,
-		},
-		{
-			name: "subps	x28, x30, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdc, 0x3, 0xdd, 0xba}),
-				address:          0,
-			},
-			want: "subps	x28, x30, x29",
-			wantErr: false,
-		},
-		{
-			name: "subp	x12, x11, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x1, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x12, x11, x13",
-			wantErr: false,
-		},
-		{
-			name: "subp	x20, x27, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0x3, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x20, x27, x27",
-			wantErr: false,
-		},
-		{
-			name: "subp	x13, x24, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd, 0x3, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x13, x24, x24",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x20, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0x2, 0xc0, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x20, x0",
-			wantErr: false,
-		},
-		{
-			name: "subp	x12, x17, x26",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x2c, 0x2, 0xda, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x12, x17, x26",
-			wantErr: false,
-		},
-		{
-			name: "subp	x3, x9, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x1, 0xd9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x3, x9, x25",
-			wantErr: false,
-		},
-		{
-			name: "subp	xzr, x23, x26",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x2, 0xda, 0x9a}),
-				address:          0,
-			},
-			want: "subp	xzr, x23, x26",
-			wantErr: false,
-		},
-		{
-			name: "subp	x11, x5, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0x0, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x11, x5, x5",
-			wantErr: false,
-		},
-		{
-			name: "subp	x29, x13, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbd, 0x1, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x29, x13, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x18, x22, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd2, 0x2, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x18, x22, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x20, x5, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x0, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x20, x5, x29",
-			wantErr: false,
-		},
-		{
-			name: "subp	x9, x4, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x0, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x9, x4, x6",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x23, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x2, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x23, x14",
-			wantErr: false,
-		},
-		{
-			name: "subp	x28, x24, sp",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x1c, 0x3, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x28, x24, sp",
-			wantErr: false,
-		},
-		{
-			name: "subp	x22, x20, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x2, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x22, x20, x18",
-			wantErr: false,
-		},
-		{
-			name: "subp	x28, x23, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xfc, 0x2, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x28, x23, x18",
-			wantErr: false,
-		},
-		{
-			name: "subp	x2, x14, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x1, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x2, x14, x29",
-			wantErr: false,
-		},
-		{
-			name: "subp	x29, x6, sp",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdd, 0x0, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x29, x6, sp",
-			wantErr: false,
-		},
-		{
-			name: "subp	x1, x5, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x0, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x1, x5, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x0, x28, x13",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x3, 0xcd, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x0, x28, x13",
-			wantErr: false,
-		},
-		{
-			name: "subp	x24, x21, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb8, 0x2, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x24, x21, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x9, x8, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9, 0x1, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x9, x8, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x23, x12",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0x2, 0xcc, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x23, x12",
-			wantErr: false,
-		},
-		{
-			name: "subp	x9, x28, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x3, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x9, x28, x3",
-			wantErr: false,
-		},
-		{
-			name: "subp	x19, x11, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x73, 0x1, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x19, x11, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x19, x18",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0x2, 0xd2, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x19, x18",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x20, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x91, 0x2, 0xc8, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x20, x8",
-			wantErr: false,
-		},
-		{
-			name: "subp	x12, x21, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0x2, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x12, x21, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x21, x8, x17",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x15, 0x1, 0xd1, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x21, x8, x17",
-			wantErr: false,
-		},
-		{
-			name: "subp	x14, x10, x28",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4e, 0x1, 0xdc, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x14, x10, x28",
-			wantErr: false,
-		},
-		{
-			name: "subp	x24, x12, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x98, 0x1, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x24, x12, x9",
-			wantErr: false,
-		},
-		{
-			name: "subp	x29, x27, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7d, 0x3, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x29, x27, x3",
-			wantErr: false,
-		},
-		{
-			name: "subp	x16, x30, x27",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x3, 0xdb, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x16, x30, x27",
-			wantErr: false,
-		},
-		{
-			name: "subp	x28, x21, x0",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xbc, 0x2, 0xc0, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x28, x21, x0",
-			wantErr: false,
-		},
-		{
-			name: "subp	x28, x17, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3c, 0x2, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x28, x17, x14",
-			wantErr: false,
-		},
-		{
-			name: "subp	x28, x28, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x9c, 0x3, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x28, x28, x7",
-			wantErr: false,
-		},
-		{
-			name: "subp	x1, x7, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0x0, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x1, x7, x9",
-			wantErr: false,
-		},
-		{
-			name: "subp	x8, x3, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x68, 0x0, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x8, x3, x22",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x9, x5",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x31, 0x1, 0xc5, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x9, x5",
-			wantErr: false,
-		},
-		{
-			name: "subp	x15, x2, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4f, 0x0, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x15, x2, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x13, x6, x25",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcd, 0x0, 0xd9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x13, x6, x25",
-			wantErr: false,
-		},
-		{
-			name: "subp	x9, x21, x23",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa9, 0x2, 0xd7, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x9, x21, x23",
-			wantErr: false,
-		},
-		{
-			name: "subp	x22, x26, x30",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x56, 0x3, 0xde, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x22, x26, x30",
-			wantErr: false,
-		},
-		{
-			name: "subp	x0, x21, x22",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0x2, 0xd6, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x0, x21, x22",
-			wantErr: false,
-		},
-		{
-			name: "subp	x4, x24, x19",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x4, 0x3, 0xd3, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x4, x24, x19",
-			wantErr: false,
-		},
-		{
-			name: "subp	x24, x19, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x78, 0x2, 0xc2, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x24, x19, x2",
-			wantErr: false,
-		},
-		{
-			name: "subp	x10, x16, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xa, 0x2, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x10, x16, x6",
-			wantErr: false,
-		},
-		{
-			name: "subp	x1, x12, x15",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x1, 0xcf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x1, x12, x15",
-			wantErr: false,
-		},
-		{
-			name: "subp	x19, x9, x8",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x33, 0x1, 0xc8, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x19, x9, x8",
-			wantErr: false,
-		},
-		{
-			name: "subp	x2, x19, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x2, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x2, x19, x24",
-			wantErr: false,
-		},
-		{
-			name: "subp	x3, x8, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x3, 0x1, 0xcb, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x3, x8, x11",
-			wantErr: false,
-		},
-		{
-			name: "subp	x6, x3, x6",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x66, 0x0, 0xc6, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x6, x3, x6",
-			wantErr: false,
-		},
-		{
-			name: "subp	x2, x4, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x82, 0x0, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x2, x4, x21",
-			wantErr: false,
-		},
-		{
-			name: "subp	x23, x4, x11",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x97, 0x0, 0xcb, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x23, x4, x11",
-			wantErr: false,
-		},
-		{
-			name: "subp	x23, x16, x24",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x17, 0x2, 0xd8, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x23, x16, x24",
-			wantErr: false,
-		},
-		{
-			name: "subp	x1, x18, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x2, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x1, x18, x9",
-			wantErr: false,
-		},
-		{
-			name: "subp	x27, x6, x21",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xdb, 0x0, 0xd5, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x27, x6, x21",
-			wantErr: false,
-		},
-		{
-			name: "subp	x12, x30, x29",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xcc, 0x3, 0xdd, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x12, x30, x29",
-			wantErr: false,
-		},
-		{
-			name: "subp	x21, x19, x9",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x75, 0x2, 0xc9, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x21, x19, x9",
-			wantErr: false,
-		},
-		{
-			name: "subp	x9, x30, x7",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xc9, 0x3, 0xc7, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x9, x30, x7",
-			wantErr: false,
-		},
-		{
-			name: "subp	x17, x27, x3",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x71, 0x3, 0xc3, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x17, x27, x3",
-			wantErr: false,
-		},
-		{
-			name: "subp	x18, x3, x14",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x72, 0x0, 0xce, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x18, x3, x14",
-			wantErr: false,
-		},
-		{
-			name: "subp	x16, x25, sp",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0x3, 0xdf, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x16, x25, sp",
-			wantErr: false,
-		},
-		{
-			name: "subp	x22, x29, x2",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xb6, 0x3, 0xc2, 0x9a}),
-				address:          0,
-			},
-			want: "subp	x22, x29, x2",
+			want: "stzgm	xzr, [x2]",
 			wantErr: false,
 		},
 	}
@@ -15084,6 +1323,1562 @@ func Test_decompose_MTE(t *testing.T) {
 	}
 }
 
+func Test_decompose_v8_5a(t *testing.T) {
+	type args struct {
+		instructionValue uint32
+		address          uint64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// // llvm/test/MC/AArch64/armv8.5a-altnzcv.s
+		// {
+		// 	name: "xaflag",
+		// 	args: args{
+		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x40, 0x00, 0xd5}),
+		// 		address:          0,
+		// 	},
+		// 	want:    "xaflag",
+		// 	wantErr: false,
+		// },
+		// {
+		// 	name: "axflag",
+		// 	args: args{
+		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x00, 0xd5}),
+		// 		address:          0,
+		// 	},
+		// 	want:    "axflag",
+		// 	wantErr: false,
+		// },
+		// llvm/test/MC/AArch64/armv8.5a-bti.s
+		{
+			name: "bti",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x1f, 0x24, 0x03, 0xd5}),
+				address:          0,
+			},
+			want:    "bti",
+			wantErr: false,
+		},
+		{
+			name: "bti	c",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x24, 0x03, 0xd5}),
+				address:          0,
+			},
+			want: "bti	c",
+			wantErr: false,
+		},
+		{
+			name: "bti	j",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x24, 0x03, 0xd5}),
+				address:          0,
+			},
+			want: "bti	j",
+			wantErr: false,
+		},
+		{
+			name: "bti	jc",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xdf, 0x24, 0x03, 0xd5}),
+				address:          0,
+			},
+			want: "bti	jc",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-frint.s
+		{
+			name: "frint32z	s0, s1",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x40, 0x28, 0x1e}),
+				address:          0,
+			},
+			want: "frint32z	s0, s1",
+			wantErr: false,
+		},
+		{
+			name: "frint32z	d0, d1",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x40, 0x68, 0x1e}),
+				address:          0,
+			},
+			want: "frint32z	d0, d1",
+			wantErr: false,
+		},
+		{
+			name: "frint64z	s2, s3",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x40, 0x29, 0x1e}),
+				address:          0,
+			},
+			want: "frint64z	s2, s3",
+			wantErr: false,
+		},
+		{
+			name: "frint64z	d2, d3",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x40, 0x69, 0x1e}),
+				address:          0,
+			},
+			want: "frint64z	d2, d3",
+			wantErr: false,
+		},
+		{
+			name: "frint32x	s4, s5",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0xc0, 0x28, 0x1e}),
+				address:          0,
+			},
+			want: "frint32x	s4, s5",
+			wantErr: false,
+		},
+		{
+			name: "frint32x	d4, d5",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0xc0, 0x68, 0x1e}),
+				address:          0,
+			},
+			want: "frint32x	d4, d5",
+			wantErr: false,
+		},
+		{
+			name: "frint64x	s6, s7",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xc0, 0x29, 0x1e}),
+				address:          0,
+			},
+			want: "frint64x	s6, s7",
+			wantErr: false,
+		},
+		{
+			name: "frint64x	d6, d7",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xc0, 0x69, 0x1e}),
+				address:          0,
+			},
+			want: "frint64x	d6, d7",
+			wantErr: false,
+		},
+		{
+			name: "frint32z	v0.2s, v1.2s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe8, 0x21, 0x0e}),
+				address:          0,
+			},
+			want: "frint32z	v0.2s, v1.2s",
+			wantErr: false,
+		},
+		{
+			name: "frint32z	v0.2d, v1.2d",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe8, 0x61, 0x4e}),
+				address:          0,
+			},
+			want: "frint32z	v0.2d, v1.2d",
+			wantErr: false,
+		},
+		{
+			name: "frint32z	v0.4s, v1.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe8, 0x21, 0x4e}),
+				address:          0,
+			},
+			want: "frint32z	v0.4s, v1.4s",
+			wantErr: false,
+		},
+		{
+			name: "frint64z	v2.2s, v3.2s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x21, 0x0e}),
+				address:          0,
+			},
+			want: "frint64z	v2.2s, v3.2s",
+			wantErr: false,
+		},
+		{
+			name: "frint64z	v2.2d, v3.2d",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x61, 0x4e}),
+				address:          0,
+			},
+			want: "frint64z	v2.2d, v3.2d",
+			wantErr: false,
+		},
+		{
+			name: "frint64z	v2.4s, v3.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x21, 0x4e}),
+				address:          0,
+			},
+			want: "frint64z	v2.4s, v3.4s",
+			wantErr: false,
+		},
+		{
+			name: "frint32x	v4.2s, v5.2s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0xe8, 0x21, 0x2e}),
+				address:          0,
+			},
+			want: "frint32x	v4.2s, v5.2s",
+			wantErr: false,
+		},
+		{
+			name: "frint32x	v4.2d, v5.2d",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0xe8, 0x61, 0x6e}),
+				address:          0,
+			},
+			want: "frint32x	v4.2d, v5.2d",
+			wantErr: false,
+		},
+		{
+			name: "frint32x	v4.4s, v5.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa4, 0xe8, 0x21, 0x6e}),
+				address:          0,
+			},
+			want: "frint32x	v4.4s, v5.4s",
+			wantErr: false,
+		},
+		{
+			name: "frint64x	v6.2s, v7.2s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xf8, 0x21, 0x2e}),
+				address:          0,
+			},
+			want: "frint64x	v6.2s, v7.2s",
+			wantErr: false,
+		},
+		{
+			name: "frint64x	v6.2d, v7.2d",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xf8, 0x61, 0x6e}),
+				address:          0,
+			},
+			want: "frint64x	v6.2d, v7.2d",
+			wantErr: false,
+		},
+		{
+			name: "frint64x	v6.4s, v7.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xf8, 0x21, 0x6e}),
+				address:          0,
+			},
+			want: "frint64x	v6.4s, v7.4s",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-persistent-memory.s
+		{
+			name: "dc	cvadp, x7",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x27, 0x7d, 0x0b, 0xd5}),
+				address:          0,
+			},
+			want: "dc	cvadp, x7",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-predres.s
+		{
+			name: "cfp	rctx, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x73, 0x0b, 0xd5}),
+				address:          0,
+			},
+			want: "cfp	rctx, x0",
+			wantErr: false,
+		},
+		{
+			name: "dvp	rctx, x1",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa1, 0x73, 0x0b, 0xd5}),
+				address:          0,
+			},
+			want: "dvp	rctx, x1",
+			wantErr: false,
+		},
+		{
+			name: "cpp	rctx, x2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x73, 0x0b, 0xd5}),
+				address:          0,
+			},
+			want: "cpp	rctx, x2",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-rand.s
+		{
+			name: "mrs	x0, RNDR",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0x24, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x0, RNDR",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x1, RNDRRS",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0x24, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x1, RNDRRS",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-sb.s
+		{
+			name: "sb",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x30, 0x03, 0xd5}),
+				address:          0,
+			},
+			want:    "sb",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-specrestrict.s
+		{
+			name: "mrs	x9, {{id_pfr2_el1|ID_PFR2_EL1}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x03, 0x38, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x9, {{id_pfr2_el1|ID_PFR2_EL1}}",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x8, {{scxtnum_el0|SCXTNUM_EL0}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xd0, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x8, {{scxtnum_el0|SCXTNUM_EL0}}",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x7, {{scxtnum_el1|SCXTNUM_EL1}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd0, 0x38, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x7, {{scxtnum_el1|SCXTNUM_EL1}}",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x6, {{scxtnum_el2|SCXTNUM_EL2}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd0, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x6, {{scxtnum_el2|SCXTNUM_EL2}}",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x5, {{scxtnum_el3|SCXTNUM_EL3}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xd0, 0x3e, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x5, {{scxtnum_el3|SCXTNUM_EL3}}",
+			wantErr: false,
+		},
+		{
+			name: "mrs	x4, {{scxtnum_el12|SCXTNUM_EL12}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xd0, 0x3d, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x4, {{scxtnum_el12|SCXTNUM_EL12}}",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{scxtnum_el0|SCXTNUM_EL0}},   x8",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xd0, 0x1b, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{scxtnum_el0|SCXTNUM_EL0}},   x8",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{scxtnum_el1|SCXTNUM_EL1}},   x7",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd0, 0x18, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{scxtnum_el1|SCXTNUM_EL1}},   x7",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{scxtnum_el2|SCXTNUM_EL2}},   x6",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd0, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{scxtnum_el2|SCXTNUM_EL2}},   x6",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{scxtnum_el3|SCXTNUM_EL3}},   x5",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xd0, 0x1e, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{scxtnum_el3|SCXTNUM_EL3}},   x5",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{scxtnum_el12|SCXTNUM_EL12}}, x4",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xd0, 0x1d, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{scxtnum_el12|SCXTNUM_EL12}}, x4",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.5a-ssbs.s
+		{
+			name: "mrs	x2, {{ssbs|SSBS}}",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x42, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	x2, {{ssbs|SSBS}}",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{ssbs|SSBS}}, x3",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x42, 0x1b, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{ssbs|SSBS}}, x3",
+			wantErr: false,
+		},
+		{
+			name: "msr	{{ssbs|SSBS}}, #1",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x41, 0x03, 0xd5}),
+				address:          0,
+			},
+			want: "msr	{{ssbs|SSBS}}, #1",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := decompose(tt.args.instructionValue, tt.args.address)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			hexOut, _ := got.disassemble(false)
+			decOut, _ := got.disassemble(true)
+			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
+				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
+			}
+		})
+	}
+}
+
+func Test_decompose_v8_6a(t *testing.T) {
+	type args struct {
+		instructionValue uint32
+		address          uint64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// llvm/test/MC/AArch64/armv8.6a-amvs.s
+		{
+			name: "msr	    AMEVCNTVOFF00_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF00_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF01_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF01_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF02_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF02_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF03_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF03_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF04_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF04_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF05_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF05_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF06_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF06_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF07_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd8, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF07_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF08_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF08_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF09_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF09_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF010_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF010_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF011_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF011_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF012_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF012_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF013_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF013_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF014_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF014_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF015_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd9, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF015_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF00_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF00_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF01_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF01_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF02_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF02_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF03_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF03_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF04_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF04_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF05_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF05_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF06_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF06_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF07_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd8, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF07_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF08_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF08_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF09_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF09_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF010_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF010_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF011_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF011_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF012_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF012_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF013_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF013_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF014_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF014_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF015_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd9, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF015_EL2",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF10_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF10_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF11_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF11_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF12_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF12_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF13_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF13_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF14_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF14_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF15_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF15_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF16_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF16_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF17_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xda, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF17_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF18_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF18_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF19_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF19_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF110_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF110_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF111_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF111_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF112_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF112_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF113_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF113_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF114_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF114_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    AMEVCNTVOFF115_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xdb, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    AMEVCNTVOFF115_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF10_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF10_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF11_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF11_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF12_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF12_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF13_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF13_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF14_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF14_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF15_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF15_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF16_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF16_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF17_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xda, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF17_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF18_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF18_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF19_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF19_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF110_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF110_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF111_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF111_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF112_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF112_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF113_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF113_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF114_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF114_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, AMEVCNTVOFF115_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xdb, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, AMEVCNTVOFF115_EL2",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.6a-bf16.s
+		{
+			name: "bfdot	v2.2s, v3.4h, v4.4h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xfc, 0x44, 0x2e}),
+				address:          0,
+			},
+			want: "bfdot	v2.2s, v3.4h, v4.4h",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	v2.4s, v3.8h, v4.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xfc, 0x44, 0x6e}),
+				address:          0,
+			},
+			want: "bfdot	v2.4s, v3.8h, v4.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	  v2.2s, v3.4h, v4.2h[0]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x44, 0x0f}),
+				address:          0,
+			},
+			want: "bfdot	  v2.2s, v3.4h, v4.2h[0]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	  v2.2s, v3.4h, v4.2h[1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x64, 0x0f}),
+				address:          0,
+			},
+			want: "bfdot	  v2.2s, v3.4h, v4.2h[1]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	  v2.2s, v3.4h, v4.2h[2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x44, 0x0f}),
+				address:          0,
+			},
+			want: "bfdot	  v2.2s, v3.4h, v4.2h[2]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	  v2.2s, v3.4h, v4.2h[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x64, 0x0f}),
+				address:          0,
+			},
+			want: "bfdot	  v2.2s, v3.4h, v4.2h[3]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	 v2.4s, v3.8h, v4.2h[0]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x44, 0x4f}),
+				address:          0,
+			},
+			want: "bfdot	 v2.4s, v3.8h, v4.2h[0]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	 v2.4s, v3.8h, v4.2h[1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x64, 0x4f}),
+				address:          0,
+			},
+			want: "bfdot	 v2.4s, v3.8h, v4.2h[1]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	 v2.4s, v3.8h, v4.2h[2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x44, 0x4f}),
+				address:          0,
+			},
+			want: "bfdot	 v2.4s, v3.8h, v4.2h[2]",
+			wantErr: false,
+		},
+		{
+			name: "bfdot	 v2.4s, v3.8h, v4.2h[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x64, 0x4f}),
+				address:          0,
+			},
+			want: "bfdot	 v2.4s, v3.8h, v4.2h[3]",
+			wantErr: false,
+		},
+		{
+			name: "bfmmla	v2.4s, v3.8h, v4.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xec, 0x44, 0x6e}),
+				address:          0,
+			},
+			want: "bfmmla	v2.4s, v3.8h, v4.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfmmla	v3.4s, v4.8h, v5.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x83, 0xec, 0x45, 0x6e}),
+				address:          0,
+			},
+			want: "bfmmla	v3.4s, v4.8h, v5.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfcvtn	 v5.4h, v5.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x68, 0xa1, 0x0e}),
+				address:          0,
+			},
+			want: "bfcvtn	 v5.4h, v5.4s",
+			wantErr: false,
+		},
+		{
+			name: "bfcvtn2	v5.8h, v5.4s",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x68, 0xa1, 0x4e}),
+				address:          0,
+			},
+			want: "bfcvtn2	v5.8h, v5.4s",
+			wantErr: false,
+		},
+		{
+			name: "bfcvt	  h5, s3",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x40, 0x63, 0x1e}),
+				address:          0,
+			},
+			want: "bfcvt	  h5, s3",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalb	v10.4s,	v21.8h, v14.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0xfe, 0xce, 0x2e}),
+				address:          0,
+			},
+			want: "bfmlalb	v10.4s,	v21.8h, v14.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalb	v14.4s, v21.8h, v10.h[1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0xf2, 0xda, 0x0f}),
+				address:          0,
+			},
+			want: "bfmlalb	v14.4s, v21.8h, v10.h[1]",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalt	v21.4s,	v14.8h, v10.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xfd, 0xca, 0x6e}),
+				address:          0,
+			},
+			want: "bfmlalt	v21.4s,	v14.8h, v10.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalb	v14.4s, v21.8h, v10.h[2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0xf2, 0xea, 0x0f}),
+				address:          0,
+			},
+			want: "bfmlalb	v14.4s, v21.8h, v10.h[2]",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalb	v14.4s, v21.8h, v10.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0xfa, 0xfa, 0x0f}),
+				address:          0,
+			},
+			want: "bfmlalb	v14.4s, v21.8h, v10.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalt	v21.4s, v10.8h, v14.h[1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xf1, 0xde, 0x4f}),
+				address:          0,
+			},
+			want: "bfmlalt	v21.4s, v10.8h, v14.h[1]",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalt	v21.4s, v10.8h, v14.h[2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xf1, 0xee, 0x4f}),
+				address:          0,
+			},
+			want: "bfmlalt	v21.4s, v10.8h, v14.h[2]",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalt	v21.4s, v10.8h, v14.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x55, 0xf9, 0xfe, 0x4f}),
+				address:          0,
+			},
+			want: "bfmlalt	v21.4s, v10.8h, v14.h[7]",
+			wantErr: false,
+		},
+		// llvm/test/MC/AArch64/armv8.6a-ecv.s
+		{
+			name: "msr	    CNTSCALE_EL2, x1",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0xe0, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTSCALE_EL2, x1",
+			wantErr: false,
+		},
+		{
+			name: "msr	    CNTISCALE_EL2, x11",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0xe0, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTISCALE_EL2, x11",
+			wantErr: false,
+		},
+		{
+			name: "msr	    CNTPOFF_EL2, x22",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0xe0, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTPOFF_EL2, x22",
+			wantErr: false,
+		},
+		{
+			name: "msr	    CNTVFRQ_EL2, x3",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xe0, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTVFRQ_EL2, x3",
+			wantErr: false,
+		},
+		{
+			name: "msr	    CNTPCTSS_EL0, x13",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0xe0, 0x1b, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTPCTSS_EL0, x13",
+			wantErr: false,
+		},
+		{
+			name: "msr	    CNTVCTSS_EL0, x23",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xe0, 0x1b, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    CNTVCTSS_EL0, x23",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x0, CNTSCALE_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xe0, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x0, CNTSCALE_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x5, CNTISCALE_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0xe0, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x5, CNTISCALE_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x10, CNTPOFF_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xe0, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x10, CNTPOFF_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x15, CNTVFRQ_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0xe0, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x15, CNTVFRQ_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x20, CNTPCTSS_EL0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0xe0, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x20, CNTPCTSS_EL0",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x30, CNTVCTSS_EL0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0xe0, 0x3b, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x30, CNTVCTSS_EL0",
+			wantErr: false,
+		},
+
+		// llvm/test/MC/AArch64/armv8.6a-fgt.s
+		{
+			name: "msr	    HFGRTR_EL2, x0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x11, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    HFGRTR_EL2, x0",
+			wantErr: false,
+		},
+		{
+			name: "msr	    HFGWTR_EL2, x5",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x11, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    HFGWTR_EL2, x5",
+			wantErr: false,
+		},
+		{
+			name: "msr	    HFGITR_EL2, x10",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0x11, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    HFGITR_EL2, x10",
+			wantErr: false,
+		},
+		{
+			name: "msr	    HDFGRTR_EL2, x15",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x31, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    HDFGRTR_EL2, x15",
+			wantErr: false,
+		},
+		{
+			name: "msr	    HDFGWTR_EL2, x20",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x31, 0x1c, 0xd5}),
+				address:          0,
+			},
+			want: "msr	    HDFGWTR_EL2, x20",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x30, HFGRTR_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x11, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x30, HFGRTR_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x25, HFGWTR_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x11, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x25, HFGWTR_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x20, HFGITR_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x11, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x20, HFGITR_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x15, HDFGRTR_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x31, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x15, HDFGRTR_EL2",
+			wantErr: false,
+		},
+		{
+			name: "mrs	    x10, HDFGWTR_EL2",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x31, 0x3c, 0xd5}),
+				address:          0,
+			},
+			want: "mrs	    x10, HDFGWTR_EL2",
+			wantErr: false,
+		},
+
+		// llvm/test/MC/AArch64/armv8.6a-simd-matmul.s
+		{
+			name: "smmla	  v1.4s, v16.16b, v31.16b",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xa6, 0x9f, 0x4e}),
+				address:          0,
+			},
+			want: "smmla	  v1.4s, v16.16b, v31.16b",
+			wantErr: false,
+		},
+		{
+			name: "ummla	  v1.4s, v16.16b, v31.16b",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xa6, 0x9f, 0x6e}),
+				address:          0,
+			},
+			want: "ummla	  v1.4s, v16.16b, v31.16b",
+			wantErr: false,
+		},
+		{
+			name: "usmmla	 v1.4s, v16.16b, v31.16b",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xae, 0x9f, 0x4e}),
+				address:          0,
+			},
+			want: "usmmla	 v1.4s, v16.16b, v31.16b",
+			wantErr: false,
+		},
+		{
+			name: "usdot	  v3.2s, v15.8b, v30.8b",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x9d, 0x9e, 0x0e}),
+				address:          0,
+			},
+			want: "usdot	  v3.2s, v15.8b, v30.8b",
+			wantErr: false,
+		},
+		{
+			name: "usdot	  v3.4s, v15.16b, v30.16b",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x9d, 0x9e, 0x4e}),
+				address:          0,
+			},
+			want: "usdot	  v3.4s, v15.16b, v30.16b",
+			wantErr: false,
+		},
+		{
+			name: "usdot	  v31.2s, v1.8b, v2.4b[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0xa2, 0x0f}),
+				address:          0,
+			},
+			want: "usdot	  v31.2s, v1.8b, v2.4b[3]",
+			wantErr: false,
+		},
+		{
+			name: "usdot	  v31.4s, v1.16b, v2.4b[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0xa2, 0x4f}),
+				address:          0,
+			},
+			want: "usdot	  v31.4s, v1.16b, v2.4b[3]",
+			wantErr: false,
+		},
+		{
+			name: "sudot	  v31.2s, v1.8b, v2.4b[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0x22, 0x0f}),
+				address:          0,
+			},
+			want: "sudot	  v31.2s, v1.8b, v2.4b[3]",
+			wantErr: false,
+		},
+		{
+			name: "sudot	  v31.4s, v1.16b, v2.4b[3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0x22, 0x4f}),
+				address:          0,
+			},
+			want: "sudot	  v31.4s, v1.16b, v2.4b[3]",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := decompose(tt.args.instructionValue, tt.args.address)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			hexOut, _ := got.disassemble(false)
+			decOut, _ := got.disassemble(true)
+			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
+				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
+			}
+		})
+	}
+}
 func Test_decompose_ALL(t *testing.T) {
 	type args struct {
 		instructionValue uint32
@@ -55927,6 +43722,4138 @@ func Test_decompose_ALL(t *testing.T) {
 	}
 }
 
+func Test_decompose_v8_1a_LSE(t *testing.T) {
+	type args struct {
+		instructionValue uint32
+		address          uint64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "cas	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xa0, 0x88}),
+				address:          0,
+			},
+			want: "cas	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "cas	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xa2, 0x88}),
+				address:          0,
+			},
+			want: "cas	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casa	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xe0, 0x88}),
+				address:          0,
+			},
+			want: "casa	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casa	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xe2, 0x88}),
+				address:          0,
+			},
+			want: "casa	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xa0, 0x88}),
+				address:          0,
+			},
+			want: "casl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xa2, 0x88}),
+				address:          0,
+			},
+			want: "casl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xe0, 0x88}),
+				address:          0,
+			},
+			want: "casal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xe2, 0x88}),
+				address:          0,
+			},
+			want: "casal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xa0, 0x08}),
+				address:          0,
+			},
+			want: "casb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xa2, 0x08}),
+				address:          0,
+			},
+			want: "casb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "cash	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xa0, 0x48}),
+				address:          0,
+			},
+			want: "cash	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "cash	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xa2, 0x48}),
+				address:          0,
+			},
+			want: "cash	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xe0, 0x08}),
+				address:          0,
+			},
+			want: "casab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xe2, 0x08}),
+				address:          0,
+			},
+			want: "casab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caslb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xa0, 0x08}),
+				address:          0,
+			},
+			want: "caslb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "caslb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xa2, 0x08}),
+				address:          0,
+			},
+			want: "caslb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xe0, 0x08}),
+				address:          0,
+			},
+			want: "casalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xe2, 0x08}),
+				address:          0,
+			},
+			want: "casalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xe0, 0x48}),
+				address:          0,
+			},
+			want: "casah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xe2, 0x48}),
+				address:          0,
+			},
+			want: "casah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caslh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xa0, 0x48}),
+				address:          0,
+			},
+			want: "caslh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "caslh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xa2, 0x48}),
+				address:          0,
+			},
+			want: "caslh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xe0, 0x48}),
+				address:          0,
+			},
+			want: "casalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xe2, 0x48}),
+				address:          0,
+			},
+			want: "casalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "cas	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xa0, 0xc8}),
+				address:          0,
+			},
+			want: "cas	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "cas	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xa2, 0xc8}),
+				address:          0,
+			},
+			want: "cas	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casa	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x7c, 0xe0, 0xc8}),
+				address:          0,
+			},
+			want: "casa	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casa	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x7f, 0xe2, 0xc8}),
+				address:          0,
+			},
+			want: "casa	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xa0, 0xc8}),
+				address:          0,
+			},
+			want: "casl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xa2, 0xc8}),
+				address:          0,
+			},
+			want: "casl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0xfc, 0xe0, 0xc8}),
+				address:          0,
+			},
+			want: "casal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xff, 0xe2, 0xc8}),
+				address:          0,
+			},
+			want: "casal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swp	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "swp	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swp	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "swp	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpa	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "swpa	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpa	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "swpa	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "swpl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "swpl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "swpal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "swpal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "swpb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "swpb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swph	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "swph	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swph	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "swph	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "swpab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "swpab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swplb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "swplb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swplb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "swplb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "swpalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "swpalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "swpah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "swpah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swplh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "swplh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swplh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "swplh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "swpalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "swpalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swp	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "swp	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swp	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "swp	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpa	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "swpa	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpa	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "swpa	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "swpl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "swpl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "swpal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x80, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "swpal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "swpal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x83, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "swpal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casp	w0, w1, w2, w3, [x5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x7c, 0x20, 0x08}),
+				address:          0,
+			},
+			want: "casp	w0, w1, w2, w3, [x5]",
+			wantErr: false,
+		},
+		{
+			name: "casp	w4, w5, w6, w7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x7f, 0x24, 0x08}),
+				address:          0,
+			},
+			want: "casp	w4, w5, w6, w7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "casp	x0, x1, x2, x3, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x7c, 0x20, 0x48}),
+				address:          0,
+			},
+			want: "casp	x0, x1, x2, x3, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "casp	x4, x5, x6, x7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x7f, 0x24, 0x48}),
+				address:          0,
+			},
+			want: "casp	x4, x5, x6, x7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspa	w0, w1, w2, w3, [x5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0x7c, 0x60, 0x08}),
+				address:          0,
+			},
+			want: "caspa	w0, w1, w2, w3, [x5]",
+			wantErr: false,
+		},
+		{
+			name: "caspa	w4, w5, w6, w7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x7f, 0x64, 0x08}),
+				address:          0,
+			},
+			want: "caspa	w4, w5, w6, w7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspa	x0, x1, x2, x3, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0x7c, 0x60, 0x48}),
+				address:          0,
+			},
+			want: "caspa	x0, x1, x2, x3, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "caspa	x4, x5, x6, x7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0x7f, 0x64, 0x48}),
+				address:          0,
+			},
+			want: "caspa	x4, x5, x6, x7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspl	w0, w1, w2, w3, [x5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0xfc, 0x20, 0x08}),
+				address:          0,
+			},
+			want: "caspl	w0, w1, w2, w3, [x5]",
+			wantErr: false,
+		},
+		{
+			name: "caspl	w4, w5, w6, w7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xff, 0x24, 0x08}),
+				address:          0,
+			},
+			want: "caspl	w4, w5, w6, w7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspl	x0, x1, x2, x3, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xfc, 0x20, 0x48}),
+				address:          0,
+			},
+			want: "caspl	x0, x1, x2, x3, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "caspl	x4, x5, x6, x7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xff, 0x24, 0x48}),
+				address:          0,
+			},
+			want: "caspl	x4, x5, x6, x7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspal	w0, w1, w2, w3, [x5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa2, 0xfc, 0x60, 0x08}),
+				address:          0,
+			},
+			want: "caspal	w0, w1, w2, w3, [x5]",
+			wantErr: false,
+		},
+		{
+			name: "caspal	w4, w5, w6, w7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xff, 0x64, 0x08}),
+				address:          0,
+			},
+			want: "caspal	w4, w5, w6, w7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "caspal	x0, x1, x2, x3, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x42, 0xfc, 0x60, 0x48}),
+				address:          0,
+			},
+			want: "caspal	x0, x1, x2, x3, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "caspal	x4, x5, x6, x7, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xff, 0x64, 0x48}),
+				address:          0,
+			},
+			want: "caspal	x4, x5, x6, x7, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldadd	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldadd	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldadd	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldadd	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldadda	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldadda	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldadda	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldadda	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldaddl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldaddl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldaddal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldaddal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldaddb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldaddb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldaddh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldaddh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldaddab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldaddab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldaddlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldaddlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldaddalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldaddalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldaddah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldaddah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldaddlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldaddlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldaddalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldaddalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldadd	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldadd	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldadd	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldadd	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldadda	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldadda	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldadda	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldadda	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldaddl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldaddl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x00, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldaddal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldaddal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x03, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldaddal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclr	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldclr	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclr	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldclr	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclra	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldclra	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclra	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldclra	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldclrl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldclrl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclral	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldclral	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclral	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldclral	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldclrb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldclrb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldclrh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldclrh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldclrab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldclrab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldclrlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldclrlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclralb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldclralb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclralb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldclralb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldclrah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldclrah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldclrlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldclrlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclralh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldclralh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclralh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldclralh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclr	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldclr	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclr	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldclr	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclra	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldclra	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclra	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldclra	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldclrl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclrl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldclrl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldclral	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x10, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldclral	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldclral	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x13, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldclral	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeor	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldeor	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeor	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldeor	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeora	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldeora	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeora	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldeora	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldeorl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldeorl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoral	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldeoral	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoral	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldeoral	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldeorb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldeorb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldeorh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldeorh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldeorab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldeorab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldeorlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldeorlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoralb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldeoralb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoralb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldeoralb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldeorah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldeorah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldeorlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldeorlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoralh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldeoralh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoralh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldeoralh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeor	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldeor	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeor	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldeor	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeora	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldeora	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeora	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldeora	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldeorl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeorl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldeorl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoral	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x20, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldeoral	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldeoral	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x23, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldeoral	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldset	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldset	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldset	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldset	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldseta	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldseta	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldseta	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldseta	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldsetl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldsetl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldsetal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldsetal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldsetb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldsetb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldseth	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldseth	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldseth	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldseth	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldsetab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldsetab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldsetlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldsetlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldsetalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldsetalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldsetah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldsetah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldsetlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldsetlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldsetalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldsetalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldset	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldset	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldset	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldset	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldseta	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldseta	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldseta	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldseta	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldsetl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldsetl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x30, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldsetal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsetal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x33, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldsetal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmax	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmax	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmax	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmax	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxa	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxa	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxa	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxa	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmaxal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldsmaxalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldsmaxalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmax	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmax	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmax	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmax	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxa	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxa	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxa	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxa	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x40, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmaxal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x43, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmaxal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmin	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmin	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmin	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmin	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmina	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmina	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmina	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldsmina	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldsminl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldsminl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldsminal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldsminal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldsminb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldsminb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldsminh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldsminh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldsminab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldsminab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldsminlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldsminlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldsminalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldsminalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldsminah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldsminah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldsminlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldsminlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldsminalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldsminalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmin	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmin	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmin	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmin	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmina	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmina	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsmina	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldsmina	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldsminl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldsminl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x50, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldsminal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldsminal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x53, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldsminal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumax	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldumax	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumax	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldumax	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxa	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxa	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxa	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxa	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "ldumaxal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "ldumaxalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "ldumaxalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumax	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldumax	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumax	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldumax	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxa	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxa	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxa	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxa	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x60, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumaxal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x63, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "ldumaxal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumin	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "ldumin	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumin	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "ldumin	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumina	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xa0, 0xb8}),
+				address:          0,
+			},
+			want: "ldumina	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumina	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xa2, 0xb8}),
+				address:          0,
+			},
+			want: "ldumina	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminl	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "lduminl	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminl	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "lduminl	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminal	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xe0, 0xb8}),
+				address:          0,
+			},
+			want: "lduminal	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminal	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xe2, 0xb8}),
+				address:          0,
+			},
+			want: "lduminal	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "lduminb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "lduminb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "lduminh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "lduminh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminab	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xa0, 0x38}),
+				address:          0,
+			},
+			want: "lduminab	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminab	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xa2, 0x38}),
+				address:          0,
+			},
+			want: "lduminab	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminlb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "lduminlb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminlb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "lduminlb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminalb	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xe0, 0x38}),
+				address:          0,
+			},
+			want: "lduminalb	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminalb	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xe2, 0x38}),
+				address:          0,
+			},
+			want: "lduminalb	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminah	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xa0, 0x78}),
+				address:          0,
+			},
+			want: "lduminah	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminah	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xa2, 0x78}),
+				address:          0,
+			},
+			want: "lduminah	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminlh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "lduminlh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminlh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "lduminlh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminalh	w0, w1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xe0, 0x78}),
+				address:          0,
+			},
+			want: "lduminalh	w0, w1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminalh	w2, w3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xe2, 0x78}),
+				address:          0,
+			},
+			want: "lduminalh	w2, w3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumin	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "ldumin	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumin	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "ldumin	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldumina	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xa0, 0xf8}),
+				address:          0,
+			},
+			want: "ldumina	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "ldumina	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xa2, 0xf8}),
+				address:          0,
+			},
+			want: "ldumina	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminl	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "lduminl	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminl	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "lduminl	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "lduminal	x0, x1, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x70, 0xe0, 0xf8}),
+				address:          0,
+			},
+			want: "lduminal	x0, x1, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "lduminal	x2, x3, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x73, 0xe2, 0xf8}),
+				address:          0,
+			},
+			want: "lduminal	x2, x3, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stadd	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stadd	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stadd	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stadd	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "staddl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "staddl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "staddb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "staddb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "staddh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "staddh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "staddlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "staddlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "staddlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "staddlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stadd	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stadd	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stadd	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stadd	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "staddl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x00, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "staddl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "staddl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x03, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "staddl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclr	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stclr	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclr	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stclr	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stclrl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stclrl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stclrb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stclrb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stclrh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stclrh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "stclrlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "stclrlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "stclrlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "stclrlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclr	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stclr	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclr	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stclr	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stclrl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x10, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "stclrl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stclrl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x13, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "stclrl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steor	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "steor	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steor	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "steor	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "steorl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "steorl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "steorb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "steorb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "steorh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "steorh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "steorlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "steorlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "steorlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "steorlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steor	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "steor	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steor	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "steor	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "steorl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x20, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "steorl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "steorl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x23, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "steorl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stset	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stset	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stset	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stset	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsetl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stsetl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsetl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stsetl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsetb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stsetb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsetb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stsetb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stseth	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stseth	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stseth	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stseth	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsetlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "stsetlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsetlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "stsetlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsetlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "stsetlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsetlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "stsetlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stset	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stset	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stset	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stset	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsetl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x30, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "stsetl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsetl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x33, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "stsetl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmax	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stsmax	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmax	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stsmax	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stsmaxl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stsmaxl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stsmaxb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stsmaxb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stsmaxh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stsmaxh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "stsmaxlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "stsmaxlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "stsmaxlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "stsmaxlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmax	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stsmax	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmax	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stsmax	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x40, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "stsmaxl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmaxl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x43, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "stsmaxl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmin	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stsmin	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmin	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stsmin	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stsminl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stsminl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stsminb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stsminb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stsminh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stsminh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "stsminlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "stsminlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "stsminlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "stsminlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsmin	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stsmin	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsmin	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stsmin	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stsminl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x50, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "stsminl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stsminl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x53, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "stsminl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumax	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stumax	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumax	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stumax	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stumaxl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stumaxl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stumaxb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stumaxb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stumaxh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stumaxh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxlb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x60, 0x38}),
+				address:          0,
+			},
+			want: "stumaxlb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxlb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x62, 0x38}),
+				address:          0,
+			},
+			want: "stumaxlb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxlh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x60, 0x78}),
+				address:          0,
+			},
+			want: "stumaxlh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxlh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x62, 0x78}),
+				address:          0,
+			},
+			want: "stumaxlh	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumax	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x20, 0xf8}),
+				address:          0,
+			},
+			want: "stumax	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumax	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x22, 0xf8}),
+				address:          0,
+			},
+			want: "stumax	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxl	x0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x60, 0x60, 0xf8}),
+				address:          0,
+			},
+			want: "stumaxl	x0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumaxl	x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x63, 0x62, 0xf8}),
+				address:          0,
+			},
+			want: "stumaxl	x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stumin	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x70, 0x20, 0xb8}),
+				address:          0,
+			},
+			want: "stumin	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stumin	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x73, 0x22, 0xb8}),
+				address:          0,
+			},
+			want: "stumin	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stuminl	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x70, 0x60, 0xb8}),
+				address:          0,
+			},
+			want: "stuminl	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stuminl	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x73, 0x62, 0xb8}),
+				address:          0,
+			},
+			want: "stuminl	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stuminb	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x70, 0x20, 0x38}),
+				address:          0,
+			},
+			want: "stuminb	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stuminb	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x73, 0x22, 0x38}),
+				address:          0,
+			},
+			want: "stuminb	w2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stuminh	w0, [x2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x70, 0x20, 0x78}),
+				address:          0,
+			},
+			want: "stuminh	w0, [x2]",
+			wantErr: false,
+		},
+		{
+			name: "stuminh	w2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0x73, 0x22, 0x78}),
+				address:          0,
+			},
+			want: "stuminh	w2, [sp]",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// fmt.Println("want:", tt.want)
+			got, err := decompose(tt.args.instructionValue, tt.args.address)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			decOut, _ := got.disassemble(true)
+			// fmt.Println("got: ", tt.want)
+			if !reflect.DeepEqual(decOut, tt.want) {
+				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
+			}
+		})
+	}
+}
 func TestDisassemble(t *testing.T) {
 
 	f, err := os.Open("internal/instructions.bin")
@@ -55944,7 +47871,7 @@ func TestDisassemble(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "addg x20, x3, #0x330, #0x5",
+			name: "internal/instructions.bin",
 			args: args{
 				r:       f,
 				options: Options{},
