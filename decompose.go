@@ -1710,6 +1710,47 @@ func (i *Instruction) decompose_load_store_mem_tags() (*Instruction, error) {
 	return i, nil
 }
 
+func (i *Instruction) decompose_load_store_unscaled() (*Instruction, error) {
+
+	/*
+	 * STLUR <Wt>, [<Xn|SP>{, #<simm>}]
+	 * STLURB <Wt>, [<Xn|SP>{, #<simm>}]
+	 * STLURH <Wt>, [<Xn|SP>{, #<simm>}]
+	 *
+	 * LDAPUR <Wt>, [<Xn|SP>{, #<simm>}]
+	 * LDAPURB <Wt>, [<Xn|SP>{, #<simm>}]
+	 * LDAPURH <Wt>, [<Xn|SP>{, #<simm>}]
+	 * LDAPURSB <Wt>, [<Xn|SP>{, #<simm>}]
+	 * LDAPURSH <Wt>, [<Xn|SP>{, #<simm>}]
+	 * LDAPURSW <Xt>, [<Xn|SP>{, #<simm>}]
+	 */
+
+	var operation = [4][4]Operation{
+		{ARM64_STLURB, ARM64_STLURH, ARM64_STLUR, ARM64_STLUR},
+		{ARM64_LDAPURB, ARM64_LDAPURH, ARM64_LDAPUR, ARM64_LDAPUR},
+		{ARM64_LDAPURSB, ARM64_LDAPURSH, ARM64_LDAPURSW, ARM64_UNDEFINED},
+		{ARM64_LDAPURSB, ARM64_LDAPURSH, ARM64_UNDEFINED, ARM64_UNDEFINED},
+	}
+	var regBase = []uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE}
+
+	decode := LdstTags(i.raw)
+
+	i.operation = operation[decode.Opc()][decode.Size()]
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rt()))
+	i.operands[1].OpClass = MEM_OFFSET
+	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	i.operands[1].SignedImm = 1
+	i.operands[1].Immediate = uint64(decode.Imm9())
+	i.operands[1].SignedImm = 1
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+
+	return i, nil
+}
+
 func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	/* C4.3.6 Load/store exclusive
 	 *
@@ -7127,6 +7168,10 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 				if op2 == 3 {
 					return instruction.decompose_simd_load_store_single_post_idx()
 				}
+			}
+
+			if ExtractBits(instructionValue, 24, 6) == 25 {
+				return instruction.decompose_load_store_unscaled()
 			}
 
 			if op0 == 0x0d {

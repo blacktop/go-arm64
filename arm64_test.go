@@ -1323,6 +1323,521 @@ func Test_decompose_MTE(t *testing.T) {
 	}
 }
 
+func Test_decompose_v8_4a(t *testing.T) {
+	type args struct {
+		instructionValue uint32
+		address          uint64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		// llvm/test/MC/AArch64/armv8.4a-ldst.s
+		{
+			name: "stlurb	 w1, [x10]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x01, 0x00, 0x19}),
+				address:          0,
+			},
+			want: "stlurb	 w1, [x10]",
+			wantErr: false,
+		},
+		{
+			name: "stlurb	 w1, [x10, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x01, 0x10, 0x19}),
+				address:          0,
+			},
+			want: "stlurb	 w1, [x10, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "stlurb	 w2, [x11, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf1, 0x0f, 0x19}),
+				address:          0,
+			},
+			want: "stlurb	 w2, [x11, #255]",
+			wantErr: false,
+		},
+		{
+			name: "stlurb	 w3, [sp, #-3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xd3, 0x1f, 0x19}),
+				address:          0,
+			},
+			want: "stlurb	 w3, [sp, #-3]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurb	wzr, [x12]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x9f, 0x01, 0x40, 0x19}),
+				address:          0,
+			},
+			want: "ldapurb	wzr, [x12]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurb	w4, [x12]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x01, 0x40, 0x19}),
+				address:          0,
+			},
+			want: "ldapurb	w4, [x12]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurb	w4, [x12, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x84, 0x01, 0x50, 0x19}),
+				address:          0,
+			},
+			want: "ldapurb	w4, [x12, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurb	w5, [x13, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0xf1, 0x4f, 0x19}),
+				address:          0,
+			},
+			want: "ldapurb	w5, [x13, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurb	w6, [sp, #-2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xe3, 0x5f, 0x19}),
+				address:          0,
+			},
+			want: "ldapurb	w6, [sp, #-2]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	   w7, [x14]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x01, 0xc0, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	   w7, [x14]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 w7, [x14, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc7, 0x01, 0xd0, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 w7, [x14, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 w8, [x15, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xf1, 0xcf, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 w8, [x15, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 w9, [sp, #-1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe9, 0xf3, 0xdf, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 w9, [sp, #-1]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	   x0, [x16]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0x02, 0x80, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	   x0, [x16]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 x0, [x16, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0x02, 0x90, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 x0, [x16, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 x1, [x17, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x21, 0xf2, 0x8f, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 x1, [x17, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x03, 0x80, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursb	 x2, [sp]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe2, 0x03, 0x80, 0x19}),
+				address:          0,
+			},
+			want: "ldapursb	 x2, [sp]",
+			wantErr: false,
+		},
+		{
+			name: "stlurh	   w10, [x18]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0x02, 0x00, 0x59}),
+				address:          0,
+			},
+			want: "stlurh	   w10, [x18]",
+			wantErr: false,
+		},
+		{
+			name: "stlurh	 w10, [x18, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0x02, 0x10, 0x59}),
+				address:          0,
+			},
+			want: "stlurh	 w10, [x18, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "stlurh	 w11, [x19, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x6b, 0xf2, 0x0f, 0x59}),
+				address:          0,
+			},
+			want: "stlurh	 w11, [x19, #255]",
+			wantErr: false,
+		},
+		{
+			name: "stlurh	 w12, [sp, #1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xec, 0x13, 0x00, 0x59}),
+				address:          0,
+			},
+			want: "stlurh	 w12, [sp, #1]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurh	  w13, [x20]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x02, 0x40, 0x59}),
+				address:          0,
+			},
+			want: "ldapurh	  w13, [x20]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurh	w13, [x20, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0x02, 0x50, 0x59}),
+				address:          0,
+			},
+			want: "ldapurh	w13, [x20, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurh	w14, [x21, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xae, 0xf2, 0x4f, 0x59}),
+				address:          0,
+			},
+			want: "ldapurh	w14, [x21, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapurh	w15, [sp, #2]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0x23, 0x40, 0x59}),
+				address:          0,
+			},
+			want: "ldapurh	w15, [sp, #2]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	   w16, [x22]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x02, 0xc0, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	   w16, [x22]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 w16, [x22, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd0, 0x02, 0xd0, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 w16, [x22, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 w17, [x23, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xf1, 0xf2, 0xcf, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 w17, [x23, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 w18, [sp, #3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xf2, 0x33, 0xc0, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 w18, [sp, #3]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	   x3, [x24]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0x03, 0x80, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	   x3, [x24]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 x3, [x24, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0x03, 0x90, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 x3, [x24, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 x4, [x25, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x24, 0xf3, 0x8f, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 x4, [x25, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursh	 x5, [sp, #4]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0x43, 0x80, 0x59}),
+				address:          0,
+			},
+			want: "ldapursh	 x5, [sp, #4]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	  w19, [x26]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x03, 0x00, 0x99}),
+				address:          0,
+			},
+			want: "stlur	  w19, [x26]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	w19, [x26, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x53, 0x03, 0x10, 0x99}),
+				address:          0,
+			},
+			want: "stlur	w19, [x26, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	w20, [x27, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x74, 0xf3, 0x0f, 0x99}),
+				address:          0,
+			},
+			want: "stlur	w20, [x27, #255]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	w21, [sp, #5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xf5, 0x53, 0x00, 0x99}),
+				address:          0,
+			},
+			want: "stlur	w21, [sp, #5]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	   w22, [x28]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x03, 0x40, 0x99}),
+				address:          0,
+			},
+			want: "ldapur	   w22, [x28]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 w22, [x28, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x96, 0x03, 0x50, 0x99}),
+				address:          0,
+			},
+			want: "ldapur	 w22, [x28, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 w23, [x29, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xb7, 0xf3, 0x4f, 0x99}),
+				address:          0,
+			},
+			want: "ldapur	 w23, [x29, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 w24, [sp, #6]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xf8, 0x63, 0x40, 0x99}),
+				address:          0,
+			},
+			want: "ldapur	 w24, [sp, #6]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursw	   x6, [x30]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x03, 0x80, 0x99}),
+				address:          0,
+			},
+			want: "ldapursw	   x6, [x30]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursw	 x6, [x30, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xc6, 0x03, 0x90, 0x99}),
+				address:          0,
+			},
+			want: "ldapursw	 x6, [x30, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursw	 x7, [x0, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x07, 0xf0, 0x8f, 0x99}),
+				address:          0,
+			},
+			want: "ldapursw	 x7, [x0, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapursw	 x8, [sp, #7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0x73, 0x80, 0x99}),
+				address:          0,
+			},
+			want: "ldapursw	 x8, [sp, #7]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	  x9, [x1]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x29, 0x00, 0x00, 0xd9}),
+				address:          0,
+			},
+			want: "stlur	  x9, [x1]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	x9, [x1, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x29, 0x00, 0x10, 0xd9}),
+				address:          0,
+			},
+			want: "stlur	x9, [x1, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	x10, [x2, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x4a, 0xf0, 0x0f, 0xd9}),
+				address:          0,
+			},
+			want: "stlur	x10, [x2, #255]",
+			wantErr: false,
+		},
+		{
+			name: "stlur	x11, [sp, #8]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x83, 0x00, 0xd9}),
+				address:          0,
+			},
+			want: "stlur	x11, [sp, #8]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	   x12, [x3]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x00, 0x40, 0xd9}),
+				address:          0,
+			},
+			want: "ldapur	   x12, [x3]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 x12, [x3, #-256]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x6c, 0x00, 0x50, 0xd9}),
+				address:          0,
+			},
+			want: "ldapur	 x12, [x3, #-256]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 x13, [x4, #255]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x8d, 0xf0, 0x4f, 0xd9}),
+				address:          0,
+			},
+			want: "ldapur	 x13, [x4, #255]",
+			wantErr: false,
+		},
+		{
+			name: "ldapur	 x14, [sp, #9]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0x93, 0x40, 0xd9}),
+				address:          0,
+			},
+			want: "ldapur	 x14, [sp, #9]",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// fmt.Printf("want: %s\n", tt.want)
+			got, err := decompose(tt.args.instructionValue, tt.args.address)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			out, _ := got.disassemble(true)
+			// fmt.Printf("want: %s\ngot:  %s\n", tt.want, out)
+			if !reflect.DeepEqual(out, tt.want) {
+				t.Errorf("disassemble(dec) = %v, want %v", out, tt.want)
+			}
+		})
+	}
+}
 func Test_decompose_v8_5a(t *testing.T) {
 	type args struct {
 		instructionValue uint32

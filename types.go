@@ -242,6 +242,12 @@ const (
 	ARM64_LD3R
 	ARM64_LD4
 	ARM64_LD4R
+	ARM64_LDAPUR   // Added for 8.4
+	ARM64_LDAPURB  // Added for 8.4
+	ARM64_LDAPURH  // Added for 8.4
+	ARM64_LDAPURSB // Added for 8.4
+	ARM64_LDAPURSH // Added for 8.4
+	ARM64_LDAPURSW // Added for 8.4
 	ARM64_LDAR
 	ARM64_LDARB
 	ARM64_LDARH
@@ -448,6 +454,9 @@ const (
 	ARM64_STLR
 	ARM64_STLRB
 	ARM64_STLRH
+	ARM64_STLUR  // ARMv8.4
+	ARM64_STLURB // ARMv8.4
+	ARM64_STLURH // ARMv8.4
 	ARM64_STLXP
 	ARM64_STLXR
 	ARM64_STLXRB
@@ -806,6 +815,12 @@ func (o Operation) String() string {
 		"ld3r",
 		"ld4",
 		"ld4r",
+		"ldapur",   // Added for 8.4
+		"ldapurb",  // Added for 8.4
+		"ldapurh",  // Added for 8.4
+		"ldapursb", // Added for 8.4
+		"ldapursh", // Added for 8.4
+		"ldapursw", // Added for 8.4
 		"ldar",
 		"ldarb",
 		"ldarh",
@@ -1012,6 +1027,9 @@ func (o Operation) String() string {
 		"stlr",
 		"stlrb",
 		"stlrh",
+		"stlur",  // ARMv8.4
+		"stlurb", // ARMv8.4
+		"stlurh", // ARMv8.4
 		"stlxp",
 		"stlxr",
 		"stlxrb",
@@ -1470,8 +1488,8 @@ func (i LdstTags) Rn() uint32 {
 func (i LdstTags) Op2() uint32 {
 	return ExtractBits(uint32(i), 10, 2)
 }
-func (i LdstTags) Imm9() uint32 {
-	return ExtractBits(uint32(i), 12, 9)
+func (i LdstTags) Imm9() int32 {
+	return int32(signExtend(ExtractBits(uint32(i), 12, 9), 9))
 }
 func (i LdstTags) Anon0() uint32 {
 	return ExtractBits(uint32(i), 21, 1)
@@ -1480,7 +1498,14 @@ func (i LdstTags) Opc() uint32 {
 	return ExtractBits(uint32(i), 22, 2)
 }
 func (i LdstTags) Anon1() uint32 {
-	return ExtractBits(uint32(i), 24, 8)
+	return ExtractBits(uint32(i), 24, 6)
+}
+func (i LdstTags) Size() uint32 {
+	return ExtractBits(uint32(i), 30, 2)
+}
+func (i LdstTags) String() string {
+	return fmt.Sprintf("Size: %d, Anon1: %d, Opc: %d, Anon0: %d, Imm9: %d, Op2: %d, Rn: %d, Rt: %d",
+		i.Size(), i.Anon1(), i.Opc(), i.Anon0(), i.Imm9(), i.Op2(), i.Rn(), i.Rt())
 }
 
 type LdstExclusive uint32
