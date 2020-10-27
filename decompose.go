@@ -2000,6 +2000,69 @@ func (i *Instruction) decompose_load_store_reg_imm_pre_idx() (*Instruction, erro
 	return i, nil
 }
 
+func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
+
+	var operation = [8][4][4]Operation{
+		{
+			{ARM64_LDADDB, ARM64_LDADDLB, ARM64_LDADDAB, ARM64_LDADDALB},
+			{ARM64_LDADDH, ARM64_LDADDLH, ARM64_LDADDAH, ARM64_LDADDALH},
+			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
+			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
+		}, {
+			{ARM64_LDCLRB, ARM64_LDCLRLB, ARM64_LDCLRAB, ARM64_LDCLRALB},
+			{ARM64_LDCLRH, ARM64_LDCLRLH, ARM64_LDCLRAH, ARM64_LDCLRALH},
+			{ARM64_LDCLR, ARM64_LDCLRL, ARM64_LDCLRA, ARM64_LDCLRAL},
+			{ARM64_LDCLR, ARM64_LDCLRL, ARM64_LDCLRA, ARM64_LDCLRAL},
+		}, {
+			{ARM64_LDEORB, ARM64_LDEORLB, ARM64_LDEORAB, ARM64_LDEORALB},
+			{ARM64_LDEORH, ARM64_LDEORLH, ARM64_LDEORAH, ARM64_LDEORALH},
+			{ARM64_LDEOR, ARM64_LDEORL, ARM64_LDEORA, ARM64_LDEORAL},
+			{ARM64_LDEOR, ARM64_LDEORL, ARM64_LDEORA, ARM64_LDEORAL},
+		}, {
+			{ARM64_LDSETB, ARM64_LDSETLB, ARM64_LDSETAB, ARM64_LDSETALB},
+			{ARM64_LDSETH, ARM64_LDSETLH, ARM64_LDSETAH, ARM64_LDSETALH},
+			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
+			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
+		}, {
+			{ARM64_LDSMAXB, ARM64_LDSMAXLB, ARM64_LDSMAXAB, ARM64_LDSMAXALB},
+			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDSMAXAH, ARM64_LDSMAXALH},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
+		}, {
+			{ARM64_LDSMINB, ARM64_LDSMINLB, ARM64_LDSMINAB, ARM64_LDSMINALB},
+			{ARM64_LDSMINH, ARM64_LDSMINLH, ARM64_LDSMINAH, ARM64_LDSMINALH},
+			{ARM64_LDSMIN, ARM64_LDSMINL, ARM64_LDSMINA, ARM64_LDSMINAL},
+			{ARM64_LDSMIN, ARM64_LDSMINL, ARM64_LDSMINA, ARM64_LDSMINAL},
+		}, {
+			{ARM64_LDUMAXB, ARM64_LDUMAXLB, ARM64_LDUMAXAB, ARM64_LDUMAXALB},
+			{ARM64_LDUMAXH, ARM64_LDUMAXLH, ARM64_LDUMAXAH, ARM64_LDUMAXALH},
+			{ARM64_LDUMAX, ARM64_LDUMAXL, ARM64_LDUMAXA, ARM64_LDUMAXAL},
+			{ARM64_LDUMAX, ARM64_LDUMAXL, ARM64_LDUMAXA, ARM64_LDUMAXAL},
+		}, {
+			{ARM64_LDUMINB, ARM64_LDUMINLB, ARM64_LDUMINAB, ARM64_LDUMINALB},
+			{ARM64_LDUMINH, ARM64_LDUMINLH, ARM64_LDUMINAH, ARM64_LDUMINALH},
+			{ARM64_LDUMIN, ARM64_LDUMINL, ARM64_LDUMINA, ARM64_LDUMINAL},
+			{ARM64_LDUMIN, ARM64_LDUMINL, ARM64_LDUMINA, ARM64_LDUMINAL},
+		},
+	}
+	var regBase = [4]uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE}
+
+	decode := LdstAtomic(i.raw)
+
+	i.operation = operation[decode.Opc()][decode.Size()][decode.A()<<1|decode.R()]
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rs()))
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rt()))
+	i.operands[2].OpClass = MEM_OFFSET
+	i.operands[2].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
+	return i, nil
+}
+
 func (i *Instruction) decompose_load_store_pac() (*Instruction, error) {
 
 	decode := LdstRegImmPac(i.raw)
@@ -7225,7 +7288,9 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 						}
 					}
 					if (op3 >> 5) == 1 {
-						// if(op4==0) return instruction.decompose_atomic_memory_ops() // TODO: remove ?
+						if ExtractBits(instructionValue, 24, 6) == 56 {
+							return instruction.decompose_atomic_memory_ops()
+						}
 						if op4 == 2 {
 							return instruction.decompose_load_store_reg_reg_offset()
 						}

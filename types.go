@@ -234,6 +234,18 @@ const (
 	ARM64_INS
 	ARM64_IRG //Added for MTE
 	ARM64_ISB
+	ARM64_LDADDB   // ARMv8.1
+	ARM64_LDADDAB  // ARMv8.1
+	ARM64_LDADDALB // ARMv8.1
+	ARM64_LDADDLB  // ARMv8.1
+	ARM64_LDADDH   // ARMv8.1
+	ARM64_LDADDAH  // ARMv8.1
+	ARM64_LDADDALH // ARMv8.1
+	ARM64_LDADDLH  // ARMv8.1
+	ARM64_LDADD    // ARMv8.1
+	ARM64_LDADDA   // ARMv8.1
+	ARM64_LDADDAL  // ARMv8.1
+	ARM64_LDADDL   // ARMv8.1
 	ARM64_LD1
 	ARM64_LD1R
 	ARM64_LD2
@@ -255,8 +267,32 @@ const (
 	ARM64_LDAXR
 	ARM64_LDAXRB
 	ARM64_LDAXRH
-	ARM64_LDG  //Added for MTE
-	ARM64_LDGM //Added for MTE
+	ARM64_LDCLRB   // ARMv8.1
+	ARM64_LDCLRAB  // ARMv8.1
+	ARM64_LDCLRALB // ARMv8.1
+	ARM64_LDCLRLB  // ARMv8.1
+	ARM64_LDCLRH   // ARMv8.1
+	ARM64_LDCLRAH  // ARMv8.1
+	ARM64_LDCLRALH // ARMv8.1
+	ARM64_LDCLRLH  // ARMv8.1
+	ARM64_LDCLR    // ARMv8.1
+	ARM64_LDCLRA   // ARMv8.1
+	ARM64_LDCLRAL  // ARMv8.1
+	ARM64_LDCLRL   // ARMv8.1
+	ARM64_LDEORB   // ARMv8.1
+	ARM64_LDEORAB  // ARMv8.1
+	ARM64_LDEORALB // ARMv8.1
+	ARM64_LDEORLB  // ARMv8.1
+	ARM64_LDEORH   // ARMv8.1
+	ARM64_LDEORAH  // ARMv8.1
+	ARM64_LDEORALH // ARMv8.1
+	ARM64_LDEORLH  // ARMv8.1
+	ARM64_LDEOR    // ARMv8.1
+	ARM64_LDEORA   // ARMv8.1
+	ARM64_LDEORAL  // ARMv8.1
+	ARM64_LDEORL   // ARMv8.1
+	ARM64_LDG      //Added for MTE
+	ARM64_LDGM     //Added for MTE
 	ARM64_LDNP
 	ARM64_LDP
 	ARM64_LDPSW
@@ -268,12 +304,72 @@ const (
 	ARM64_LDRSB
 	ARM64_LDRSH
 	ARM64_LDRSW
+	ARM64_LDSETB    // ARMv8.1
+	ARM64_LDSETAB   // ARMv8.1
+	ARM64_LDSETALB  // ARMv8.1
+	ARM64_LDSETLB   // ARMv8.1
+	ARM64_LDSETH    // ARMv8.1
+	ARM64_LDSETAH   // ARMv8.1
+	ARM64_LDSETALH  // ARMv8.1
+	ARM64_LDSETLH   // ARMv8.1
+	ARM64_LDSET     // ARMv8.1
+	ARM64_LDSETA    // ARMv8.1
+	ARM64_LDSETAL   // ARMv8.1
+	ARM64_LDSETL    // ARMv8.1
+	ARM64_LDSMAXB   // ARMv8.1
+	ARM64_LDSMAXAB  // ARMv8.1
+	ARM64_LDSMAXALB // ARMv8.1
+	ARM64_LDSMAXLB  // ARMv8.1
+	ARM64_LDSMAXH   // ARMv8.1
+	ARM64_LDSMAXAH  // ARMv8.1
+	ARM64_LDSMAXALH // ARMv8.1
+	ARM64_LDSMAXLH  // ARMv8.1
+	ARM64_LDSMAX    // ARMv8.1
+	ARM64_LDSMAXA   // ARMv8.1
+	ARM64_LDSMAXAL  // ARMv8.1
+	ARM64_LDSMAXL   // ARMv8.1
+	ARM64_LDSMINB   // ARMv8.1
+	ARM64_LDSMINAB  // ARMv8.1
+	ARM64_LDSMINALB // ARMv8.1
+	ARM64_LDSMINLB  // ARMv8.1
+	ARM64_LDSMINH   // ARMv8.1
+	ARM64_LDSMINAH  // ARMv8.1
+	ARM64_LDSMINALH // ARMv8.1
+	ARM64_LDSMINLH  // ARMv8.1
+	ARM64_LDSMIN    // ARMv8.1
+	ARM64_LDSMINA   // ARMv8.1
+	ARM64_LDSMINAL  // ARMv8.1
+	ARM64_LDSMINL   // ARMv8.1
 	ARM64_LDTR
 	ARM64_LDTRB
 	ARM64_LDTRH
 	ARM64_LDTRSB
 	ARM64_LDTRSH
 	ARM64_LDTRSW
+	ARM64_LDUMAXB   // ARMv8.1
+	ARM64_LDUMAXAB  // ARMv8.1
+	ARM64_LDUMAXALB // ARMv8.1
+	ARM64_LDUMAXLB  // ARMv8.1
+	ARM64_LDUMAXH   // ARMv8.1
+	ARM64_LDUMAXAH  // ARMv8.1
+	ARM64_LDUMAXALH // ARMv8.1
+	ARM64_LDUMAXLH  // ARMv8.1
+	ARM64_LDUMAX    // ARMv8.1
+	ARM64_LDUMAXA   // ARMv8.1
+	ARM64_LDUMAXAL  // ARMv8.1
+	ARM64_LDUMAXL   // ARMv8.1
+	ARM64_LDUMINB   // ARMv8.1
+	ARM64_LDUMINAB  // ARMv8.1
+	ARM64_LDUMINALB // ARMv8.1
+	ARM64_LDUMINLB  // ARMv8.1
+	ARM64_LDUMINH   // ARMv8.1
+	ARM64_LDUMINAH  // ARMv8.1
+	ARM64_LDUMINALH // ARMv8.1
+	ARM64_LDUMINLH  // ARMv8.1
+	ARM64_LDUMIN    // ARMv8.1
+	ARM64_LDUMINA   // ARMv8.1
+	ARM64_LDUMINAL  // ARMv8.1
+	ARM64_LDUMINL   // ARMv8.1
 	ARM64_LDUR
 	ARM64_LDURB
 	ARM64_LDURH
@@ -807,6 +903,18 @@ func (o Operation) String() string {
 		"ins",
 		"irg", //Added for MTE
 		"isb",
+		"ldaddb",   // ARMv8.1
+		"ldaddab",  // ARMv8.1
+		"ldaddalb", // ARMv8.1
+		"ldaddlb",  // ARMv8.1
+		"ldaddh",   // ARMv8.1
+		"ldaddah",  // ARMv8.1
+		"ldaddalh", // ARMv8.1
+		"ldaddlh",  // ARMv8.1
+		"ldadd",    // ARMv8.1
+		"ldadda",   // ARMv8.1
+		"ldaddal",  // ARMv8.1
+		"ldaddl",   // ARMv8.1
 		"ld1",
 		"ld1r",
 		"ld2",
@@ -828,8 +936,32 @@ func (o Operation) String() string {
 		"ldaxr",
 		"ldaxrb",
 		"ldaxrh",
-		"ldg",  //Added for MTE
-		"ldgm", //Added for MTE
+		"ldclrb",   // ARMv8.1
+		"ldclrab",  // ARMv8.1
+		"ldclralb", // ARMv8.1
+		"ldclrlb",  // ARMv8.1
+		"ldclrh",   // ARMv8.1
+		"ldclrah",  // ARMv8.1
+		"ldclralh", // ARMv8.1
+		"ldclrlh",  // ARMv8.1
+		"ldclr",    // ARMv8.1
+		"ldclra",   // ARMv8.1
+		"ldclral",  // ARMv8.1
+		"ldclrl",   // ARMv8.1
+		"ldeorb",   // ARMv8.1
+		"ldeorab",  // ARMv8.1
+		"ldeoralb", // ARMv8.1
+		"ldeorlb",  // ARMv8.1
+		"ldeorh",   // ARMv8.1
+		"ldeorah",  // ARMv8.1
+		"ldeoralh", // ARMv8.1
+		"ldeorlh",  // ARMv8.1
+		"ldeor",    // ARMv8.1
+		"ldeora",   // ARMv8.1
+		"ldeoral",  // ARMv8.1
+		"ldeorl",   // ARMv8.1
+		"ldg",      //Added for MTE
+		"ldgm",     //Added for MTE
 		"ldnp",
 		"ldp",
 		"ldpsw",
@@ -841,12 +973,72 @@ func (o Operation) String() string {
 		"ldrsb",
 		"ldrsh",
 		"ldrsw",
+		"ldsetb",    // ARMv8.1
+		"ldsetab",   // ARMv8.1
+		"ldsetalb",  // ARMv8.1
+		"ldsetlb",   // ARMv8.1
+		"ldseth",    // ARMv8.1
+		"ldsetah",   // ARMv8.1
+		"ldsetalh",  // ARMv8.1
+		"ldsetlh",   // ARMv8.1
+		"ldset",     // ARMv8.1
+		"ldseta",    // ARMv8.1
+		"ldsetal",   // ARMv8.1
+		"ldsetl",    // ARMv8.1
+		"ldsmaxb",   // ARMv8.1
+		"ldsmaxab",  // ARMv8.1
+		"ldsmaxalb", // ARMv8.1
+		"ldsmaxlb",  // ARMv8.1
+		"ldsmaxh",   // ARMv8.1
+		"ldsmaxah",  // ARMv8.1
+		"ldsmaxalh", // ARMv8.1
+		"ldsmaxlh",  // ARMv8.1
+		"ldsmax",    // ARMv8.1
+		"ldsmaxa",   // ARMv8.1
+		"ldsmaxal",  // ARMv8.1
+		"ldsmaxl",   // ARMv8.1
+		"ldsminb",   // ARMv8.1
+		"ldsminab",  // ARMv8.1
+		"ldsminalb", // ARMv8.1
+		"ldsminlb",  // ARMv8.1
+		"ldsminh",   // ARMv8.1
+		"ldsminah",  // ARMv8.1
+		"ldsminalh", // ARMv8.1
+		"ldsminlh",  // ARMv8.1
+		"ldsmin",    // ARMv8.1
+		"ldsmina",   // ARMv8.1
+		"ldsminal",  // ARMv8.1
+		"ldsminl",   // ARMv8.1
 		"ldtr",
 		"ldtrb",
 		"ldtrh",
 		"ldtrsb",
 		"ldtrsh",
 		"ldtrsw",
+		"ldumaxb",   // ARMv8.1
+		"ldumaxab",  // ARMv8.1
+		"ldumaxalb", // ARMv8.1
+		"ldumaxlb",  // ARMv8.1
+		"ldumaxh",   // ARMv8.1
+		"ldumaxah",  // ARMv8.1
+		"ldumaxalh", // ARMv8.1
+		"ldumaxlh",  // ARMv8.1
+		"ldumax",    // ARMv8.1
+		"ldumaxa",   // ARMv8.1
+		"ldumaxal",  // ARMv8.1
+		"ldumaxl",   // ARMv8.1
+		"lduminb",   // ARMv8.1
+		"lduminab",  // ARMv8.1
+		"lduminalb", // ARMv8.1
+		"lduminlb",  // ARMv8.1
+		"lduminh",   // ARMv8.1
+		"lduminah",  // ARMv8.1
+		"lduminalh", // ARMv8.1
+		"lduminlh",  // ARMv8.1
+		"ldumin",    // ARMv8.1
+		"ldumina",   // ARMv8.1
+		"lduminal",  // ARMv8.1
+		"lduminl",   // ARMv8.1
 		"ldur",
 		"ldurb",
 		"ldurh",
@@ -2062,6 +2254,46 @@ func (i SimdLdstSinglePi) Q() uint32 {
 }
 func (i SimdLdstSinglePi) Group2() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+
+type LdstAtomic uint32
+
+func (i LdstAtomic) Rt() uint32 {
+	return ExtractBits(uint32(i), 0, 5)
+}
+func (i LdstAtomic) Rn() uint32 {
+	return ExtractBits(uint32(i), 5, 5)
+}
+func (i LdstAtomic) O0() uint32 {
+	return ExtractBits(uint32(i), 10, 2)
+}
+func (i LdstAtomic) Opc() uint32 {
+	return ExtractBits(uint32(i), 12, 3)
+}
+func (i LdstAtomic) O1() uint32 {
+	return ExtractBits(uint32(i), 15, 1)
+}
+func (i LdstAtomic) Rs() uint32 {
+	return ExtractBits(uint32(i), 16, 5)
+}
+func (i LdstAtomic) O2() uint32 {
+	return ExtractBits(uint32(i), 21, 1)
+}
+func (i LdstAtomic) R() uint32 {
+	return ExtractBits(uint32(i), 22, 1)
+}
+func (i LdstAtomic) A() uint32 {
+	return ExtractBits(uint32(i), 23, 1)
+}
+func (i LdstAtomic) Group() uint32 {
+	return ExtractBits(uint32(i), 24, 6)
+}
+func (i LdstAtomic) Size() uint32 {
+	return ExtractBits(uint32(i), 30, 2)
+}
+func (i LdstAtomic) String() string {
+	return fmt.Sprintf("Size: %d, Group: %d, A: %d, R: %d, O2: %d, Rs: %d, O1: %d, Opc: %d, O0: %d, Rn: %d, Rt: %d",
+		i.Size(), i.Group(), i.A(), i.R(), i.O2(), i.Rs(), i.O1(), i.Opc(), i.O0(), i.Rn(), i.Rt())
 }
 
 //--------------------------------------------------------
