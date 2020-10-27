@@ -1731,13 +1731,18 @@ func (i *Instruction) decompose_load_store_unscaled() (*Instruction, error) {
 		{ARM64_LDAPURSB, ARM64_LDAPURSH, ARM64_LDAPURSW, ARM64_UNDEFINED},
 		{ARM64_LDAPURSB, ARM64_LDAPURSH, ARM64_UNDEFINED, ARM64_UNDEFINED},
 	}
-	var regBase = []uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE}
+	var regBase = [4][4]uint32{
+		{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE},
+		{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE},
+		{REG_X_BASE, REG_X_BASE, REG_X_BASE, REG_W_BASE},
+		{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE},
+	}
 
 	decode := LdstTags(i.raw)
 
 	i.operation = operation[decode.Opc()][decode.Size()]
 	i.operands[0].OpClass = REG
-	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rt()))
+	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Opc()][decode.Size()]), int(decode.Rt()))
 	i.operands[1].OpClass = MEM_OFFSET
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	i.operands[1].SignedImm = 1
