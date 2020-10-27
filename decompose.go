@@ -3872,7 +3872,9 @@ func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
 
 func (i *Instruction) decompose_simd_extract() (*Instruction, error) {
 	decode := SimdExtract(i.raw)
+
 	var sizeMap = []uint8{8, 16}
+
 	i.operation = ARM64_EXT
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
@@ -3893,9 +3895,10 @@ func (i *Instruction) decompose_simd_extract() (*Instruction, error) {
 		i.operands[3].Immediate = uint64(decode.Imm())
 	}
 
-	if decode.Imm() > 7 {
+	if decode.Q() == 0 && decode.Imm() == 1 {
 		return nil, failedToDecodeInstruction
 	}
+
 	return i, nil
 }
 
@@ -7383,7 +7386,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			if (instructionValue & 0xbf208c00) == 0x0e000800 {
 				return instruction.decompose_simd_permute()
 			}
-			if (instructionValue & 0x00208400) == 0 {
+			if (instructionValue & 0xbfe08400) == 0x2e000000 {
 				return instruction.decompose_simd_extract()
 			}
 			break
