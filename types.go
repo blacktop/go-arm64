@@ -3685,6 +3685,7 @@ const (
 	REG_ALLE3
 	REG_ALLE3IS
 	REG_AMAIR_EL1
+	REG_AMAIR_EL12
 	REG_AMAIR_EL2
 	REG_AMAIR_EL3
 	REG_APDAKEYHI_EL1
@@ -3709,11 +3710,13 @@ const (
 	REG_CNTHP_CVAL_EL2
 	REG_CNTHP_TVAL_EL2
 	REG_CNTKCTL_EL1
+	REG_CNTKCTL_EL12
 	REG_CNTPCT_EL0
 	REG_CNTPS_CTL_EL1
 	REG_CNTPS_CVAL_EL1
 	REG_CNTPS_TVAL_EL1
 	REG_CNTP_CTL_EL0
+	REG_CNTP_CTL_EL02
 	REG_CNTP_CVAL_EL0
 	REG_CNTP_CVAL_EL02
 	REG_CNTP_TVAL_EL0
@@ -3723,6 +3726,7 @@ const (
 	REG_CNTV_CVAL_EL0
 	REG_CNTV_TVAL_EL0
 	REG_CONTEXTIDR_EL1
+	REG_CONTEXTIDR_EL12
 	REG_CPACR_EL1
 	REG_CPTR_EL2
 	REG_CPTR_EL3
@@ -3835,6 +3839,7 @@ const (
 	REG_ISW
 	REG_IVAC
 	REG_MAIR_EL1
+	REG_MAIR_EL12
 	REG_MAIR_EL2
 	REG_MAIR_EL3
 	REG_MDCCINT_EL1
@@ -3890,6 +3895,7 @@ const (
 	REG_SCR_EL3
 	REG_SDER32_EL3
 	REG_SCTLR_EL1
+	REG_SCTLR_EL12
 	REG_SCTLR_EL2
 	REG_SCTLR_EL3
 	REG_SPSEL
@@ -4190,6 +4196,7 @@ func (s SystemReg) String() string {
 		"alle3",
 		"alle3is",
 		"amair_el1",
+		"amair_el12",
 		"amair_el2",
 		"amair_el3",
 		"apdakeyhi_el1",
@@ -4214,11 +4221,13 @@ func (s SystemReg) String() string {
 		"cnthp_cval_el2",
 		"cnthp_tval_el2",
 		"cntkctl_el1",
+		"cntkctl_el12",
 		"cntpct_el0",
 		"cntps_ctl_el1",
 		"cntps_cval_el1",
 		"cntps_tval_el1",
 		"cntp_ctl_el0",
+		"cntp_ctl_el02",
 		"cntp_cval_el0",
 		"cntp_cval_el02",
 		"cntp_tval_el0",
@@ -4228,6 +4237,7 @@ func (s SystemReg) String() string {
 		"cntv_cval_el0",
 		"cntv_tval_el0",
 		"contextidr_el1",
+		"contextidr_el12",
 		"cpacr_el1",
 		"cptr_el2",
 		"cptr_el3",
@@ -4340,6 +4350,7 @@ func (s SystemReg) String() string {
 		"isw",
 		"ivac",
 		"mair_el1",
+		"mair_el12",
 		"mair_el2",
 		"mair_el3",
 		"mdccint_el1",
@@ -4395,6 +4406,7 @@ func (s SystemReg) String() string {
 		"scr_el3",
 		"sder32_el3",
 		"sctlr_el1",
+		"sctlr_el12",
 		"sctlr_el2",
 		"sctlr_el3",
 		"spsel",
