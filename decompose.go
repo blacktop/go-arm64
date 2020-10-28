@@ -6203,7 +6203,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Ins
 func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*Instruction, error) {
 	sysreg := SYSREG_NONE
 	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
-	//printf("op0: %d op1: %d CRn: %d CRm: %d op2: %d %s\n", decode.op0, decode.Op1(), decode.Crn(), decode.Crm(), decode.Op2(), __FUNCTION__)
+	// fmt.Println(decode)
 	switch decode.Crn() {
 	case 0:
 		if decode.Op1() == 0 {
@@ -6318,6 +6318,22 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					break
 				}
 			}
+			if decode.Crm() == 1 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_APIAKEYLO_EL1
+					break
+				case 1:
+					sysreg = REG_APIAKEYHI_EL1
+					break
+				case 2:
+					sysreg = REG_APIBKEYLO_EL1
+					break
+				case 3:
+					sysreg = REG_APIBKEYHI_EL1
+					break
+				}
+			}
 			break
 		case 4:
 			if decode.Crm() == 0 {
@@ -6337,6 +6353,15 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				case 2:
 					sysreg = REG_VTCR_EL2
 					break
+				}
+			}
+			break
+		case 5:
+			if decode.Crm() == 0 {
+				if decode.Op2() == 1 {
+					sysreg = REG_TTBR1_EL12
+				} else if decode.Op2() == 2 {
+					sysreg = REG_TCR_EL12
 				}
 			}
 			break
@@ -6960,8 +6985,8 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, REG_CNTP_CVAL_EL02},
+					{SYSREG_NONE, REG_CNTV_CTL_EL02, SYSREG_NONE},
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},

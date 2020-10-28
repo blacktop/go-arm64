@@ -1643,6 +1643,10 @@ func (i System) L() uint32 {
 func (i System) Group1() uint32 {
 	return ExtractBits(uint32(i), 22, 10)
 }
+func (i System) String() string {
+	return fmt.Sprintf("Group1: %d, L: %d, op0: %#b, op1: %#b, CRn: %#b, CRm: %#b, op2: %#b, Rt: %d",
+		i.Group1(), i.L(), i.Op0(), i.Op1(), i.Crn(), i.Crm(), i.Op2(), i.Rt())
+}
 
 type UnconditionalBranchReg uint32
 
@@ -3683,6 +3687,16 @@ const (
 	REG_AMAIR_EL1
 	REG_AMAIR_EL2
 	REG_AMAIR_EL3
+	REG_APDAKEYHI_EL1
+	REG_APDAKEYLO_EL1
+	REG_APDBKEYHI_EL1
+	REG_APDBKEYLO_EL1
+	REG_APGAKEYHI_EL1
+	REG_APGAKEYLO_EL1
+	REG_APIAKEYHI_EL1
+	REG_APIAKEYLO_EL1
+	REG_APIBKEYHI_EL1
+	REG_APIBKEYLO_EL1
 	REG_ASIDE1
 	REG_ASIDE1IS
 	REG_CCSIDR_EL1
@@ -3701,9 +3715,11 @@ const (
 	REG_CNTPS_TVAL_EL1
 	REG_CNTP_CTL_EL0
 	REG_CNTP_CVAL_EL0
+	REG_CNTP_CVAL_EL02
 	REG_CNTP_TVAL_EL0
 	REG_CNTVCT_EL0
 	REG_CNTV_CTL_EL0
+	REG_CNTV_CTL_EL02
 	REG_CNTV_CVAL_EL0
 	REG_CNTV_TVAL_EL0
 	REG_CONTEXTIDR_EL1
@@ -3878,6 +3894,7 @@ const (
 	REG_SCTLR_EL3
 	REG_SPSEL
 	REG_TCR_EL1
+	REG_TCR_EL12
 	REG_TCR_EL2
 	REG_TCR_EL3
 	REG_TPIDRRO_EL0
@@ -3887,6 +3904,7 @@ const (
 	REG_TPIDR_EL3
 	REG_TTBR0_EL1
 	REG_TTBR1_EL1
+	REG_TTBR1_EL12
 	REG_TTBR0_EL2
 	REG_TTBR0_EL3
 	REG_VAAE1
@@ -4174,6 +4192,16 @@ func (s SystemReg) String() string {
 		"amair_el1",
 		"amair_el2",
 		"amair_el3",
+		"apdakeyhi_el1",
+		"apdakeylo_el1",
+		"apdbkeyhi_el1",
+		"apdbkeylo_el1",
+		"apgakeyhi_el1",
+		"apgakeylo_el1",
+		"apiakeyhi_el1",
+		"apiakeylo_el1",
+		"apibkeyhi_el1",
+		"apibkeylo_el1",
 		"aside1",
 		"aside1is",
 		"ccsidr_el1",
@@ -4192,9 +4220,11 @@ func (s SystemReg) String() string {
 		"cntps_tval_el1",
 		"cntp_ctl_el0",
 		"cntp_cval_el0",
+		"cntp_cval_el02",
 		"cntp_tval_el0",
 		"cntvct_el0",
 		"cntv_ctl_el0",
+		"cntv_ctl_el02",
 		"cntv_cval_el0",
 		"cntv_tval_el0",
 		"contextidr_el1",
@@ -4369,6 +4399,7 @@ func (s SystemReg) String() string {
 		"sctlr_el3",
 		"spsel",
 		"tcr_el1",
+		"tcr_el12",
 		"tcr_el2",
 		"tcr_el3",
 		"tpidrro_el0",
@@ -4378,6 +4409,7 @@ func (s SystemReg) String() string {
 		"tpidr_el3",
 		"ttbr0_el1",
 		"ttbr1_el1",
+		"ttbr1_el12",
 		"ttbr0_el2",
 		"ttbr0_el3",
 		"vaae1",
