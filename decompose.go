@@ -283,6 +283,8 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 	 * SBFM <Xd>, <Xn>, #0, #15 -> SXTH <Xd>, <Wn>
 	 * SBFM <Xd>, <Xn>, #0, #31 -> SXTW <Xd>, <Wn>
 	 *
+	 * BFM <Wd>, WZR, #(-<lsb> MOD 32), #(<width>-1) -> BFC <Wd>, <Wn>, #<lsb>, #<width>
+	 * BFM <Wd>, WZR, #(-<lsb> MOD 64), #(<width>-1) -> BFC <Wd>, <Wn>, #<lsb>, #<width>
 	 * BFM <Wd>, <Wn>, #(-<lsb> MOD 32), #(<width>-1) -> BFI <Wd>, <Wn>, #<lsb>, #<width>
 	 * BFM <Xd>, <Xn>, #(-<lsb> MOD 64), #(<width>-1) -> BFI <Xd>, <Xn>, #<lsb>, #<width>
 	 * BFM <Wd>, <Wn>, #<lsb>, #(<lsb>+<width>-1) -> BFXIL <Wd>, <Wn>, #<lsb>, #<width>
@@ -321,6 +323,12 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 			i.operation = ARM64_SBFIZ
 			i.operands[2].Immediate = uint64(uint32(dataSize[decode.Sf()]) - decode.Immr())
 			i.operands[3].Immediate++
+			if Register(i.operands[1].Reg[0]) == REG_WZR || Register(i.operands[1].Reg[0]) == REG_XZR {
+				i.operation = ARM64_BFC
+				i.operands[1] = i.operands[2]
+				i.operands[2] = i.operands[3]
+				i.operands[3].OpClass = NONE
+			}
 		} else if usebfx > 0 {
 			i.operation = ARM64_SBFX
 			i.operands[3].Immediate -= i.operands[2].Immediate - 1

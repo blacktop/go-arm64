@@ -53,6 +53,7 @@ const (
 	ARM64_B_CC
 	ARM64_B_CS
 	ARM64_B_EQ
+	ARM64_BFC
 	ARM64_BFI
 	ARM64_BFM
 	ARM64_BFXIL
@@ -723,6 +724,7 @@ func (o Operation) String() string {
 		"b.cc",
 		"b.cs",
 		"b.eq",
+		"bfc",
 		"bfi",
 		"bfm",
 		"bfxil",
