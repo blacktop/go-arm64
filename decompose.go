@@ -7347,7 +7347,8 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 						}
 					}
 					if (op3 >> 5) == 1 {
-						if ExtractBits(instructionValue, 24, 6) == 56 {
+						if op4 == 0 {
+							// if ExtractBits(instructionValue, 24, 6) == 56 {
 							return instruction.decompose_atomic_memory_ops()
 						}
 						if op4 == 2 {
