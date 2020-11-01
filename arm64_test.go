@@ -2,6 +2,7 @@ package arm64
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"os"
 	"reflect"
@@ -1323,6 +1324,45 @@ func Test_decompose_MTE(t *testing.T) {
 	}
 }
 
+func Test_decompose_single_instr(t *testing.T) {
+	type args struct {
+		instructionValue uint32
+		address          uint64
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "ldrsw	x16, [x17, x16, lsl #2]",
+			args: args{
+				// instructionValue: 0x9AC03000,
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0x7a, 0xb0, 0xb8}),
+				address:          0,
+			},
+			want: "ldrsw	x16, [x17, x16, lsl #2]",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fmt.Printf("want: %s\n", tt.want)
+			got, err := decompose(tt.args.instructionValue, tt.args.address)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			hexout, _ := got.disassemble(false)
+			decout, _ := got.disassemble(true)
+			fmt.Printf("got:  %s  (dec)\ngot:  %s (hex)\n", decout, hexout)
+			if !reflect.DeepEqual(hexout, tt.want) && !reflect.DeepEqual(decout, tt.want) {
+				t.Errorf("disassemble(dec) = %v, want %v", decout, tt.want)
+			}
+		})
+	}
+}
 func Test_decompose_v8_4a(t *testing.T) {
 	type args struct {
 		instructionValue uint32
@@ -48355,14 +48395,14 @@ func Test_decompose_v8_1a_LSE(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// fmt.Println("want:", tt.want)
+			fmt.Println("want:", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			// fmt.Println("got: ", tt.want)
+			fmt.Println("got: ", tt.want)
 			if !reflect.DeepEqual(decOut, tt.want) {
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
