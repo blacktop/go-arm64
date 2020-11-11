@@ -6226,7 +6226,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64ISAR0_EL1, REG_ID_AA64ISAR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-				{REG_ID_AA64MMFR0_EL1, REG_ID_AA64MMFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64MMFR0_EL1, REG_ID_AA64MMFR1_EL1, REG_ID_AA64MMFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 			}
 			sysreg = sysregs[decode.Crm()][decode.Op2()]
 		} else if decode.Crm() == 0 {
@@ -6265,6 +6265,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				switch decode.Op2() {
 				case 0:
 					sysreg = REG_SCTLR_EL12
+					break
+				case 2:
+					sysreg = REG_CPACR_EL12
 					break
 				}
 			}
@@ -6368,6 +6371,16 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					break
 				}
 			}
+			if decode.Crm() == 3 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_APGAKEYLO_EL1
+					break
+				case 1:
+					sysreg = REG_APGAKEYHI_EL1
+					break
+				}
+			}
 			break
 		case 4:
 			if decode.Crm() == 0 {
@@ -6392,6 +6405,14 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 			break
 		case 5:
 			if decode.Crm() == 0 {
+				if decode.Op2() == 0 {
+					sysreg = REG_TTBR0_EL12
+				} else if decode.Op2() == 1 {
+					sysreg = REG_TTBR1_EL12
+				} else if decode.Op2() == 2 {
+					sysreg = REG_TCR_EL12
+				}
+			} else if decode.Crm() == 2 {
 				if decode.Op2() == 1 {
 					sysreg = REG_TTBR1_EL12
 				} else if decode.Op2() == 2 {
@@ -6505,6 +6526,15 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				break
 			}
 			break
+		case 5:
+			if decode.Crm() == 0 {
+				if decode.Op2() == 0 {
+					sysreg = REG_SPSR_EL12
+				} else if decode.Op2() == 1 {
+					sysreg = REG_ELR_EL12
+				}
+			}
+			break
 		case 6:
 			if decode.Crm() == 0 {
 				if decode.Op2() == 0 {
@@ -6525,7 +6555,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 			if decode.Crm() > 3 || decode.Op2() > 1 {
 				break
 			}
-			var sysregs = [3][4][2]SystemReg{
+			var sysregs = [4][4][2]SystemReg{
 				{
 					{SYSREG_NONE, SYSREG_NONE},
 					{REG_AFSR0_EL1, REG_AFSR1_EL1},
@@ -6541,6 +6571,11 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					{REG_AFSR0_EL3, REG_AFSR1_EL3},
 					{REG_ESR_EL3, SYSREG_NONE},
 					{SYSREG_NONE, SYSREG_NONE},
+				}, {
+					{SYSREG_NONE, SYSREG_NONE},
+					{REG_AFSR0_EL12, REG_AFSR1_EL12},
+					{REG_ESR_EL12, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE},
 				},
 			}
 			switch decode.Op1() {
@@ -6549,6 +6584,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				break
 			case 4:
 				sysreg = sysregs[1][decode.Crm()][decode.Op2()]
+				break
+			case 5:
+				sysreg = sysregs[3][decode.Crm()][decode.Op2()]
 				break
 			case 6:
 				sysreg = sysregs[2][decode.Crm()][decode.Op2()]
@@ -6569,6 +6607,8 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 			sysreg = REG_FAR_EL3
 		} else if decode.Op1() == 0 && decode.Crm() == 11 && decode.Op2() == 5 {
 			sysreg = REG_ICC_SGI1R_EL1
+		} else if decode.Op1() == 5 && decode.Crm() == 0 && decode.Op2() == 0 {
+			sysreg = REG_FAR_EL12
 		}
 		break
 	case 7:
@@ -6922,6 +6962,14 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				}
 				break
 			}
+		} else if decode.Op1() == 5 {
+			if decode.Crm() == 0 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_VBAR_EL12
+					break
+				}
+			}
 		} else if decode.Op1() == 6 {
 			if decode.Crm() == 0 {
 				switch decode.Op2() {
@@ -6959,9 +7007,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				{SYSREG_NONE, REG_CONTEXTIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL1},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-				{SYSREG_NONE, REG_CONTEXTIDR_EL12, REG_TPIDR_EL0, REG_TPIDRRO_EL0, SYSREG_NONE},
+				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL0, REG_TPIDRRO_EL0, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
-				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, REG_CONTEXTIDR_EL12, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL3, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 			}
@@ -7008,7 +7056,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				}, {
 					{REG_CNTFRQ_EL0, REG_CNTPCT_EL0, REG_CNTVCT_EL0},
-					{REG_CNTKCTL_EL12, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{REG_CNTP_TVAL_EL0, REG_CNTP_CTL_EL0, REG_CNTP_CVAL_EL0},
 					{REG_CNTV_TVAL_EL0, REG_CNTV_CTL_EL0, REG_CNTV_CVAL_EL0},
 				}, {
@@ -7018,9 +7066,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTKCTL_EL12, SYSREG_NONE, SYSREG_NONE},
 					{SYSREG_NONE, REG_CNTP_CTL_EL02, REG_CNTP_CVAL_EL02},
-					{SYSREG_NONE, REG_CNTV_CTL_EL02, SYSREG_NONE},
+					{SYSREG_NONE, REG_CNTV_CTL_EL02, REG_CNTV_CVAL_EL02},
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},

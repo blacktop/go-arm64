@@ -3676,10 +3676,12 @@ const (
 	REG_ACTLR_EL2
 	REG_ACTLR_EL3
 	REG_AFSR0_EL1
+	REG_AFSR0_EL12
 	REG_AFSR1_EL2
 	REG_AFSR0_EL2
 	REG_AFSR0_EL3
 	REG_AFSR1_EL1
+	REG_AFSR1_EL12
 	REG_AFSR1_EL3
 	REG_AIDR_EL1
 	REG_ALLE1
@@ -3728,10 +3730,12 @@ const (
 	REG_CNTV_CTL_EL0
 	REG_CNTV_CTL_EL02
 	REG_CNTV_CVAL_EL0
+	REG_CNTV_CVAL_EL02
 	REG_CNTV_TVAL_EL0
 	REG_CONTEXTIDR_EL1
 	REG_CONTEXTIDR_EL12
 	REG_CPACR_EL1
+	REG_CPACR_EL12
 	REG_CPTR_EL2
 	REG_CPTR_EL3
 	REG_CSSELR_EL1
@@ -3817,9 +3821,11 @@ const (
 	REG_DCZID_EL0
 	REG_EL1
 	REG_ESR_EL1
+	REG_ESR_EL12
 	REG_ESR_EL2
 	REG_ESR_EL3
 	REG_FAR_EL1
+	REG_FAR_EL12
 	REG_FAR_EL2
 	REG_FAR_EL3
 	REG_HACR_EL2
@@ -3834,6 +3840,7 @@ const (
 	REG_ID_AA64ISAR1_EL1
 	REG_ID_AA64MMFR0_EL1
 	REG_ID_AA64MMFR1_EL1
+	REG_ID_AA64MMFR2_EL1
 	REG_ID_AA64PFR0_EL1
 	REG_ID_AA64PFR1_EL1
 	REG_IPAS2E1IS
@@ -3913,6 +3920,7 @@ const (
 	REG_TPIDR_EL2
 	REG_TPIDR_EL3
 	REG_TTBR0_EL1
+	REG_TTBR0_EL12
 	REG_TTBR1_EL1
 	REG_TTBR1_EL12
 	REG_TTBR0_EL2
@@ -3934,6 +3942,7 @@ const (
 	REG_VALE3
 	REG_VALE3IS
 	REG_VBAR_EL1
+	REG_VBAR_EL12
 	REG_VBAR_EL2
 	REG_VBAR_EL3
 	REG_VMALLE1
@@ -4042,7 +4051,9 @@ const (
 	REG_C15
 
 	REG_SPSR_EL1
+	REG_SPSR_EL12
 	REG_ELR_EL1
+	REG_ELR_EL12
 	REG_SP_EL0
 	REG_CURRENT_EL
 	REG_NZCV
@@ -4187,10 +4198,12 @@ func (s SystemReg) String() string {
 		"actlr_el2",
 		"actlr_el3",
 		"afsr0_el1",
+		"afsr0_el12",
 		"afsr1_el2",
 		"afsr0_el2",
 		"afsr0_el3",
 		"afsr1_el1",
+		"afsr1_el12",
 		"afsr1_el3",
 		"aidr_el1",
 		"alle1",
@@ -4239,10 +4252,12 @@ func (s SystemReg) String() string {
 		"cntv_ctl_el0",
 		"cntv_ctl_el02",
 		"cntv_cval_el0",
+		"cntv_cval_el02",
 		"cntv_tval_el0",
 		"contextidr_el1",
 		"contextidr_el12",
 		"cpacr_el1",
+		"cpacr_el12",
 		"cptr_el2",
 		"cptr_el3",
 		"csselr_el1",
@@ -4328,9 +4343,11 @@ func (s SystemReg) String() string {
 		"dczid_el0",
 		"el1",
 		"esr_el1",
+		"esr_el12",
 		"esr_el2",
 		"esr_el3",
 		"far_el1",
+		"far_el12",
 		"far_el2",
 		"far_el3",
 		"hacr_el2",
@@ -4345,6 +4362,7 @@ func (s SystemReg) String() string {
 		"id_aa64isar1_el1",
 		"id_aa64mmfr0_el1",
 		"id_aa64mmfr1_el1",
+		"id_aa64mmfr2_el1",
 		"id_aa64pfr0_el1",
 		"id_aa64pfr1_el1",
 		"ipas2e1is",
@@ -4424,6 +4442,7 @@ func (s SystemReg) String() string {
 		"tpidr_el2",
 		"tpidr_el3",
 		"ttbr0_el1",
+		"ttbr0_el12",
 		"ttbr1_el1",
 		"ttbr1_el12",
 		"ttbr0_el2",
@@ -4445,6 +4464,7 @@ func (s SystemReg) String() string {
 		"vale3",
 		"vale3is",
 		"vbar_el1",
+		"vbar_el12",
 		"vbar_el2",
 		"vbar_el3",
 		"vmalle1",
@@ -4555,7 +4575,9 @@ func (s SystemReg) String() string {
 		"c15",
 
 		"spsr_el1",
+		"spsr_el12",
 		"elr_el1",
+		"elr_el12",
 		"sp_el0",
 		"current_el",
 		"nzcv",
@@ -5181,21 +5203,21 @@ var (
 	dataSize    = []uint8{32, 64}
 )
 
-// func getRegisterSize(Register r) uint32 {
-// 	//Comparison done in order of likelyhood to occur
-// 	if r >= REG_X0 && r <= REG_SP {
-// 		return 8
-// 	} else if (r >= REG_W0 && r <= REG_WSP) || (r >= REG_S0 && r <= REG_S31) {
-// 		return 4
-// 	} else if r >= REG_B0 && r <= REG_B31 {
-// 		return 1
-// 	} else if r >= REG_H0 && r <= REG_H31 {
-// 		return 2
-// 	} else if (r >= REG_Q0 && r <= REG_Q31) || (r >= REG_V0 && r <= REG_V31) {
-// 		return 16
-// 	}
-// 	return 0
-// }
+func getRegisterSize(r Register) uint32 {
+	//Comparison done in order of likelyhood to occur
+	if (r >= REG_X0 && r <= REG_SP) || (r >= REG_D0 && r <= REG_D31) {
+		return 8
+	} else if (r >= REG_W0 && r <= REG_WSP) || (r >= REG_S0 && r <= REG_S31) {
+		return 4
+	} else if r >= REG_B0 && r <= REG_B31 {
+		return 1
+	} else if r >= REG_H0 && r <= REG_H31 {
+		return 2
+	} else if (r >= REG_Q0 && r <= REG_Q31) || (r >= REG_V0 && r <= REG_V31) {
+		return 16
+	}
+	return 0
+}
 
 type ieee754 uint32
 
