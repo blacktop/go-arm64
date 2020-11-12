@@ -600,7 +600,7 @@ func (i *Instruction) decompose_cryptographic_2_register_sha() (*Instruction, er
 		i.operands[1].DataSize = 4
 		break
 	default:
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	if decode.Size() != 0 {
@@ -673,7 +673,7 @@ func (i *Instruction) decompose_cryptographic_3_register_sha() (*Instruction, er
 		i.operands[2].DataSize = 4
 		break
 	default:
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	if decode.Size() != 0 {
 		return nil, failedToDecodeInstruction
@@ -1234,7 +1234,6 @@ func (i *Instruction) decompose_floating_data_processing1() (*Instruction, error
 		regBase0 := regChoiceCVT[decode.Opcode()&3]
 		regBase1 := regChoiceCVT[decode.Type()]
 		if regBase0 == math.MaxUint32 || regBase1 == math.MaxUint32 {
-			// TODO: return 1 ERROR ?? also check other return 1s we might have messed up
 			return nil, failedToDecodeInstruction
 		}
 
@@ -2181,7 +2180,7 @@ func (i *Instruction) decompose_load_store_reg_imm_common() (*Instruction, error
 		i.operands[2].Immediate = uint64(decode.Imm() << shiftBase[decode.Opc()>>1])
 	} else {
 		if decode.Opc() == 3 {
-			// TODO: return 1
+			return nil, failedToDecodeInstruction
 		}
 
 		i.operands[0].Reg[0] = reg(REGSET_ZR, int(simdRegSize[decode.Opc()]), int(decode.Rt()))
@@ -2404,7 +2403,7 @@ func (i *Instruction) decompose_load_store_reg_reg_offset() (*Instruction, error
 		SHIFT_NONE, SHIFT_NONE, SHIFT_SXTW, SHIFT_SXTX}
 
 	if decode.Option()>>1 == 0 || decode.Option()>>1 == 2 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	i.operation = op.operation
 
@@ -2728,7 +2727,7 @@ func (i *Instruction) decompose_logical_imm() (*Instruction, error) {
 	}
 	i.operands[2].Immediate = DecodeBitMasks(uint64(decode.N()), uint64(decode.Imms()), uint64(decode.Immr()), outBits)
 	if i.operands[2].Immediate == 0 {
-		// TODO: return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	if i.operation == ARM64_ORR && decode.Rn() == 31 && !moveWidePreferred(decode.Sf(), decode.N(), decode.Imms(), decode.Immr()) {
@@ -2832,7 +2831,7 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 		i.operands[1].ShiftValueUsed = 1
 	}
 	if (decode.Sf() == 0 && decode.Hw()>>1 == 1) || i.operation == ARM64_UNDEFINED {
-		// TODO return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	if decode.Imm() != 0 || decode.Hw() == 0 {
@@ -3035,8 +3034,9 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 			info = operation2[decode.Opcode()-uint32(len(operation1))]
 		} else if decode.Size() > 1 {
 			info = operation3[decode.Opcode()-12]
+		} else {
+			return nil, failedToDecodeInstruction
 		}
-		// return 1
 	} else {
 		var operation1 = []opInfo{
 			{ARM64_REV32, 0, 3},
@@ -3111,8 +3111,9 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 			info = operation2[decode.Opcode()-22]
 		} else if decode.Size() > 1 && decode.Opcode() >= 12 {
 			info = operation3[decode.Opcode()-12]
+		} else {
+			return nil, failedToDecodeInstruction
 		}
-		// return 1
 	}
 	i.operation = info.op
 	/* 0 - <Vd>.<T>, <Vn>.<T>
@@ -3251,29 +3252,29 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 		fallthrough
 	case 3:
 		if decode.Size() > info.maxSize {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 4:
 		if decode.Size() == 3 && decode.Q() == 0 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 5:
 		if decode.Size() == 0 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 6:
 		fallthrough
 	case 7:
 		if decode.Size() == 1 && decode.Q() == 0 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 8:
 		if decode.Size() == 1 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 	}
 
@@ -3763,7 +3764,7 @@ func (i *Instruction) decompose_simd_across_lanes() (*Instruction, error) {
 	var reg1 uint32
 	var reg2 uint32
 	if decode.Size() == 3 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	switch decode.Opcode() {
@@ -3793,7 +3794,7 @@ func (i *Instruction) decompose_simd_across_lanes() (*Instruction, error) {
 				i.operation = ARM64_FMINNMV
 			}
 			if decode.Q() == 0 || decode.Size() == 1 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			reg1 = reg(REGSET_ZR, REG_S_BASE, int(decode.Rd()))
 			reg2 = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
@@ -3829,7 +3830,7 @@ func (i *Instruction) decompose_simd_across_lanes() (*Instruction, error) {
 		reg2 = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
 		break
 	default:
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
@@ -3903,7 +3904,7 @@ func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
 			i.operands[1].ElementSize = elemSize1
 			i.operands[1].Scale = 0x80000000 | (decode.Imm5() >> (size + 1))
 			if (decode.Q() == 0 && (decode.Imm5()&3) == 0) || (decode.Q() == 1 && (decode.Imm5()&7) == 0) {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			break
 		case 7:
@@ -3925,7 +3926,7 @@ func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
 			*/
 			break
 		default:
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 	} else {
 		i.operation = ARM64_INS
@@ -3936,7 +3937,7 @@ func (i *Instruction) decompose_simd_copy() (*Instruction, error) {
 		i.operands[1].ElementSize = elemSize1
 		i.operands[1].Scale = decode.Imm4() >> size
 		if (decode.Imm5() & 15) == 0 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 	}
 	return i, nil
@@ -4058,7 +4059,7 @@ func (i *Instruction) decompose_simd_load_store_multiple_post_idx() (*Instructio
 	i.operation = operation[decode.L()][decode.Opcode()]
 	elements := uint32(regCount[decode.Opcode()])
 	if elements == 0 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	i.operands[0].OpClass = MULTI_REG
 	for idx := uint32(0); idx < elements; idx++ {
@@ -4138,7 +4139,7 @@ func (i *Instruction) decompose_simd_load_store_single() (*Instruction, error) {
 			i.operands[0].ElementSize = 2
 			i.operands[0].Index = (decode.Q() << 2) | (decode.S() << 1) | (decode.Size() >> 1)
 		} else {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 2:
@@ -4149,7 +4150,7 @@ func (i *Instruction) decompose_simd_load_store_single() (*Instruction, error) {
 			i.operands[0].ElementSize = 8
 			i.operands[0].Index = decode.Q()
 		} else {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 3:
@@ -4157,7 +4158,7 @@ func (i *Instruction) decompose_simd_load_store_single() (*Instruction, error) {
 		i.operands[0].DataSize = sizemap[decode.Q()] / (8 << decode.Size())
 		break
 	default:
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	i.operands[1].OpClass = REG
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
@@ -4254,7 +4255,7 @@ func (i *Instruction) decompose_simd_load_store_single_post_idx() (*Instruction,
 			i.operands[0].Index = (decode.Q() << 2) | (decode.S() << 1) | (decode.Size() >> 1)
 			immIdx = 1
 		} else {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 2:
@@ -4267,7 +4268,7 @@ func (i *Instruction) decompose_simd_load_store_single_post_idx() (*Instruction,
 			i.operands[0].Index = decode.Q()
 			immIdx = 3
 		} else {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 3:
@@ -4275,7 +4276,7 @@ func (i *Instruction) decompose_simd_load_store_single_post_idx() (*Instruction,
 		i.operands[0].DataSize = sizemap[decode.Q()] / (8 << decode.Size())
 		break
 	default:
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	if decode.Rm() == 31 && elements != 0 {
@@ -4659,7 +4660,7 @@ func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
 		fallthrough
 	case 4:
 		if decode.Size() != 3 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
 		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rn()))
@@ -4676,14 +4677,14 @@ func (i *Instruction) decompose_simd_scalar_2_reg_misc() (*Instruction, error) {
 		fallthrough
 	case 8:
 		if decode.Size() == 3 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regbase[decode.Size()]), int(decode.Rd()))
 		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regbase2[decode.Size()]), int(decode.Rn()))
 		break
 	case 5:
 		if (decode.Size() & 1) == 0 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_S_BASE, int(decode.Rd()))
 		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rn()))
@@ -4918,7 +4919,7 @@ func (i *Instruction) decompose_simd_scalar_copy() (*Instruction, error) {
 	decode := SimdScalarCopy(i.raw)
 	var size uint32
 	if decode.Imm5() == 0 || decode.Imm5() == 16 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	for ; size < 4; size++ {
 		if ((decode.Imm5() >> size) & 1) == 1 {
@@ -4976,7 +4977,7 @@ func (i *Instruction) decompose_simd_scalar_indexed_element() (*Instruction, err
 	switch decode.Opcode() {
 	case 1:
 		if decode.Size() < 2 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operation = ARM64_FMLA
 		if (decode.Size() & 1) == 0 {
@@ -4999,7 +5000,7 @@ func (i *Instruction) decompose_simd_scalar_indexed_element() (*Instruction, err
 		break
 	case 5:
 		if decode.Size() < 2 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operation = ARM64_FMLS
 		if (decode.Size() & 1) == 0 {
@@ -5022,7 +5023,7 @@ func (i *Instruction) decompose_simd_scalar_indexed_element() (*Instruction, err
 		break
 	case 9:
 		if decode.Size() < 2 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		if decode.U() == 0 {
 			i.operation = ARM64_FMUL
@@ -5100,7 +5101,7 @@ func (i *Instruction) decompose_simd_scalar_pairwise() (*Instruction, error) {
 		if decode.U() == 0 {
 			i.operation = ARM64_ADDP
 			if decode.Size() != 3 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			i.operands[0].Reg[0] = reg(REGSET_ZR, REG_D_BASE, int(decode.Rd()))
 			i.operands[1].ElementSize = 8
@@ -5114,8 +5115,9 @@ func (i *Instruction) decompose_simd_scalar_pairwise() (*Instruction, error) {
 			} else {
 				i.operation = ARM64_FMINNMP
 			}
+		} else {
+			return nil, failedToDecodeInstruction
 		}
-		// return 1
 		break
 	case 13:
 		i.operation = ARM64_FADDP
@@ -5127,11 +5129,12 @@ func (i *Instruction) decompose_simd_scalar_pairwise() (*Instruction, error) {
 			} else {
 				i.operation = ARM64_FMINP
 			}
+		} else {
+			return nil, failedToDecodeInstruction
 		}
-		// return 1
 		break
 	default:
-		//  return 1
+		return nil, failedToDecodeInstruction
 	}
 	return i, nil
 }
@@ -5236,7 +5239,7 @@ func (i *Instruction) decompose_simd_scalar_shift_imm() (*Instruction, error) {
 	decodeOp := operation[decode.U()][decode.Opcode()]
 	regBase := uint32(regBaseMap[decodeOp.regBase][decode.Immh()])
 	if regBase == uint32(REG_NONE) {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	i.operation = decodeOp.op
 	i.operands[0].OpClass = REG
@@ -5424,7 +5427,7 @@ func (i *Instruction) decompose_simd_shift_imm() (*Instruction, error) {
 		} else if decode.Immh()>>3 == 1 {
 			size = 1
 		} else {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operands[0].ElementSize = 4 << size
 		i.operands[1].ElementSize = 4 << size
@@ -5569,7 +5572,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 	index := uint32(decode.H()<<2 | decode.L()<<1 | decode.M())
 	if opinfo.ovar == 1 {
 		if decode.Size() == 0 || decode.Size() == 3 {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		var reghi uint32
 		if decode.Size() == 2 {
@@ -5587,7 +5590,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		i.operands[2].Scale = 0x80000000 | (index >> (decode.Size() - 1))
 	} else if opinfo.ovar == 2 {
 		if ((decode.Size()&1) == 1 && decode.Q() == 0) || (decode.Size() == 1 && decode.L() == 1) {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
 		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
@@ -5759,20 +5762,20 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			}
 			break
 		default:
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		break
 	case 4: //PSTATE Access
 		switch decode.Op2() {
 		case 5:
 			if decode.Op1() != 0 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			i.operands[0].Reg[0] = uint32(REG_SPSEL)
 			break
 		case 6:
 			if decode.Op1() != 3 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			i.operands[0].Reg[0] = uint32(REG_DAIFSET)
 			break
@@ -5780,7 +5783,7 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			i.operands[0].Reg[0] = uint32(REG_DAIFCLR)
 			break
 		default:
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		i.operation = ARM64_MSR
 		i.operands[0].OpClass = SYS_REG
@@ -5860,7 +5863,7 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 			if decode.Op1() == 3 && decode.Op2() == 1 {
 				i.operands[0].Reg[0] = uint32(REG_CVAC)
 			} else if decode.Op1() != 0 || decode.Op2() != 2 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			break
 		case 11:
@@ -5870,7 +5873,7 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 			i.operands[1].OpClass = REG
 			i.operands[1].Reg[0] = reg(1, REG_X_BASE, int(decode.Rt()))
 			if decode.Op1() != 3 || decode.Op2() != 1 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			break
 		case 14: //Data cache maintenance instructions
@@ -5882,7 +5885,7 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 			if decode.Op1() == 0 && decode.Op2() == 2 {
 				i.operands[0].Reg[0] = uint32(REG_CISW)
 			} else if decode.Op1() != 3 || decode.Op2() != 1 {
-				// return 1
+				return nil, failedToDecodeInstruction
 			}
 			break
 		case 8: //Address translation instructions
@@ -7175,7 +7178,7 @@ func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error)
 	 * DRPS
 	 */
 	decode := UnconditionalBranchReg(i.raw)
-	var operations = [][4]Operation{
+	var operations = [10][4]Operation{
 		{ARM64_BR, ARM64_UNDEFINED, ARM64_BRAAZ, ARM64_BRABZ},
 		{ARM64_BLR, ARM64_UNDEFINED, ARM64_BLRAAZ, ARM64_BLRABZ},
 		{ARM64_RET, ARM64_UNDEFINED, ARM64_RETAA, ARM64_RETAB},
@@ -7191,19 +7194,19 @@ func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error)
 	}
 
 	if decode.Opc() > 9 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	if decode.Op3() > 3 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	if decode.Opc() < 8 && decode.Op3() != 0 && decode.Op4() != 0x1f {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	if decode.Op3() == 0 && decode.Op4() != 0 {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 	if decode.Op2() != 0x1f {
-		// return 1
+		return nil, failedToDecodeInstruction
 	}
 
 	i.operation = operations[decode.Opc()][decode.Op3()]
@@ -7222,7 +7225,7 @@ func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error)
 		fallthrough
 	case 5: // DRPS
 		if decode.Rn() != 0x1f {
-			// return 1
+			return nil, failedToDecodeInstruction
 		}
 		return i, nil
 	case 8:
@@ -7485,6 +7488,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		fallthrough
 	case 15:
 		instruction.group = GROUP_DATA_PROCESSING_SIMD
+		// fmt.Printf("case 15: %#x\n", ExtractBits(instructionValue, 24, 8))
 		switch ExtractBits(instructionValue, 24, 8) {
 		case 0x1e:
 			fallthrough

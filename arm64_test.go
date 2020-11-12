@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -1336,21 +1337,21 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "mrs       x8, id_aa64mmfr2_el1",
+			name: "BAD",
 			args: args{
 				// instructionValue: 0x9AC03000,
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x48, 0x07, 0x38, 0xd5}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x18, 0x1a, 0x1c, 0x1e}),
 				address:          0,
 			},
-			want: "mrs	x8, id_aa64mmfr2_el1",
-			wantErr: false,
+			want:    "BAD",
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fmt.Printf("want: %s\n", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
-			if (err != nil) != tt.wantErr {
+			if (err != nil) && tt.wantErr {
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
@@ -2195,130 +2196,130 @@ func Test_decompose_v8_5a(t *testing.T) {
 		},
 		// llvm/test/MC/AArch64/armv8.5a-specrestrict.s
 		{
-			name: "mrs	x9, {{id_pfr2_el1|ID_PFR2_EL1}}",
+			name: "mrs	x9, id_pfr2_el1",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x89, 0x03, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x9, {{id_pfr2_el1|ID_PFR2_EL1}}",
+			want: "mrs	x9, id_pfr2_el1",
 			wantErr: false,
 		},
 		{
-			name: "mrs	x8, {{scxtnum_el0|SCXTNUM_EL0}}",
+			name: "mrs	x8, scxtnum_el0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xd0, 0x3b, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x8, {{scxtnum_el0|SCXTNUM_EL0}}",
+			want: "mrs	x8, scxtnum_el0",
 			wantErr: false,
 		},
 		{
-			name: "mrs	x7, {{scxtnum_el1|SCXTNUM_EL1}}",
+			name: "mrs	x7, scxtnum_el1",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd0, 0x38, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x7, {{scxtnum_el1|SCXTNUM_EL1}}",
+			want: "mrs	x7, scxtnum_el1",
 			wantErr: false,
 		},
 		{
-			name: "mrs	x6, {{scxtnum_el2|SCXTNUM_EL2}}",
+			name: "mrs	x6, scxtnum_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd0, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x6, {{scxtnum_el2|SCXTNUM_EL2}}",
+			want: "mrs	x6, scxtnum_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	x5, {{scxtnum_el3|SCXTNUM_EL3}}",
+			name: "mrs	x5, scxtnum_el3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xd0, 0x3e, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x5, {{scxtnum_el3|SCXTNUM_EL3}}",
+			want: "mrs	x5, scxtnum_el3",
 			wantErr: false,
 		},
 		{
-			name: "mrs	x4, {{scxtnum_el12|SCXTNUM_EL12}}",
+			name: "mrs	x4, scxtnum_el12",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xd0, 0x3d, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x4, {{scxtnum_el12|SCXTNUM_EL12}}",
+			want: "mrs	x4, scxtnum_el12",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{scxtnum_el0|SCXTNUM_EL0}},   x8",
+			name: "msr	scxtnum_el0,   x8",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xd0, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{scxtnum_el0|SCXTNUM_EL0}},   x8",
+			want: "msr	scxtnum_el0,   x8",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{scxtnum_el1|SCXTNUM_EL1}},   x7",
+			name: "msr	scxtnum_el1,   x7",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd0, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{scxtnum_el1|SCXTNUM_EL1}},   x7",
+			want: "msr	scxtnum_el1,   x7",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{scxtnum_el2|SCXTNUM_EL2}},   x6",
+			name: "msr	scxtnum_el2,   x6",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{scxtnum_el2|SCXTNUM_EL2}},   x6",
+			want: "msr	scxtnum_el2,   x6",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{scxtnum_el3|SCXTNUM_EL3}},   x5",
+			name: "msr	scxtnum_el3,   x5",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xd0, 0x1e, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{scxtnum_el3|SCXTNUM_EL3}},   x5",
+			want: "msr	scxtnum_el3,   x5",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{scxtnum_el12|SCXTNUM_EL12}}, x4",
+			name: "msr	scxtnum_el12, x4",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe4, 0xd0, 0x1d, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{scxtnum_el12|SCXTNUM_EL12}}, x4",
+			want: "msr	scxtnum_el12, x4",
 			wantErr: false,
 		},
 		// llvm/test/MC/AArch64/armv8.5a-ssbs.s
 		{
-			name: "mrs	x2, {{ssbs|SSBS}}",
+			name: "mrs	x2, ssbs",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc2, 0x42, 0x3b, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	x2, {{ssbs|SSBS}}",
+			want: "mrs	x2, ssbs",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{ssbs|SSBS}}, x3",
+			name: "msr	ssbs, x3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0x42, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{ssbs|SSBS}}, x3",
+			want: "msr	ssbs, x3",
 			wantErr: false,
 		},
 		{
-			name: "msr	{{ssbs|SSBS}}, #1",
+			name: "msr	ssbs, #1",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0x41, 0x03, 0xd5}),
 				address:          0,
 			},
-			want: "msr	{{ssbs|SSBS}}, #1",
+			want: "msr	ssbs, #1",
 			wantErr: false,
 		},
 	}
@@ -2331,7 +2332,7 @@ func Test_decompose_v8_5a(t *testing.T) {
 			}
 			hexOut, _ := got.disassemble(false)
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
+			if !reflect.DeepEqual(hexOut, strings.ToLower(tt.want)) || !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) {
 				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
 			}
 		})

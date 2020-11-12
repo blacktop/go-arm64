@@ -53,9 +53,16 @@ func Disassemble(r io.ReadSeeker, options Options) <-chan Result {
 
 			i, err := decompose(instrValue, uint64(addr))
 			if err != nil {
-				out <- Result{
-					StrRepr: fmt.Sprintf("%#08x:  %s\t💥 ERROR 💥", uint64(addr), getOpCodeByteString(instrValue)),
-					Error:   fmt.Errorf("failed to decompose instruction: 0x%08x; %v", instrValue, err),
+				if err == failedToDecodeInstruction {
+					out <- Result{
+						StrRepr: fmt.Sprintf("%#08x:  %s\t<unknown>", uint64(addr), getOpCodeByteString(instrValue)),
+						Error:   fmt.Errorf("failed to decode instruction: 0x%08x; %v", instrValue, err),
+					}
+				} else {
+					out <- Result{
+						StrRepr: fmt.Sprintf("%#08x:  %s\t💥 ERROR 💥", uint64(addr), getOpCodeByteString(instrValue)),
+						Error:   fmt.Errorf("failed to decode instruction: 0x%08x; %v", instrValue, err),
+					}
 				}
 				continue
 			}
