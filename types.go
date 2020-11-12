@@ -294,6 +294,9 @@ const (
 	ARM64_LDEORL   // ARMv8.1
 	ARM64_LDG      //Added for MTE
 	ARM64_LDGM     //Added for MTE
+	ARM64_LDLARB   // ARMv8.1
+	ARM64_LDLARH   // ARMv8.1
+	ARM64_LDLAR    // ARMv8.1
 	ARM64_LDNP
 	ARM64_LDP
 	ARM64_LDPSW
@@ -546,9 +549,12 @@ const (
 	ARM64_ST2G //Added for MTE
 	ARM64_ST3
 	ARM64_ST4
-	ARM64_STG  //Added for MTE
-	ARM64_STGM //Added for MTE
-	ARM64_STGP //Added for MTE
+	ARM64_STG    //Added for MTE
+	ARM64_STGM   //Added for MTE
+	ARM64_STGP   //Added for MTE
+	ARM64_STLLRB // ARMv8.1
+	ARM64_STLLRH // ARMv8.1
+	ARM64_STLLR  // ARMv8.1
 	ARM64_STLR
 	ARM64_STLRB
 	ARM64_STLRH
@@ -965,6 +971,9 @@ func (o Operation) String() string {
 		"ldeorl",   // ARMv8.1
 		"ldg",      //Added for MTE
 		"ldgm",     //Added for MTE
+		"ldlarb",   // ARMv8.1
+		"ldlarh",   // ARMv8.1
+		"ldlar",    // ARMv8.1
 		"ldnp",
 		"ldp",
 		"ldpsw",
@@ -1217,9 +1226,12 @@ func (o Operation) String() string {
 		"st2g", //Added for MTE
 		"st3",
 		"st4",
-		"stg",  //Added for MTE
-		"stgm", //Added for MTE
-		"stgp", //Added for MTE
+		"stg",    //Added for MTE
+		"stgm",   //Added for MTE
+		"stgp",   //Added for MTE
+		"stllrb", // ARMv8.1
+		"stllrh", // ARMv8.1
+		"stllr",  // ARMv8.1
 		"stlr",
 		"stlrb",
 		"stlrh",

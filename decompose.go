@@ -1769,10 +1769,12 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	 *
 	 * STXRB  <Ws>, <Wt>, [<Xn|SP>{,#0}]
 	 * STLXRB <Ws>, <Wt>, [<Xn|SP>{,#0}]
+	 * STLLRB <Wt>, [<Xn|SP>{,#0}]
 	 * STLRB  <Wt>, [<Xn|SP>{,#0}]
 	 *
 	 * STXRH  <Ws>, <Wt>, [<Xn|SP>{,#0}]
 	 * STLXRH <Ws>, <Wt>, [<Xn|SP>{,#0}]
+	 * STLLRH <Wt>, [<Xn|SP>{,#0}]
 	 * STLRH  <Wt>, [<Xn|SP>{,#0}]
 	 *
 	 * STXR  <Ws>, <Wt>, [<Xn|SP>{,#0}]
@@ -1792,41 +1794,41 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		{
 			{
 				ARM64_STXRB, ARM64_STLXRB, ARM64_CASP, ARM64_CASPL,
-				ARM64_UNDEFINED, ARM64_STLRB, ARM64_CASB, ARM64_CASLB,
+				ARM64_STLLRB, ARM64_STLRB, ARM64_CASB, ARM64_CASLB,
 			}, {
 				ARM64_LDXRB, ARM64_LDAXRB, ARM64_CASPA, ARM64_CASPAL,
-				ARM64_UNDEFINED, ARM64_LDARB, ARM64_CASAB, ARM64_CASALB,
+				ARM64_LDLARB, ARM64_LDARB, ARM64_CASAB, ARM64_CASALB,
 			},
 		}, {
 			{
 				ARM64_STXRH, ARM64_STLXRH, ARM64_CASP, ARM64_CASPL,
-				ARM64_UNDEFINED, ARM64_STLRH, ARM64_CASH, ARM64_CASLH,
+				ARM64_STLLRH, ARM64_STLRH, ARM64_CASH, ARM64_CASLH,
 			}, {
 				ARM64_LDXRH, ARM64_LDAXRH, ARM64_CASPA, ARM64_CASPAL,
-				ARM64_UNDEFINED, ARM64_LDARH, ARM64_CASAH, ARM64_CASALH,
+				ARM64_LDLARH, ARM64_LDARH, ARM64_CASAH, ARM64_CASALH,
 			},
 		}, {
 			{
 				ARM64_STXR, ARM64_STLXR, ARM64_STXP, ARM64_STLXP,
-				ARM64_UNDEFINED, ARM64_STLR, ARM64_CAS, ARM64_CASL,
+				ARM64_STLLR, ARM64_STLR, ARM64_CAS, ARM64_CASL,
 			}, {
 				ARM64_LDXR, ARM64_LDAXR, ARM64_LDXP, ARM64_LDAXP,
-				ARM64_UNDEFINED, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
+				ARM64_LDLAR, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
 			},
 		}, {
 			{
 				ARM64_STXR, ARM64_STLXR, ARM64_STXP, ARM64_STLXP,
-				ARM64_UNDEFINED, ARM64_STLR, ARM64_CAS, ARM64_CASL,
+				ARM64_STLLR, ARM64_STLR, ARM64_CAS, ARM64_CASL,
 			}, {
 				ARM64_LDXR, ARM64_LDAXR, ARM64_LDXP, ARM64_LDAXP,
-				ARM64_UNDEFINED, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
+				ARM64_LDLAR, ARM64_LDAR, ARM64_CASA, ARM64_CASAL,
 			},
 		},
 	}
 	var regBase = []uint32{REG_W_BASE, REG_X_BASE}
 
 	decode := LdstExclusive(i.raw)
-
+	// fmt.Println(decode)
 	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
 	i.operation = operation[decode.Size()][decode.L()][opcode]
 
@@ -1858,6 +1860,8 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		i.operands[idx].OpClass = REG
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		} else if decode.Group1() == 8 {
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt()))
 		} else {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 			idx++
@@ -1875,6 +1879,8 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		i.operands[idx].OpClass = REG
 		if opcode == 5 || decode.L() > 0 {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		} else if decode.Group1() == 8 {
+			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt()))
 		} else {
 			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
 			idx++
