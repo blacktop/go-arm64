@@ -1337,13 +1337,13 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "stllr	x1, [x4]",
+			name: "stg     x8, [x8]",
 			args: args{
 				// instructionValue: 0x9AC03000,
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x18, 0x8d, 0xc8}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x08, 0x09, 0x20, 0xd9}),
 				address:          0,
 			},
-			want: "stllr	x1, [x4]",
+			want: "stg	x8, [x8]",
 			wantErr: false,
 		},
 	}

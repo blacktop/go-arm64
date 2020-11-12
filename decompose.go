@@ -7358,11 +7358,10 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 
 			if ExtractBits(instructionValue, 24, 6) == 25 {
+				if op0 == 0x0d {
+					return instruction.decompose_load_store_mem_tags()
+				}
 				return instruction.decompose_load_store_unscaled()
-			}
-
-			if op0 == 0x0d {
-				return instruction.decompose_load_store_mem_tags()
 			}
 
 			if (op0&3) == 0 && op1 == 0 && (op2>>1) == 0 {
