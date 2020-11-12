@@ -7220,7 +7220,7 @@ func (i *Instruction) decompose_unconditional_branch_reg() (*Instruction, error)
 
 	switch decode.Opc() {
 	case 2: // RET
-		if !(decode.Op3() == 0) {
+		if decode.Op3() == 0 {
 			if r == uint32(REG_X30) {
 				return i, nil
 			}

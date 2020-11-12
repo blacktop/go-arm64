@@ -1684,6 +1684,10 @@ func (i UnconditionalBranchReg) Opc() uint32 {
 func (i UnconditionalBranchReg) Opcode() uint32 {
 	return ExtractBits(uint32(i), 25, 7)
 }
+func (i UnconditionalBranchReg) String() string {
+	return fmt.Sprintf("Opcode: %d, Opc: %d, Op2: %#b, Op3: %#b, Rn: %#b, Op4: %#b",
+		i.Opcode(), i.Opc(), i.Op2(), i.Op3(), i.Rn(), i.Op4())
+}
 
 //--------------------------------------------------------
 // C4.3 Loads and stores
