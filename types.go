@@ -1508,6 +1508,9 @@ func (i Bitfield) Opc() uint32 {
 func (i Bitfield) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i Bitfield) String() string {
+	return fmt.Sprintf("Sf: %d, Opc: %d, Group1: %#x, N: %d, Immr: %#x, Imms: %#x, Rn: %d, Rd: %d", i.Sf(), i.Opc(), i.Group1(), i.N(), i.Immr(), i.Imms(), i.Rn(), i.Rd())
+}
 
 type Extract uint32
 
