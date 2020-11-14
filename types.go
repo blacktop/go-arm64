@@ -1660,7 +1660,7 @@ func (i System) Group1() uint32 {
 	return ExtractBits(uint32(i), 22, 10)
 }
 func (i System) String() string {
-	return fmt.Sprintf("Group1: %d, L: %d, op0: %#b, op1: %#b, CRn: %#b, CRm: %#b, op2: %#b, Rt: %d",
+	return fmt.Sprintf("Group1: %d, L: %d, op0: %d, op1: %d, CRn: %#b, CRm: %#b, op2: %d, Rt: %d",
 		i.Group1(), i.L(), i.Op0(), i.Op1(), i.Crn(), i.Crm(), i.Op2(), i.Rt())
 }
 
@@ -2144,6 +2144,10 @@ func (i LdstRegImmPac) Group4() uint32 {
 func (i LdstRegImmPac) Size() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
 }
+func (i LdstRegImmPac) String() string {
+	return fmt.Sprintf("Size: %d, Group4: %d, V: %d, Group3: %d, M: %d, S: %d, Group2: %d, Imm: %d, W: %d, Group1: %d, Rn: %d, Rt: %d",
+		i.Size(), i.Group4(), i.V(), i.Group3(), i.M(), i.S(), i.Group2(), i.Imm(), i.W(), i.Group1(), i.Rn(), i.Rt())
+}
 
 type SimdLdstMult uint32
 
@@ -2607,6 +2611,10 @@ func (i DataProcessing2) Group2() uint32 {
 }
 func (i DataProcessing2) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+func (i DataProcessing2) String() string {
+	return fmt.Sprintf("Sf: %d, Group2: %d, S: %d, Group1: %d, Rm: %d, Opcode: %d, Rn: %d, Rd: %d",
+		i.Sf(), i.Group2(), i.S(), i.Group1(), i.Rm(), i.Opcode(), i.Rn(), i.Rd())
 }
 
 type DataProcessing1 uint32
@@ -3724,6 +3732,10 @@ const (
 	REG_ASIDE1IS
 	REG_CCSIDR_EL1
 	REG_CISW
+	REG_CIGSW
+	REG_CIGDSW
+	REG_CIGVAC
+	REG_CIGDVAC
 	REG_CIVAC
 	REG_CLIDR_EL1
 	REG_CNTFRQ_EL0
@@ -3756,9 +3768,19 @@ const (
 	REG_CPTR_EL3
 	REG_CSSELR_EL1
 	REG_CSW
+	REG_CGSW
+	REG_CGDSW
+	REG_CGVAC
+	REG_CGDVAC
 	REG_CTR_EL0
 	REG_CVAC
 	REG_CVAU
+	REG_CVAP
+	REG_CGVAP
+	REG_CGDVAP
+	REG_CVADP
+	REG_CGVADP
+	REG_CGDVADP
 	REG_DACR32_EL2
 	REG_DAIFCLR
 	REG_DAIFSET
@@ -3844,6 +3866,8 @@ const (
 	REG_FAR_EL12
 	REG_FAR_EL2
 	REG_FAR_EL3
+	REG_GCR_EL1
+	REG_GMID_EL1
 	REG_HACR_EL2
 	REG_HCR_EL2
 	REG_HPFAR_EL2
@@ -3864,7 +3888,11 @@ const (
 	REG_IPAS2E1
 	REG_IPAS2LE1
 	REG_ISW
+	REG_IGSW
+	REG_IGDSW
 	REG_IVAC
+	REG_IGVAC
+	REG_IGDVAC
 	REG_MAIR_EL1
 	REG_MAIR_EL12
 	REG_MAIR_EL2
@@ -3901,6 +3929,7 @@ const (
 	REG_PMUSERENR_EL0
 	REG_PMXEVCNTR_EL0
 	REG_PMXEVTYPER_EL0
+	REG_RGSR_EL1
 	REG_RMR_EL1
 	REG_RMR_EL2
 	REG_RMR_EL3
@@ -3926,10 +3955,16 @@ const (
 	REG_SCTLR_EL2
 	REG_SCTLR_EL3
 	REG_SPSEL
+	REG_TCO
 	REG_TCR_EL1
 	REG_TCR_EL12
 	REG_TCR_EL2
 	REG_TCR_EL3
+	REG_TFSR_EL1
+	REG_TFSR_EL2
+	REG_TFSR_EL12
+	REG_TFSR_EL3
+	REG_TFSRE0_EL1
 	REG_TPIDRRO_EL0
 	REG_TPIDR_EL0
 	REG_TPIDR_EL1
@@ -3969,6 +4004,8 @@ const (
 	REG_VPIDR_EL2
 	REG_VTCR_EL2
 	REG_VTTBR_EL2
+	REG_GVA
+	REG_GZVA
 	REG_ZVA
 	REG_NUMBER0
 	REG_OSHLD
@@ -4246,6 +4283,10 @@ func (s SystemReg) String() string {
 		"aside1is",
 		"ccsidr_el1",
 		"cisw",
+		"cigsw",
+		"cigdsw",
+		"cigvac",
+		"cigdvac",
 		"civac",
 		"clidr_el1",
 		"cntfrq_el0",
@@ -4278,9 +4319,19 @@ func (s SystemReg) String() string {
 		"cptr_el3",
 		"csselr_el1",
 		"csw",
+		"cgsw",
+		"cgdsw",
+		"cgvac",
+		"cgdvac",
 		"ctr_el0",
 		"cvac",
 		"cvau",
+		"cvap",
+		"cgvap",
+		"cgdvap",
+		"cvadp",
+		"cgvadp",
+		"cgdvadp",
 		"dacr32_el2",
 		"daifclr",
 		"daifset",
@@ -4366,6 +4417,8 @@ func (s SystemReg) String() string {
 		"far_el12",
 		"far_el2",
 		"far_el3",
+		"gcr_el1",
+		"gmid_el1",
 		"hacr_el2",
 		"hcr_el2",
 		"hpfar_el2",
@@ -4386,7 +4439,11 @@ func (s SystemReg) String() string {
 		"ipas2e1",
 		"ipas2le1",
 		"isw",
+		"igsw",
+		"igdsw",
 		"ivac",
+		"igvac",
+		"igdvac",
 		"mair_el1",
 		"mair_el12",
 		"mair_el2",
@@ -4423,6 +4480,7 @@ func (s SystemReg) String() string {
 		"pmuserenr_el0",
 		"pmxevcntr_el0",
 		"pmxevtyper_el0",
+		"rgsr_el1",
 		"rmr_el1",
 		"rmr_el2",
 		"rmr_el3",
@@ -4448,10 +4506,16 @@ func (s SystemReg) String() string {
 		"sctlr_el2",
 		"sctlr_el3",
 		"spsel",
+		"tco",
 		"tcr_el1",
 		"tcr_el12",
 		"tcr_el2",
 		"tcr_el3",
+		"tfsr_el1",
+		"tfsr_el2",
+		"tfsr_el12",
+		"tfsr_el3",
+		"tfsre0_el1",
 		"tpidrro_el0",
 		"tpidr_el0",
 		"tpidr_el1",
@@ -4491,6 +4555,8 @@ func (s SystemReg) String() string {
 		"vpidr_el2",
 		"vtcr_el2",
 		"vttbr_el2",
+		"gva",
+		"gzva",
 		"zva",
 		"#0x0",
 		"oshld",

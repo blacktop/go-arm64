@@ -34,10 +34,10 @@ jobs:
       run: go build -v .
 
     - name: Test - ARM v8.4a
-      run: go test -v -run Test_decompose_v8_4a 
+      run: go test -v -run Test_decompose_v8_4a
 
     - name: Test - ALL
-      run: go test -v -run Test_decompose_ALL 
+      run: go test -v -run Test_decompose_ALL
 
     - name: Test - MTE
-      run: go test -v -run Test_decompose_MTE 
+      run: go test -v -run Test_decompose_MTE

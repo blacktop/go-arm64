@@ -840,7 +840,7 @@ func (i *Instruction) decompose_data_processing_2() (*Instruction, error) {
 	}
 
 	decode := DataProcessing2(i.raw)
-
+	// fmt.Println(decode)
 	if decode.Opcode() > 31 {
 		return nil, failedToDisassembleOperation
 	}
@@ -868,6 +868,8 @@ func (i *Instruction) decompose_data_processing_2() (*Instruction, error) {
 		i.operands[1].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rn()))
 		break
 	case ARM64_IRG:
+		i.operands[0].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rd()))
+		i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 		if decode.Rm() == 0x1f {
 			i.operands[2].OpClass = NONE
 		}
@@ -886,7 +888,7 @@ func (i *Instruction) decompose_data_processing_2() (*Instruction, error) {
 	}
 
 	// aliases
-	if i.operation == ARM64_SUBPS && decode.S() == 1 && decode.Rd() == 0x1f {
+	if i.operation == ARM64_SUBPS && decode.S() == 1 && decode.Rd() == 31 {
 		i.operation = ARM64_CMPP
 		i.operands[0] = i.operands[1]
 		i.operands[1] = i.operands[2]
@@ -1747,7 +1749,7 @@ func (i *Instruction) decompose_load_store_unscaled() (*Instruction, error) {
 	}
 
 	decode := LdstTags(i.raw)
-
+	// fmt.Println(decode)
 	i.operation = operation[decode.Opc()][decode.Size()]
 	i.operands[0].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Opc()][decode.Size()]), int(decode.Rt()))
@@ -2080,7 +2082,7 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 func (i *Instruction) decompose_load_store_pac() (*Instruction, error) {
 
 	decode := LdstRegImmPac(i.raw)
-
+	// fmt.Println(decode)
 	var operation = []Operation{ARM64_LDRAA, ARM64_LDRAB}
 	i.operation = operation[decode.M()]
 	i.operands[0].OpClass = REG
@@ -2093,6 +2095,7 @@ func (i *Instruction) decompose_load_store_pac() (*Instruction, error) {
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	if decode.S() > 0 {
 		i.operands[1].Immediate = ^uint64(0xfff)
+		i.operands[1].SignedImm = 1
 	} else {
 		i.operands[1].Immediate = 0
 	}
@@ -5644,6 +5647,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 }
 
 func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, error) {
+	// fmt.Println(decode)
 	switch decode.Crn() {
 	case 2: //Architectural hints
 		switch (decode.Crm() << 3) | decode.Op2() {
@@ -5773,6 +5777,12 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 		break
 	case 4: //PSTATE Access
 		switch decode.Op2() {
+		case 4:
+			if decode.Op1() != 3 {
+				return nil, failedToDecodeInstruction
+			}
+			i.operands[0].Reg[0] = uint32(REG_TCO)
+			break
 		case 5:
 			if decode.Op1() != 0 {
 				return nil, failedToDecodeInstruction
@@ -5820,17 +5830,18 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 }
 
 func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instruction, error) {
+	// fmt.Println(decode)
 	i.operands[1].OpClass = REG
 	switch decode.Crn() {
 	case 7:
 		switch decode.Crm() {
-		case 1: //Instruction cache maintenance instructions
+		case 1: // Instruction cache maintenance instructions
 			i.operation = ARM64_IC
 			i.operands[0].OpClass = SYS_REG
 			i.operands[0].Reg[0] = uint32(REG_IALLUIS)
 			i.operands[1].OpClass = NONE
 			break
-		case 5: //Instruction cache maintenance instructions
+		case 5: // Instruction cache maintenance instructions
 			i.operation = ARM64_IC
 			i.operands[0].OpClass = SYS_REG
 			if decode.Op1() == 3 {
@@ -5842,22 +5853,38 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 				i.operands[1].OpClass = NONE
 			}
 			break
-		case 4: //Data cache zero operation
+		case 4: // Data cache zero operation
 			i.operation = ARM64_DC
 			i.operands[0].OpClass = SYS_REG
-			i.operands[0].Reg[0] = uint32(REG_ZVA)
 			i.operands[1].OpClass = REG
 			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
+			switch decode.Op2() {
+			case 1:
+				i.operands[0].Reg[0] = uint32(REG_ZVA)
+			case 3:
+				i.operands[0].Reg[0] = uint32(REG_GVA)
+			case 4:
+				i.operands[0].Reg[0] = uint32(REG_GZVA)
+			}
 			break
 		case 6:
 			i.operation = ARM64_DC
 			i.operands[0].OpClass = SYS_REG
 			i.operands[1].OpClass = REG
 			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-			if decode.Op2() == 1 {
+			switch decode.Op2() {
+			case 1:
 				i.operands[0].Reg[0] = uint32(REG_IVAC)
-			} else if decode.Op2() == 2 {
+			case 2:
 				i.operands[0].Reg[0] = uint32(REG_ISW)
+			case 3:
+				i.operands[0].Reg[0] = uint32(REG_IGVAC)
+			case 4:
+				i.operands[0].Reg[0] = uint32(REG_IGSW)
+			case 5:
+				i.operands[0].Reg[0] = uint32(REG_IGDVAC)
+			case 6:
+				i.operands[0].Reg[0] = uint32(REG_IGDSW)
 			}
 			break
 		case 10:
@@ -5866,9 +5893,29 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 			i.operands[0].Reg[0] = uint32(REG_CSW)
 			i.operands[1].OpClass = REG
 			i.operands[1].Reg[0] = reg(1, REG_X_BASE, int(decode.Rt()))
-			if decode.Op1() == 3 && decode.Op2() == 1 {
-				i.operands[0].Reg[0] = uint32(REG_CVAC)
-			} else if decode.Op1() != 0 || decode.Op2() != 2 {
+			if decode.Op1() == 0 {
+				switch decode.Op2() {
+				case 2:
+					i.operands[0].Reg[0] = uint32(REG_CSW)
+				case 4:
+					i.operands[0].Reg[0] = uint32(REG_CGSW)
+				case 6:
+					i.operands[0].Reg[0] = uint32(REG_CGDSW)
+				default:
+					return nil, failedToDecodeInstruction
+				}
+			} else if decode.Op1() == 3 {
+				switch decode.Op2() {
+				case 1:
+					i.operands[0].Reg[0] = uint32(REG_CVAC)
+				case 3:
+					i.operands[0].Reg[0] = uint32(REG_CGVAC)
+				case 5:
+					i.operands[0].Reg[0] = uint32(REG_CGDVAC)
+				default:
+					return nil, failedToDecodeInstruction
+				}
+			} else {
 				return nil, failedToDecodeInstruction
 			}
 			break
@@ -5882,19 +5929,66 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 				return nil, failedToDecodeInstruction
 			}
 			break
-		case 14: //Data cache maintenance instructions
+		case 12: // 1100
 			i.operation = ARM64_DC
 			i.operands[0].OpClass = SYS_REG
-			i.operands[0].Reg[0] = uint32(REG_CIVAC)
+			i.operands[1].OpClass = REG
+			i.operands[1].Reg[0] = reg(1, REG_X_BASE, int(decode.Rt()))
+			switch decode.Op2() {
+			case 1:
+				i.operands[0].Reg[0] = uint32(REG_CVAP)
+			case 3:
+				i.operands[0].Reg[0] = uint32(REG_CGVAP)
+			case 5:
+				i.operands[0].Reg[0] = uint32(REG_CGDVAP)
+			default:
+				return nil, failedToDecodeInstruction
+			}
+			break
+		case 13: // 1101
+			i.operation = ARM64_DC
+			i.operands[0].OpClass = SYS_REG
+			i.operands[1].OpClass = REG
+			i.operands[1].Reg[0] = reg(1, REG_X_BASE, int(decode.Rt()))
+			switch decode.Op2() {
+			case 1:
+				i.operands[0].Reg[0] = uint32(REG_CVADP)
+			case 3:
+				i.operands[0].Reg[0] = uint32(REG_CGVADP)
+			case 5:
+				i.operands[0].Reg[0] = uint32(REG_CGDVADP)
+			default:
+				return nil, failedToDecodeInstruction
+			}
+			break
+		case 14: // Data cache maintenance instructions
+			i.operation = ARM64_DC
+			i.operands[0].OpClass = SYS_REG
 			i.operands[1].OpClass = REG
 			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
-			if decode.Op1() == 0 && decode.Op2() == 2 {
-				i.operands[0].Reg[0] = uint32(REG_CISW)
+			if decode.Op1() == 0 {
+				switch decode.Op2() {
+				case 2:
+					i.operands[0].Reg[0] = uint32(REG_CISW)
+				case 4:
+					i.operands[0].Reg[0] = uint32(REG_CIGSW)
+				case 6:
+					i.operands[0].Reg[0] = uint32(REG_CIGDSW)
+				}
+			} else if decode.Op1() == 3 {
+				switch decode.Op2() {
+				case 1:
+					i.operands[0].Reg[0] = uint32(REG_CIVAC)
+				case 3:
+					i.operands[0].Reg[0] = uint32(REG_CIGVAC)
+				case 5:
+					i.operands[0].Reg[0] = uint32(REG_CIGDVAC)
+				}
 			} else if decode.Op1() != 3 || decode.Op2() != 1 {
 				return nil, failedToDecodeInstruction
 			}
 			break
-		case 8: //Address translation instructions
+		case 8: // Address translation instructions
 			i.operation = ARM64_AT
 			i.operands[0].OpClass = SYS_REG
 			i.operands[1].OpClass = REG
@@ -5915,7 +6009,7 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 			break
 		}
 		break
-	case 8: //TLB maintenance instruction
+	case 8: // TLB maintenance instruction
 		{
 			i.operation = ARM64_TLBI
 			sysreg := SYSREG_NONE
@@ -6241,7 +6335,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		} else if decode.Crm() == 0 {
 			var sysregs = [8][8]SystemReg{
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-				{REG_CCSIDR_EL1, REG_CLIDR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_AIDR_EL1},
+				{REG_CCSIDR_EL1, REG_CLIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_GMID_EL1, SYSREG_NONE, SYSREG_NONE, REG_AIDR_EL1},
 				{REG_CSSELR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, REG_CTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_DCZID_EL0},
 				{REG_VPIDR_EL2, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_VMPIDR_EL0, SYSREG_NONE, SYSREG_NONE},
@@ -6265,6 +6359,12 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					break
 				case 2:
 					sysreg = REG_CPACR_EL1
+					break
+				case 5:
+					sysreg = REG_RGSR_EL1
+					break
+				case 6:
+					sysreg = REG_GCR_EL1
 					break
 				}
 			}
@@ -6501,6 +6601,12 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					sysreg = REG_DLR_EL0
 					break
 				}
+			} else if decode.Op2() == 7 {
+				switch decode.Crm() {
+				case 2:
+					sysreg = REG_TCO
+					break
+				}
 			}
 			break
 		case 4:
@@ -6561,9 +6667,32 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		break
 	case 5:
 		{
+			if decode.Crm() == 6 {
+				if decode.Op2() == 0 {
+					switch decode.Op1() {
+					case 0:
+						sysreg = REG_TFSR_EL1
+					case 4:
+						sysreg = REG_TFSR_EL2
+					case 5:
+						sysreg = REG_TFSR_EL12
+					case 6:
+						sysreg = REG_TFSR_EL3
+					}
+					break
+				} else if decode.Op2() == 1 {
+					switch decode.Op1() {
+					case 0:
+						sysreg = REG_TFSRE0_EL1
+					}
+					break
+				}
+			}
+
 			if decode.Crm() > 3 || decode.Op2() > 1 {
 				break
 			}
+
 			var sysregs = [4][4][2]SystemReg{
 				{
 					{SYSREG_NONE, SYSREG_NONE},
@@ -7358,7 +7487,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 
 			if ExtractBits(instructionValue, 24, 6) == 25 {
-				if op0 == 0x0d {
+				if op0 == 13 {
 					return instruction.decompose_load_store_mem_tags()
 				}
 				return instruction.decompose_load_store_unscaled()
