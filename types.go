@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/bits"
 )
 
 const MAX_OPERANDS = 5
@@ -71,6 +72,8 @@ const (
 	ARM64_BLRAAZ
 	ARM64_BLRAB
 	ARM64_BLRABZ
+	ARM64_B_HS
+	ARM64_B_LO
 	ARM64_B_LS
 	ARM64_B_LT
 	ARM64_B_MI
@@ -142,6 +145,7 @@ const (
 	ARM64_DCPS1
 	ARM64_DCPS2
 	ARM64_DCPS3
+	ARM64_DGH // ARMv8.6
 	ARM64_DMB
 	ARM64_DRPS
 	ARM64_DSB
@@ -424,6 +428,7 @@ const (
 	ARM64_PACIBZ    //Added for 8.3
 	ARM64_PACIZA    //Added for 8.3
 	ARM64_PACIZB    //Added for 8.3
+	ARM64_PSSBB
 	ARM64_PMUL
 	ARM64_PMULL
 	ARM64_PMULL2
@@ -535,6 +540,7 @@ const (
 	ARM64_SRSHL
 	ARM64_SRSHR
 	ARM64_SRSRA
+	ARM64_SSBB
 	ARM64_SSHL
 	ARM64_SSHLL
 	ARM64_SSHLL2
@@ -748,6 +754,8 @@ func (o Operation) String() string {
 		"blraaz",
 		"blrab",
 		"blrabz",
+		"b.hs",
+		"b.lo",
 		"b.ls",
 		"b.lt",
 		"b.mi",
@@ -819,6 +827,7 @@ func (o Operation) String() string {
 		"dcps1",
 		"dcps2",
 		"dcps3",
+		"dgh",
 		"dmb",
 		"drps",
 		"dsb",
@@ -1101,6 +1110,7 @@ func (o Operation) String() string {
 		"pacibz",    //Added for 8.3
 		"paciza",    //Added for 8.3
 		"pacizb",    //Added for 8.3
+		"pssbb",
 		"pmul",
 		"pmull",
 		"pmull2",
@@ -1212,6 +1222,7 @@ func (o Operation) String() string {
 		"srshl",
 		"srshr",
 		"srsra",
+		"ssbb",
 		"sshl",
 		"sshll",
 		"sshll2",
@@ -1460,6 +1471,9 @@ func (i LogicalImm) Opc() uint32 {
 func (i LogicalImm) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i LogicalImm) String() string {
+	return fmt.Sprintf("Sf: %d, Opc: %d, Group1: %#x, N: %d, Immr: %#x, Imms: %#x, Rn: %d, Rd: %d", i.Sf(), i.Opc(), i.Group1(), i.N(), i.Immr(), i.Imms(), i.Rn(), i.Rd())
+}
 
 type MoveWideImm uint32
 
@@ -1480,6 +1494,9 @@ func (i MoveWideImm) Opc() uint32 {
 }
 func (i MoveWideImm) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+func (i MoveWideImm) String() string {
+	return fmt.Sprintf("Sf: %d, Opc: %d, Group1: %#x, Hw: %d, Imm: %d, Rd: %d", i.Sf(), i.Opc(), i.Group1(), i.Hw(), i.Imm(), i.Rd())
 }
 
 type Bitfield uint32
@@ -1557,6 +1574,9 @@ func (i UnconditionalBranch) Opcode() uint32 {
 func (i UnconditionalBranch) Op() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i UnconditionalBranch) String() string {
+	return fmt.Sprintf("Op: %d, Opcode: %d, Imm: %d", i.Op(), i.Opcode(), i.Imm())
+}
 
 type CompareBranchImm uint32
 
@@ -1574,6 +1594,9 @@ func (i CompareBranchImm) Opcode() uint32 {
 }
 func (i CompareBranchImm) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+func (i CompareBranchImm) String() string {
+	return fmt.Sprintf("Sf: %d, Opcode: %d, Op: %d, Imm: %d, Rt: %d", i.Sf(), i.Opcode(), i.Op(), i.Imm(), i.Rt())
 }
 
 type TestAndBranch uint32
@@ -1615,7 +1638,7 @@ func (i ConditionalBranchImm) Opcode() uint32 {
 	return ExtractBits(uint32(i), 25, 7)
 }
 func (i ConditionalBranchImm) String() string {
-	return fmt.Sprintf("Cond: %d, o0: %d, Imm: 0x%x, o1: %d, opcode: 0x%x", i.Cond(), i.O0(), i.Imm(), i.O1(), i.Opcode())
+	return fmt.Sprintf("Cond: %d, 0: %d, Imm: 0x%x, o1: %d, Opcode: 0x%x", i.Cond(), i.O0(), i.Imm(), i.O1(), i.Opcode())
 }
 
 type ExceptionGeneration uint32
@@ -2685,6 +2708,10 @@ func (i FloatingFixedConversion) Group3() uint32 {
 }
 func (i FloatingFixedConversion) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+func (i FloatingFixedConversion) String() string {
+	return fmt.Sprintf("Sf: %d, Group3: %d, S: %d, Group2: %d, Type: %d, Group1: %d, Mode: %d, Opcode: %d, Scale: %d, Rn: %d, Rd: %d",
+		i.Sf(), i.Group3(), i.S(), i.Group2(), i.Type(), i.Group1(), i.Mode(), i.Opcode(), i.Scale(), i.Rn(), i.Rd())
 }
 
 type FloatingConditionalCompare uint32
@@ -3878,7 +3905,10 @@ const (
 	REG_IALLU
 	REG_IVAU
 	REG_IALLUIS
+	REG_ID_AA64AFR0_EL1
+	REG_ID_AA64AFR1_EL1
 	REG_ID_AA64DFR0_EL1
+	REG_ID_AA64DFR1_EL1
 	REG_ID_AA64ISAR0_EL1
 	REG_ID_AA64ISAR1_EL1
 	REG_ID_AA64MMFR0_EL1
@@ -3890,6 +3920,7 @@ const (
 	REG_IPAS2LE1IS
 	REG_IPAS2E1
 	REG_IPAS2LE1
+	REG_ISR_EL1
 	REG_ISW
 	REG_IGSW
 	REG_IGDSW
@@ -4004,6 +4035,7 @@ const (
 	REG_VMALLS12E1
 	REG_VMALLS12E1IS
 	REG_VMPIDR_EL0
+	REG_VMPIDR_EL2
 	REG_VPIDR_EL2
 	REG_VTCR_EL2
 	REG_VTTBR_EL2
@@ -4150,6 +4182,7 @@ const (
 	REG_ID_ISAR4_EL1
 	REG_ID_ISAR5_EL1
 	REG_ID_MMFR4_EL1
+	REG_ID_MMFR5_EL1
 
 	REG_ICC_IAR0_EL1
 	REG_ICC_EOIR0_EL1
@@ -4429,7 +4462,10 @@ func (s SystemReg) String() string {
 		"iallu",
 		"ivau",
 		"ialluis",
+		"id_aa64afr0_el1",
+		"id_aa64afr1_el1",
 		"id_aa64dfr0_el1",
+		"id_aa64dfr1_el1",
 		"id_aa64isar0_el1",
 		"id_aa64isar1_el1",
 		"id_aa64mmfr0_el1",
@@ -4441,6 +4477,7 @@ func (s SystemReg) String() string {
 		"ipas2le1is",
 		"ipas2e1",
 		"ipas2le1",
+		"isr_el1",
 		"isw",
 		"igsw",
 		"igdsw",
@@ -4555,25 +4592,26 @@ func (s SystemReg) String() string {
 		"vmalls12e1",
 		"vmalls12e1is",
 		"vmpidr_el0",
+		"vmpidr_el2",
 		"vpidr_el2",
 		"vtcr_el2",
 		"vttbr_el2",
 		"gva",
 		"gzva",
 		"zva",
-		"#0x0",
+		"#0",
 		"oshld",
 		"oshst",
 		"osh",
-		"#0x4",
+		"#4",
 		"nshld",
 		"nshst",
 		"nsh",
-		"#0x8",
+		"#8",
 		"ishld",
 		"ishst",
 		"ish",
-		"#0xc",
+		"#12",
 		"ld",
 		"st",
 		"sy",
@@ -4664,7 +4702,7 @@ func (s SystemReg) String() string {
 		"elr_el1",
 		"elr_el12",
 		"sp_el0",
-		"current_el",
+		"currentel",
 		"nzcv",
 		"fpcr",
 		"dspsr_el0",
@@ -4703,6 +4741,7 @@ func (s SystemReg) String() string {
 		"id_isar4_el1",
 		"id_isar5_el1",
 		"id_mmfr4_el1",
+		"id_mmfr5_el1",
 
 		"icc_iar0_el1",
 		"icc_eoir0_el1",
@@ -5160,12 +5199,12 @@ func (r Register) String() string {
 		"q16", "q17", "q18", "q19", "q20", "q21", "q22", "q23",
 		"q24", "q25", "q26", "q27", "q28", "q29", "q30", "q31", "q31",
 		"pldl1keep", "pldl1strm", "pldl2keep", "pldl2strm",
-		"pldl3keep", "pldl3strm", "#0x6", "#0x7",
+		"pldl3keep", "pldl3strm", "#6", "#7",
 		"plil1keep", "plil1strm", "plil2keep", "plil2strm",
-		"plil3keep", "plil3strm", "#0xe", "#0xf",
+		"plil3keep", "plil3strm", "#14", "#15",
 		"pstl1keep", "pstl1strm", "pstl2keep", "pstl2strm",
 		"pstl3keep", "pstl3strm",
-		"#0x17", "#0x18", "#0x19", "#0x1a", "#0x1b", "#0x1c", "#0x1d", "#0x1e", "#0x1f",
+		"#23", "#24", "#25", "#26", "#27", "#28", "#29", "#30", "#31",
 	}[r]
 }
 
@@ -5328,7 +5367,12 @@ func (i ieee754) SetExponent(exponent uint32) ieee754 {
 	return ieee754(i.Value() | exponent<<23)
 }
 func (i ieee754) SetSign(sign uint32) ieee754 {
-	return ieee754(i.Value() | sign<<31)
+	mask := (^uint32(0) >> 31) << 31
+	if sign != 0 {
+		return ieee754(i.Value() | mask)
+	} else {
+		return ieee754(i.Value() & ^mask)
+	}
 }
 func (i ieee754) SetFloat(fvalue float32) ieee754 {
 	return ieee754(math.Float32bits(fvalue))
@@ -5354,23 +5398,19 @@ func bfxPreferred(sf, uns, imms, immr uint32) uint32 {
 	return 1
 }
 
-func highestSetBit(x uint32) uint32 {
-	for i := uint32(0); i < 31; i++ {
-		if ((x << i) & 0x80000000) != 0 {
-			return 31 - i
-		}
-	}
-	return 0
+func ones32(i uint32) uint32 {
+	return (math.MaxUint32 - 1) >> (32 - i)
 }
 
-func ONES(x uint64) uint64 {
-	return math.MaxUint64 >> (64 - x)
-}
-func ROR(x, N, nbits uint64) uint64 {
-	return (((x) >> (N)) | ((x & ONES(N)) << (nbits - (N))))
+func ones64(i uint64) uint64 {
+	return (math.MaxUint64 - 1) >> (64 - i)
 }
 
-func DecodeBitMasks(immN, imms, immr, outBits uint64) uint64 {
+func ror(x uint64, N uint64, nbits uint64) uint64 {
+	return (((x) >> (N)) | ((x & ones64(N)) << (nbits - (N))))
+}
+
+func DecodeBitMasks(immN, imms, immr, outBits uint32) uint64 {
 	/*
 	* bits(M) DecodeBitMasks (bit immN, bits(6) imms, bits(6) immr, boolean immediate)
 	* bits(M) wmask;
@@ -5400,27 +5440,26 @@ func DecodeBitMasks(immN, imms, immr, outBits uint64) uint64 {
 	* wmask = Replicate(ROR(welem, R));
 	* return wmask;
 	 */
-	len := highestSetBit(uint32(immN<<6 | ((^imms) & 0x3f)))
+	len := uint32(bits.Len32(uint32(immN<<6|((^imms)&0x3f))) - 1)
 	if len < 1 {
 		return 0
 	}
 
-	levels := ONES(uint64(len)) & 0x3f
-
+	levels := ones32(len) & 0x3f
 	if (imms & levels) == levels {
 		return 0
 	}
 
-	S := imms & levels
-	R := immr & levels
+	S := uint64(imms & levels)
+	R := uint64(immr & levels)
 	//uint32_t diff = S-R;
 	esize := uint64(1 << len)
 	//uint32_t d = diff & ONES(len);
-	welm := ONES(S+1) & ONES(esize)
+	welm := uint64(ones64(S+1) & ones64(esize))
 	//uint32_t telm = (1<<(d+2))-1;
-	wmask := ROR(welm, R, esize) & ONES(esize)
-	if outBits/esize != 0 {
-		for i := uint64(0); i < ((outBits / esize) - 1); i++ {
+	wmask := ror(welm, R, esize) & ones64(esize)
+	if uint64(outBits)/esize != 0 {
+		for i := uint64(0); i < ((uint64(outBits) / esize) - 1); i++ {
 			wmask |= wmask << esize
 		}
 	}
@@ -5454,8 +5493,8 @@ func (c Condition) String() string {
 	return []string{
 		"eq",
 		"ne",
-		"cs",
-		"cc",
+		"hs", // or cs - Unsigned higher or same (or carry set)
+		"lo", // or cc - Unsigned lower (or carry clear)
 		"mi",
 		"pl",
 		"vs",

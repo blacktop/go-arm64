@@ -3,6 +3,7 @@ package arm64
 import (
 	"encoding/binary"
 	"math"
+	"math/bits"
 )
 
 func reg(arg1, arg2, arg3 int) uint32 {
@@ -296,8 +297,9 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 	 * UBFM <Xd>, <Xn>, #(-<lsb> MOD 64), #(<width>-1) -> UBFIZ <Xd>, <Xn>, #<lsb>, #<width>
 	 *
 	 */
-	// BITFIELD decode = *(BITFIELD*)&instructionValue
+
 	decode := Bitfield(i.raw)
+	// fmt.Println(decode)
 	var operation = []Operation{ARM64_SBFM, ARM64_BFM, ARM64_UBFM, ARM64_UNDEFINED}
 	i.operation = operation[decode.Opc()]
 
@@ -323,12 +325,12 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 			i.operation = ARM64_SBFIZ
 			i.operands[2].Immediate = uint64(uint32(dataSize[decode.Sf()]) - decode.Immr())
 			i.operands[3].Immediate++
-			if Register(i.operands[1].Reg[0]) == REG_WZR || Register(i.operands[1].Reg[0]) == REG_XZR {
-				i.operation = ARM64_BFC
-				i.operands[1] = i.operands[2]
-				i.operands[2] = i.operands[3]
-				i.operands[3].OpClass = NONE
-			}
+			// if Register(i.operands[1].Reg[0]) == REG_WZR || Register(i.operands[1].Reg[0]) == REG_XZR {
+			// 	i.operation = ARM64_BFC
+			// 	i.operands[1] = i.operands[2]
+			// 	i.operands[2] = i.operands[3]
+			// 	i.operands[3].OpClass = NONE
+			// }
 		} else if usebfx > 0 {
 			i.operation = ARM64_SBFX
 			i.operands[3].Immediate -= i.operands[2].Immediate - 1
@@ -359,13 +361,23 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 				break
 			}
 		}
-	} else if i.operation == ARM64_BFM {
+	} else if i.operation == ARM64_BFM && decode.Group1() == 0x26 {
 		if decode.Imms() < decode.Immr() {
-			i.operation = ARM64_BFI
-			i.operands[2].OpClass = IMM32
-			i.operands[2].Immediate = uint64(uint32(dataSize[decode.Sf()]) - decode.Immr())
-			i.operands[3].OpClass = IMM32
-			i.operands[3].Immediate++
+			if decode.Rn() == 31 {
+				i.operation = ARM64_BFC
+				i.operands[1] = i.operands[2]
+				i.operands[2] = i.operands[3]
+				i.operands[3].OpClass = NONE
+				i.operands[1].Immediate = uint64(uint32(dataSize[decode.Sf()]) - decode.Immr())
+				i.operands[2].Immediate++
+				// i.operands[3].OpClass = NONE
+			} else {
+				i.operation = ARM64_BFI
+				i.operands[2].OpClass = IMM32
+				i.operands[2].Immediate = uint64(uint32(dataSize[decode.Sf()]) - decode.Immr())
+				i.operands[3].OpClass = IMM32
+				i.operands[3].Immediate++
+			}
 		} else {
 			i.operation = ARM64_BFXIL
 			i.operands[3].OpClass = IMM32
@@ -407,7 +419,7 @@ func (i *Instruction) decompose_bitfield() (*Instruction, error) {
 	return i, nil
 }
 
-func (i *Instruction) decompose_compare_branch_imm(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_compare_branch_imm() (*Instruction, error) {
 	/*
 	 * C4.2.1 Compare & branch (immediate)
 	 *
@@ -417,6 +429,7 @@ func (i *Instruction) decompose_compare_branch_imm(address uint64) (*Instruction
 	 * CBNZ <Wt>, <label>
 	 */
 	decode := CompareBranchImm(i.raw)
+	// fmt.Println(decode)
 	var operation = []Operation{ARM64_CBZ, ARM64_CBNZ}
 	i.operation = operation[decode.Op()]
 
@@ -424,26 +437,37 @@ func (i *Instruction) decompose_compare_branch_imm(address uint64) (*Instruction
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rt()))
 
 	i.operands[1].OpClass = LABEL
-	i.operands[1].Immediate = address + uint64(decode.Imm()<<2)
+	if decode.Imm() < 0 {
+		i.operands[1].Immediate = i.address - uint64(decode.Imm()<<2)
+		i.operands[1].SignedImm = 1
+	} else {
+		i.operands[1].Immediate = i.address + uint64(decode.Imm()<<2)
+	}
+
 	return i, nil
 }
 
-func (i *Instruction) decompose_conditional_branch(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_conditional_branch() (*Instruction, error) {
 	/* C4.2.2 Conditional branch (immediate)
 	 *
 	 * B.<cond> <label>
 	 */
 	decode := ConditionalBranchImm(i.raw)
+	// fmt.Println(decode)
 	var operation = []Operation{
-		ARM64_B_EQ, ARM64_B_NE, ARM64_B_CS, ARM64_B_CC,
+		ARM64_B_EQ, ARM64_B_NE, ARM64_B_HS, ARM64_B_LO,
 		ARM64_B_MI, ARM64_B_PL, ARM64_B_VS, ARM64_B_VC,
 		ARM64_B_HI, ARM64_B_LS, ARM64_B_GE, ARM64_B_LT,
 		ARM64_B_GT, ARM64_B_LE, ARM64_B_AL, ARM64_B_NV}
 	i.operation = operation[decode.Cond()]
 
 	i.operands[0].OpClass = LABEL
-	i.operands[0].Immediate = address + uint64(decode.Imm()<<2)
-
+	if decode.Imm() < 0 {
+		i.operands[0].Immediate = i.address - uint64(decode.Imm()<<2)
+		i.operands[0].SignedImm = 1
+	} else {
+		i.operands[0].Immediate = i.address + uint64(decode.Imm()<<2)
+	}
 	if !(decode.O0() == 0 && decode.O1() == 0) {
 		return nil, failedToDecodeInstruction
 	}
@@ -517,8 +541,9 @@ func (i *Instruction) decompose_conditional_select() (*Instruction, error) {
 	 * CSNEG <Wd>, <Wn>, <Wm>, <cond>
 	 * CSNEG <Xd>, <Xn>, <Xm>, <cond>
 	 */
-	// CONDITIONAL_SELECT decode = *(CONDITIONAL_SELECT*)&instructionValue
+
 	decode := ConditionalSelect(i.raw)
+
 	var operation = [2][2]Operation{
 		{ARM64_CSEL, ARM64_CSINC},
 		{ARM64_CSINV, ARM64_CSNEG},
@@ -551,11 +576,13 @@ func (i *Instruction) decompose_conditional_select() (*Instruction, error) {
 			i.operands[1].Reg[0] = (decode.Cond()) ^ 1
 			i.operands[1].OpClass = CONDITION
 			i.operands[2].OpClass = NONE
+			i.operands[3].OpClass = NONE
 		} else if i.operation == ARM64_CSINV {
 			i.operation = ARM64_CSETM
 			i.operands[1].Reg[0] = (decode.Cond()) ^ 1
 			i.operands[1].OpClass = CONDITION
 			i.operands[2].OpClass = NONE
+			i.operands[3].OpClass = NONE
 		}
 	}
 
@@ -1066,28 +1093,39 @@ func (i *Instruction) decompose_fixed_floating_conversion() (*Instruction, error
 	 * FCVTZU <Wd>, <Dn>, #<fbits>
 	 * FCVTZU <Xd>, <Dn>, #<fbits>
 	 */
-	/*ERROR: Oracle: 'scvtf	s22, s13, #0x20'
-	 * ERROR: You:	'scvtf	h22, h13, #0x20'
-	 * ERROR: Oracle: 'scvtf	d21, d12, #0x40'
-	 * ERROR: You:	'scvtf	h21, h12, #0x40'
-	 * ERROR: Oracle: 'fcvtzs	s21, s12, #1'
-	 * ERROR: You:	'fcvtzs	b21, b12, #0x1'
-	 *
-	 */
+
 	decode := FloatingFixedConversion(i.raw)
+
 	var operation = [4]Operation{ARM64_FCVTZS, ARM64_FCVTZU, ARM64_SCVTF, ARM64_UCVTF}
-	var sdReg = [2]uint32{REG_S_BASE, REG_D_BASE}
+	var sdReg = [3]uint32{REG_S_BASE, REG_D_BASE, REG_H_BASE}
 	i.operation = operation[decode.Opcode()&3]
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
 	i.operands[2].OpClass = IMM32
 	i.operands[2].Immediate = uint64(64 - decode.Scale())
-	if decode.Opcode() <= 1 {
+
+	switch i.operation {
+	case ARM64_SCVTF:
+		fallthrough
+	case ARM64_UCVTF:
+		{
+			var sdReg = [2]uint32{REG_S_BASE, REG_D_BASE}
+			var regSize = [2]uint32{REG_W_BASE, REG_X_BASE}
+			i.operands[0].Reg[0] = reg(REGSET_ZR, int(sdReg[decode.Type()&1]), int(decode.Rd()))
+			i.operands[1].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rn()))
+		}
+		break
+	case ARM64_FCVTZU:
+		fallthrough
+	case ARM64_FCVTZS:
+		if decode.Opcode() <= 1 {
+			i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rd()))
+			i.operands[1].Reg[0] = reg(REGSET_ZR, int(sdReg[decode.Type()]), int(decode.Rn()))
+		}
 		i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rd()))
-		i.operands[1].Reg[0] = reg(REGSET_ZR, int(sdReg[decode.Type()&1]), int(decode.Rn()))
+		i.operands[1].Reg[0] = reg(REGSET_ZR, int(sdReg[decode.Type()]), int(decode.Rn()))
+		break
 	}
-	i.operands[0].Reg[0] = reg(REGSET_ZR, int(sdReg[decode.Type()&1]), int(decode.Rd()))
-	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rn()))
 
 	if (decode.Sf() == 0 && (decode.Scale()>>5) == 0) || decode.Type() > 1 || decode.Opcode() > 3 {
 		return nil, failedToDecodeInstruction
@@ -1336,21 +1374,31 @@ func (i *Instruction) decompose_floating_data_processing3() (*Instruction, error
 }
 
 func vFPExpandImm(imm8 uint32) uint32 {
+
+	// bits(N) VFPExpandImm(bits(8) imm8)
+	// assert N IN {16,32,64};
+	// constant integer E = (if N == 16 then 5 elsif N == 32 then 8 else 11); constant integer F = N - E - 1;
+	// sign = imm8<7>;
+	// exp = NOT(imm8<6>):Replicate(imm8<6>,E-3):imm8<5:4>;
+	// frac = imm8<3:0>:Zeros(F-4);
+	// result = sign : exp : frac;
+	// return result;
+
 	var t ieee754
 	var x uint32
 
 	bit6 := (imm8 >> 6) & 1
 	bit54 := (imm8 >> 4) & 3
 
-	if bit6 > 0 {
+	if bit6 != 0 {
 		x = 0x1f
 	} else {
 		x = 0
 	}
 
-	t = t.SetSign(imm8 >> 7)
-	t = t.SetExponent((^bit6)<<7 | x<<2 | bit54)
 	t = t.SetFraction((imm8 & 0xf) << 19)
+	t = t.SetExponent((^bit6)<<7 | x<<2 | bit54)
+	t = t.SetSign(imm8 >> 7)
 
 	return t.Value()
 }
@@ -1525,7 +1573,7 @@ func (i *Instruction) decompose_floating_integer_conversion() (*Instruction, err
 	return i, nil
 }
 
-func (i *Instruction) decompose_load_register_literal(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_load_register_literal() (*Instruction, error) {
 	/* C4.3.5 Load register (literal)
 	 * LDR <Wt>, <label>
 	 * LDR <Xt>, <label>
@@ -1546,7 +1594,7 @@ func (i *Instruction) decompose_load_register_literal(address uint64) (*Instruct
 	var operand = [2][4]option{
 		{
 			{ARM64_LDR, REG_W_BASE, 0},
-			{ARM64_LDR, REG_X_BASE, 0},
+			{ARM64_LDR, REG_X_BASE, 1},
 			{ARM64_LDRSW, REG_X_BASE, 1},
 			{ARM64_PRFM, REG_W_BASE, 0},
 		}, {
@@ -1952,6 +2000,9 @@ func (i *Instruction) decompose_load_store_imm_post_idx() (*Instruction, error) 
 	i.operands[1].OpClass = MEM_POST_IDX
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	i.operands[1].Immediate = uint64(decode.Imm())
+	if decode.Imm() < 0 {
+		i.operands[1].SignedImm = 1
+	}
 
 	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
@@ -2008,6 +2059,9 @@ func (i *Instruction) decompose_load_store_reg_imm_pre_idx() (*Instruction, erro
 	i.operands[1].OpClass = MEM_PRE_IDX
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	i.operands[1].Immediate = uint64(decode.Imm())
+	if decode.Imm() < 0 {
+		i.operands[1].SignedImm = 1
+	}
 
 	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
@@ -2720,7 +2774,7 @@ func (i *Instruction) decompose_logical_imm() (*Instruction, error) {
 	 */
 
 	decode := LogicalImm(i.raw)
-
+	// fmt.Println(decode)
 	var operation = [4]Operation{ARM64_AND, ARM64_ORR, ARM64_EOR, ARM64_ANDS}
 	i.operation = operation[decode.Opc()]
 	i.operands[0].OpClass = REG
@@ -2730,11 +2784,11 @@ func (i *Instruction) decompose_logical_imm() (*Instruction, error) {
 	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rn()))
 
 	i.operands[2].OpClass = IMM64
-	outBits := uint64(32)
+	outBits := uint32(32)
 	if decode.Sf() > 0 {
 		outBits = 64
 	}
-	i.operands[2].Immediate = DecodeBitMasks(uint64(decode.N()), uint64(decode.Imms()), uint64(decode.Immr()), outBits)
+	i.operands[2].Immediate = DecodeBitMasks(decode.N(), decode.Imms(), decode.Immr(), outBits)
 	if i.operands[2].Immediate == 0 {
 		return nil, failedToDecodeInstruction
 	}
@@ -2827,6 +2881,7 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 	 * MOVK <Xd>, #<imm>{, LSL #<shift>}
 	 */
 	decode := MoveWideImm(i.raw)
+	// fmt.Println(decode)
 	var operation = [4]Operation{ARM64_MOVN, ARM64_UNDEFINED, ARM64_MOVZ, ARM64_MOVK}
 	i.operation = operation[decode.Opc()]
 	i.operands[0].OpClass = REG
@@ -2834,6 +2889,9 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 
 	i.operands[1].OpClass = IMM32
 	i.operands[1].Immediate = uint64(decode.Imm())
+	if decode.Imm() < 0 {
+		i.operands[1].SignedImm = 1
+	}
 	if decode.Hw() != 0 {
 		i.operands[1].ShiftType = SHIFT_LSL
 		i.operands[1].ShiftValue = decode.Hw() << 4
@@ -2844,8 +2902,7 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 	}
 
 	if decode.Imm() != 0 || decode.Hw() == 0 {
-		if i.operation == ARM64_MOVN &&
-			((decode.Sf() == 0 && decode.Imm() != 0xffff) || decode.Sf() == 1) {
+		if i.operation == ARM64_MOVN && ((decode.Sf() == 0 && decode.Imm() != 0xffff) || decode.Sf() == 1) {
 			i.operation = ARM64_MOV
 			if decode.Sf() == 1 {
 				i.operands[1].OpClass = IMM64
@@ -2870,7 +2927,7 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 	return i, nil
 }
 
-func (i *Instruction) decompose_pc_rel_addr(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_pc_rel_addr() (*Instruction, error) {
 	/* C4.4.6 PC-rel. addressing
 	 *
 	 * ADR <Xd>, <label>
@@ -2883,12 +2940,15 @@ func (i *Instruction) decompose_pc_rel_addr(address uint64) (*Instruction, error
 	i.operands[0].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rd()))
 	i.operands[1].OpClass = LABEL
+	if decode.Immhi() < 0 {
+		i.operands[1].SignedImm = 1
+	}
 	x := uint64(decode.Immhi())
 	i.operands[1].Immediate = (((x << 2) | uint64(decode.Immlo())) << shiftBase[decode.Op()])
 	if decode.Op() == 1 {
-		i.operands[1].Immediate += address & ^uint64((1<<12)-1)
+		i.operands[1].Immediate += i.address & ^uint64((1<<12)-1)
 	} else {
-		i.operands[1].Immediate += address
+		i.operands[1].Immediate += i.address
 	}
 	//printf("imm: %lx %lx %lx %lx\n", i.operands[1].Immediate, x, x<<2, ((x<<2)| decode.immlo)<< 12)
 	return i, nil
@@ -5267,7 +5327,7 @@ func (i *Instruction) decompose_simd_scalar_shift_imm() (*Instruction, error) {
 		esize = decodeOp.esize << 3
 		break
 	case SH_HB:
-		esize = decodeOp.esize << highestSetBit(decode.Immh())
+		esize = decodeOp.esize << bits.Len32(decode.Immh())
 		break
 	case SH_IH:
 		esize = decodeOp.esize << ((decode.Immh() >> 3) & 1)
@@ -5675,6 +5735,11 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			i.operation = ARM64_SEVL
 			break
 
+		// Added in ARMv8.6
+		case 6:
+			i.operation = ARM64_DGH
+			break
+
 		// Added with 8.2
 		case 16:
 			i.operation = ARM64_ESB
@@ -5758,6 +5823,13 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			i.operation = ARM64_DSB
 			i.operands[0].OpClass = SYS_REG
 			i.operands[0].Reg[0] = uint32(REG_NUMBER0) + decode.Crm()
+			if decode.Crm() == 0 {
+				i.operation = ARM64_SSBB
+				i.operands[0].OpClass = NONE
+			} else if decode.Crm() == 0b100 {
+				i.operation = ARM64_PSSBB
+				i.operands[0].OpClass = NONE
+			}
 			break
 		case 5:
 			i.operation = ARM64_DMB
@@ -6160,6 +6232,7 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 }
 
 func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Instruction, error) {
+	// fmt.Println(decode)
 	sysreg := SYSREG_NONE
 	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
 	var dbgreg = [4][16]SystemReg{
@@ -6283,10 +6356,10 @@ func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Ins
 			sysreg = REG_DBGDTR_EL0
 			break
 		case 5:
-			if decode.L() > 0 {
-				sysreg = REG_DBGDTRTX_EL0
-			} else {
+			if decode.L() != 0 {
 				sysreg = REG_DBGDTRRX_EL0
+			} else {
+				sysreg = REG_DBGDTRTX_EL0
 			}
 		}
 		break
@@ -6325,9 +6398,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					REG_ID_MMFR0_EL1, REG_ID_MMFR1_EL1, REG_ID_MMFR2_EL1, REG_ID_MMFR3_EL1},
 				{REG_ID_ISAR0_EL1, REG_ID_ISAR1_EL1, REG_ID_ISAR2_EL1, REG_ID_ISAR3_EL1,
 					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1, SYSREG_NONE},
-				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_ID_MMFR5_EL1, SYSREG_NONE},
 				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
-				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR0_EL1, SYSREG_NONE, SYSREG_NONE},
+				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR1_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64AFR0_EL1, REG_ID_AA64AFR1_EL1, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64ISAR0_EL1, REG_ID_AA64ISAR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64MMFR0_EL1, REG_ID_AA64MMFR1_EL1, REG_ID_AA64MMFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 			}
@@ -6338,7 +6411,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				{REG_CCSIDR_EL1, REG_CLIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_GMID_EL1, SYSREG_NONE, SYSREG_NONE, REG_AIDR_EL1},
 				{REG_CSSELR_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, REG_CTR_EL0, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_DCZID_EL0},
-				{REG_VPIDR_EL2, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_VMPIDR_EL0, SYSREG_NONE, SYSREG_NONE},
+				{REG_VPIDR_EL2, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_VMPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
@@ -6812,7 +6885,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				break
 			case 1:
 				if decode.Op2() == 0 {
-					sysreg = REG_EL1
+					sysreg = REG_ISR_EL1
 				}
 				break
 			case 8:
@@ -7270,7 +7343,7 @@ func (i *Instruction) decompose_system() (*Instruction, error) {
 	return nil, failedToDecodeInstruction
 }
 
-func (i *Instruction) decompose_test_branch_imm(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_test_branch_imm() (*Instruction, error) {
 	/* C4.2.5 Test & branch (immediate)
 	 *
 	 * TBZ <R><t>, #<imm>, <label>
@@ -7285,21 +7358,25 @@ func (i *Instruction) decompose_test_branch_imm(address uint64) (*Instruction, e
 	i.operands[1].Immediate = uint64(decode.B5()<<5 | decode.B40())
 
 	i.operands[2].OpClass = LABEL
-	i.operands[2].Immediate = address + uint64(decode.Imm()<<2)
+	i.operands[2].Immediate = i.address + uint64(decode.Imm()<<2)
 
 	return i, nil
 }
 
-func (i *Instruction) decompose_unconditional_branch(address uint64) (*Instruction, error) {
+func (i *Instruction) decompose_unconditional_branch() (*Instruction, error) {
 	/*
 	 * B <label>
 	 * BL <label>
 	 */
 	decode := UnconditionalBranch(i.raw)
+	// fmt.Println(decode)
 	var operation = []Operation{ARM64_B, ARM64_BL}
 	i.operation = operation[decode.Op()]
 	i.operands[0].OpClass = LABEL
-	i.operands[0].Immediate = address + uint64(decode.Imm()<<2)
+	i.operands[0].Immediate = i.address + uint64(decode.Imm()<<2)
+	if decode.Imm() < 0 {
+		i.operands[0].SignedImm = 1
+	}
 	return i, nil
 }
 
@@ -7405,7 +7482,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0:
 			fallthrough
 		case 1:
-			return instruction.decompose_pc_rel_addr(address)
+			return instruction.decompose_pc_rel_addr()
 		case 2:
 			return instruction.decompose_add_sub_imm()
 		case 3:
@@ -7432,17 +7509,17 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0x4a:
 			fallthrough
 		case 0x4b:
-			return instruction.decompose_unconditional_branch(address)
+			return instruction.decompose_unconditional_branch()
 		case 0x1a:
 			fallthrough
 		case 0x5a:
-			return instruction.decompose_compare_branch_imm(address)
+			return instruction.decompose_compare_branch_imm()
 		case 0x1b:
 			fallthrough
 		case 0x5b:
-			return instruction.decompose_test_branch_imm(address)
+			return instruction.decompose_test_branch_imm()
 		case 0x2a:
-			return instruction.decompose_conditional_branch(address)
+			return instruction.decompose_conditional_branch()
 		case 0x6a:
 			if ExtractBits(instructionValue, 24, 1) == 0 {
 				return instruction.decompose_exception_generation()
@@ -7497,7 +7574,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 				return instruction.decompose_load_store_exclusive()
 			}
 			if (op0&3) == 1 && (op2>>1) == 0 {
-				return instruction.decompose_load_register_literal(address)
+				return instruction.decompose_load_register_literal()
 			}
 
 			if (op0 & 3) == 2 {

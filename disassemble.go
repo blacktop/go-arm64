@@ -1,6 +1,10 @@
 package arm64
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"strings"
+)
 
 func (i *Instruction) disassemble(decimalImm bool) (string, error) {
 
@@ -92,11 +96,12 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 		return failedToDisassembleOperand
 	}
 
-	if op.SignedImm == 1 && int64(op.Immediate) < 0 {
+	if op.SignedImm == 1 || int64(op.Immediate) < 0 {
 		sign = "-"
 	}
 	if op.ShiftType != SHIFT_NONE {
-		if op.ShiftValueUsed != 0 {
+		if op.ShiftValueUsed != 0 || op.ShiftType != SHIFT_LSL {
+			// if op.ShiftValueUsed != 0 {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
 			} else {
@@ -106,25 +111,39 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 		shiftBuff = fmt.Sprintf(", %s%s", op.ShiftType, immBuff)
 	}
 	if op.OpClass == FIMM32 {
-		shiftBuff = fmt.Sprintf("#%f%s", float64(op.Immediate), shiftBuff)
-	} else if op.OpClass == IMM32 {
-		if decimalImm {
-			shiftBuff = fmt.Sprintf("#%s%d%s", sign, uint32(op.Immediate), shiftBuff)
+		if op.Immediate == 0 {
+			shiftBuff = fmt.Sprintf("#%.1f%s", ieee754(op.Immediate).Float(), shiftBuff)
 		} else {
-			shiftBuff = fmt.Sprintf("#%s%#x%s", sign, uint32(op.Immediate), shiftBuff)
+			shiftBuff = fmt.Sprintf("#%.8f%s", ieee754(op.Immediate).Float(), shiftBuff)
 		}
-	} else {
-		if op.SignedImm == 1 && int64(op.Immediate) < 0 {
+
+	} else if op.OpClass == IMM32 {
+		if op.SignedImm == 1 || int32(op.Immediate) < 0 { // TODO this is gross
 			if decimalImm {
-				shiftBuff = fmt.Sprintf("#%s%d%s", sign, int64(op.Immediate), shiftBuff)
+				shiftBuff = fmt.Sprintf("#%d%s", int32(op.Immediate), shiftBuff)
 			} else {
-				shiftBuff = fmt.Sprintf("#%s%#016x%s", sign, int64(op.Immediate), shiftBuff)
+				shiftBuff = fmt.Sprintf("#%#x%s", int32(op.Immediate), shiftBuff)
+			}
+		} else {
+			if decimalImm {
+				shiftBuff = fmt.Sprintf("#%s%d%s", sign, op.Immediate, shiftBuff)
+			} else {
+				shiftBuff = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
 			}
 		}
-		if decimalImm {
-			shiftBuff = fmt.Sprintf("#%s%d%s", sign, op.Immediate, shiftBuff)
+	} else {
+		if op.SignedImm == 1 && int64(op.Immediate) < 0 { // TODO this is gross
+			if decimalImm {
+				shiftBuff = fmt.Sprintf("#%d%s", int64(op.Immediate), shiftBuff)
+			} else {
+				shiftBuff = fmt.Sprintf("#%#x%s", int64(op.Immediate), shiftBuff)
+			}
 		} else {
-			shiftBuff = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
+			if decimalImm {
+				shiftBuff = fmt.Sprintf("#%s%d%s", sign, op.Immediate, shiftBuff)
+			} else {
+				shiftBuff = fmt.Sprintf("#%s%#x%s", sign, op.Immediate, shiftBuff)
+			}
 		}
 	}
 
@@ -185,6 +204,15 @@ func (op *InstructionOperand) getRegister(registerNumber int, decimalImm bool) e
 		return op.getShiftedRegister(registerNumber, decimalImm)
 	} else if op.ElementSize == 0 {
 		op.strRepr = fmt.Sprintf("%s", Register(op.Reg[registerNumber]))
+		if !decimalImm {
+			if strings.HasPrefix(op.strRepr, "#") {
+				i, err := strconv.Atoi(strings.TrimPrefix(op.strRepr, "#"))
+				if err != nil {
+					return fmt.Errorf("getRegister: failed to convert number register from str to int")
+				}
+				op.strRepr = fmt.Sprintf("#%#x", i)
+			}
+		}
 		return nil
 	}
 
@@ -233,6 +261,7 @@ func (op *InstructionOperand) getShiftedRegister(registerNumber int, decimalImm 
 		return failedToDisassembleRegister
 	}
 	if op.ShiftType != SHIFT_NONE {
+		// if op.ShiftValueUsed != 0 || op.ShiftType != SHIFT_LSL {
 		if op.ShiftValueUsed != 0 {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
@@ -348,10 +377,12 @@ func (op *InstructionOperand) getMemoryOperand(decimalImm bool) error {
 		if reg1 == REG_NONE || reg2 == REG_NONE {
 			return failedToDisassembleOperand
 		}
-		if decimalImm {
-			immBuff = fmt.Sprintf(", #%d", op.ShiftValue)
-		} else {
-			immBuff = fmt.Sprintf(", #%#x", op.ShiftValue)
+		if op.ShiftValue != 0 || op.ShiftType != SHIFT_LSL {
+			if decimalImm {
+				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
+			} else {
+				immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
+			}
 		}
 		if op.ShiftType != SHIFT_NONE {
 			extendBuff = fmt.Sprintf(", %s%s", ShiftType(op.ShiftType), immBuff)
