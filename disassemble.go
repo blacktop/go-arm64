@@ -96,7 +96,7 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 		return failedToDisassembleOperand
 	}
 
-	if op.SignedImm == 1 || int64(op.Immediate) < 0 {
+	if op.SignedImm == 1 {
 		sign = "-"
 	}
 	if op.ShiftType != SHIFT_NONE {
@@ -377,7 +377,7 @@ func (op *InstructionOperand) getMemoryOperand(decimalImm bool) error {
 		if reg1 == REG_NONE || reg2 == REG_NONE {
 			return failedToDisassembleOperand
 		}
-		if op.ShiftValue != 0 || op.ShiftType != SHIFT_LSL {
+		if op.ShiftValueUsed != 0 {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
 			} else {

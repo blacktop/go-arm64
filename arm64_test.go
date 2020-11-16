@@ -20,12 +20,21 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "strb	w12, [x28, xzr, sxtx #0]",
+			name: "mov	x10, #-6148914691236517206",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x8c, 0xfb, 0x3f, 0x38}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xf3, 0x01, 0xb2}),
 				address:          0,
 			},
-			want: "strb	w12, [x28, xzr, sxtx #0]",
+			want: "mov	x10, #-6148914691236517206",
+			wantErr: false,
+		},
+		{
+			name: "tst	x3, #0xaaaaaaaaaaaaaaaa",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0xf0, 0x01, 0xf2}),
+				address:          0,
+			},
+			want: "tst	x3, #0xaaaaaaaaaaaaaaaa",
 			wantErr: false,
 		},
 	}
@@ -5038,15 +5047,13 @@ func Test_decompose_v8_1a_LSE(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			fmt.Println("want:", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			fmt.Println("got: ", tt.want)
-			if !reflect.DeepEqual(decOut, tt.want) {
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) {
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
@@ -16365,75 +16372,75 @@ func Test_decompose_basic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "svc	#65535",
+			name: "svc	#0xffff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe1, 0xff, 0x1f, 0xd4}),
 				address:          0,
 			},
-			want: "svc	#65535",
+			want: "svc	#0xffff",
 			wantErr: false,
 		},
 		{
-			name: "hvc	#1",
+			name: "hvc	#0x1",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0x00, 0x00, 0xd4}),
 				address:          0,
 			},
-			want: "hvc	#1",
+			want: "hvc	#0x1",
 			wantErr: false,
 		},
 		{
-			name: "smc	#12000",
+			name: "smc	#0x2ee0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0xdc, 0x05, 0xd4}),
 				address:          0,
 			},
-			want: "smc	#12000",
+			want: "smc	#0x2ee0",
 			wantErr: false,
 		},
 		{
-			name: "brk	#12",
+			name: "brk	#0xc",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x01, 0x20, 0xd4}),
 				address:          0,
 			},
-			want: "brk	#12",
+			want: "brk	#0xc",
 			wantErr: false,
 		},
 		{
-			name: "hlt	#123",
+			name: "hlt	#0x7b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0x0f, 0x40, 0xd4}),
 				address:          0,
 			},
-			want: "hlt	#123",
+			want: "hlt	#0x7b",
 			wantErr: false,
 		},
 		{
-			name: "dcps1	#42",
+			name: "dcps1	#0x2a",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x41, 0x05, 0xa0, 0xd4}),
 				address:          0,
 			},
-			want: "dcps1	#42",
+			want: "dcps1	#0x2a",
 			wantErr: false,
 		},
 		{
-			name: "dcps2	#9",
+			name: "dcps2	#0x9",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x22, 0x01, 0xa0, 0xd4}),
 				address:          0,
 			},
-			want: "dcps2	#9",
+			want: "dcps2	#0x9",
 			wantErr: false,
 		},
 		{
-			name: "dcps3	#1000",
+			name: "dcps3	#0x3e8",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x03, 0x7d, 0xa0, 0xd4}),
 				address:          0,
 			},
-			want: "dcps3	#1000",
+			want: "dcps3	#0x3e8",
 			wantErr: false,
 		},
 		{
@@ -21729,282 +21736,282 @@ func Test_decompose_basic(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "orr	w3, w9, #4294901760",
+			name: "orr	w3, w9, #0xffff0000",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x3d, 0x10, 0x32}),
 				address:          0,
 			},
-			want: "orr	w3, w9, #4294901760",
+			want: "orr	w3, w9, #0xffff0000",
 			wantErr: false,
 		},
 		{
-			name: "orr	wsp, w10, #3758096639",
+			name: "orr	wsp, w10, #0xe00000ff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x29, 0x03, 0x32}),
 				address:          0,
 			},
-			want: "orr	wsp, w10, #3758096639",
+			want: "orr	wsp, w10, #0xe00000ff",
 			wantErr: false,
 		},
 		{
-			name: "orr	w9, w10, #1023",
+			name: "orr	w9, w10, #0x3ff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x49, 0x25, 0x00, 0x32}),
 				address:          0,
 			},
-			want: "orr	w9, w10, #1023",
+			want: "orr	w9, w10, #0x3ff",
 			wantErr: false,
 		},
 		{
-			name: "and	w14, w15, #2147516416",
+			name: "and	w14, w15, #0x80008000",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0x81, 0x01, 0x12}),
 				address:          0,
 			},
-			want: "and	w14, w15, #2147516416",
+			want: "and	w14, w15, #0x80008000",
 			wantErr: false,
 		},
 		{
-			name: "and	w12, w13, #4291035075",
+			name: "and	w12, w13, #0xffc3ffc3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0xad, 0x0a, 0x12}),
 				address:          0,
 			},
-			want: "and	w12, w13, #4291035075",
+			want: "and	w12, w13, #0xffc3ffc3",
 			wantErr: false,
 		},
 		{
-			name: "and	w11, wzr, #196611",
+			name: "and	w11, wzr, #0x30003",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x87, 0x00, 0x12}),
 				address:          0,
 			},
-			want: "and	w11, wzr, #196611",
+			want: "and	w11, wzr, #0x30003",
 			wantErr: false,
 		},
 		{
-			name: "eor	w3, w6, #3772834016",
+			name: "eor	w3, w6, #0xe0e0e0e0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0xc8, 0x03, 0x52}),
 				address:          0,
 			},
-			want: "eor	w3, w6, #3772834016",
+			want: "eor	w3, w6, #0xe0e0e0e0",
 			wantErr: false,
 		},
 		{
-			name: "eor	wsp, wzr, #50529027",
+			name: "eor	wsp, wzr, #0x3030303",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xc7, 0x00, 0x52}),
 				address:          0,
 			},
-			want: "eor	wsp, wzr, #50529027",
+			want: "eor	wsp, wzr, #0x3030303",
 			wantErr: false,
 		},
 		{
-			name: "eor	w16, w17, #2172748161",
+			name: "eor	w16, w17, #0x81818181",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0xc6, 0x01, 0x52}),
 				address:          0,
 			},
-			want: "eor	w16, w17, #2172748161",
+			want: "eor	w16, w17, #0x81818181",
 			wantErr: false,
 		},
 		{
-			name: "tst	w18, #3435973836",
+			name: "tst	w18, #0xcccccccc",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0xe6, 0x02, 0x72}),
 				address:          0,
 			},
-			want: "tst	w18, #3435973836",
+			want: "tst	w18, #0xcccccccc",
 			wantErr: false,
 		},
 		{
-			name: "ands	w19, w20, #858993459",
+			name: "ands	w19, w20, #0x33333333",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0xe6, 0x00, 0x72}),
 				address:          0,
 			},
-			want: "ands	w19, w20, #858993459",
+			want: "ands	w19, w20, #0x33333333",
 			wantErr: false,
 		},
 		{
-			name: "ands	w21, w22, #2576980377",
+			name: "ands	w21, w22, #0x99999999",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xe6, 0x01, 0x72}),
 				address:          0,
 			},
-			want: "ands	w21, w22, #2576980377",
+			want: "ands	w21, w22, #0x99999999",
 			wantErr: false,
 		},
 		{
-			name: "tst	w3, #2863311530",
+			name: "tst	w3, #0xaaaaaaaa",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0xf0, 0x01, 0x72}),
 				address:          0,
 			},
-			want: "tst	w3, #2863311530",
+			want: "tst	w3, #0xaaaaaaaa",
 			wantErr: false,
 		},
 		{
-			name: "tst	wzr, #1431655765",
+			name: "tst	wzr, #0x55555555",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xf3, 0x00, 0x72}),
 				address:          0,
 			},
-			want: "tst	wzr, #1431655765",
+			want: "tst	wzr, #0x55555555",
 			wantErr: false,
 		},
 		{
-			name: "eor	x3, x5, #1152921504539738100",
+			name: "eor	x3, x5, #0xffffffffc000000",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa3, 0x84, 0x66, 0xd2}),
 				address:          0,
 			},
-			want: "eor	x3, x5, #1152921504539738100",
+			want: "eor	x3, x5, #0xffffffffc000000",
 			wantErr: false,
 		},
 		{
-			name: "and	x9, x10, #140737488355327",
+			name: "and	x9, x10, #0x7fffffffffff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x49, 0xb9, 0x40, 0x92}),
 				address:          0,
 			},
-			want: "and	x9, x10, #140737488355327",
+			want: "and	x9, x10, #0x7fffffffffff",
 			wantErr: false,
 		},
 		{
-			name: "orr	x11, x12, #9223372036854780000",
+			name: "orr	x11, x12, #0x8000000000000fff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x8b, 0x31, 0x41, 0xb2}),
 				address:          0,
 			},
-			want: "orr	x11, x12, #9223372036854780000",
+			want: "orr	x11, x12, #0x8000000000000fff",
 			wantErr: false,
 		},
 		{
-			name: "orr	x3, x9, #18446462603027743000",
+			name: "orr	x3, x9, #0xffff0000ffff0000",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x23, 0x3d, 0x10, 0xb2}),
 				address:          0,
 			},
-			want: "orr	x3, x9, #18446462603027743000",
+			want: "orr	x3, x9, #0xffff0000ffff0000",
 			wantErr: false,
 		},
 		{
-			name: "orr	sp, x10, #16140902163470615000",
+			name: "orr	sp, x10, #0xe00000ffe00000ff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0x29, 0x03, 0xb2}),
 				address:          0,
 			},
-			want: "orr	sp, x10, #16140902163470615000",
+			want: "orr	sp, x10, #0xe00000ffe00000ff",
 			wantErr: false,
 		},
 		{
-			name: "orr	x9, x10, #4393751544831",
+			name: "orr	x9, x10, #0x3ff000003ff",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x49, 0x25, 0x00, 0xb2}),
 				address:          0,
 			},
-			want: "orr	x9, x10, #4393751544831",
+			want: "orr	x9, x10, #0x3ff000003ff",
 			wantErr: false,
 		},
 		{
-			name: "and	x14, x15, #9223512776490648000",
+			name: "and	x14, x15, #0x8000800080008000",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xee, 0x81, 0x01, 0x92}),
 				address:          0,
 			},
-			want: "and	x14, x15, #9223512776490648000",
+			want: "and	x14, x15, #0x8000800080008000",
 			wantErr: false,
 		},
 		{
-			name: "and	x12, x13, #18429855317404942000",
+			name: "and	x12, x13, #0xffc3ffc3ffc3ffc3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xac, 0xad, 0x0a, 0x92}),
 				address:          0,
 			},
-			want: "and	x12, x13, #18429855317404942000",
+			want: "and	x12, x13, #0xffc3ffc3ffc3ffc3",
 			wantErr: false,
 		},
 		{
-			name: "and	x11, xzr, #844437815230467",
+			name: "and	x11, xzr, #0x3000300030003",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xeb, 0x87, 0x00, 0x92}),
 				address:          0,
 			},
-			want: "and	x11, xzr, #844437815230467",
+			want: "and	x11, xzr, #0x3000300030003",
 			wantErr: false,
 		},
 		{
-			name: "eor	x3, x6, #16204198715729175000",
+			name: "eor	x3, x6, #0xe0e0e0e0e0e0e0e0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc3, 0xc8, 0x03, 0xd2}),
 				address:          0,
 			},
-			want: "eor	x3, x6, #16204198715729175000",
+			want: "eor	x3, x6, #0xe0e0e0e0e0e0e0e0",
 			wantErr: false,
 		},
 		{
-			name: "eor	sp, xzr, #217020518514230000",
+			name: "eor	sp, xzr, #0x303030303030303",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xc7, 0x00, 0xd2}),
 				address:          0,
 			},
-			want: "eor	sp, xzr, #217020518514230000",
+			want: "eor	sp, xzr, #0x303030303030303",
 			wantErr: false,
 		},
 		{
-			name: "eor	x16, x17, #9331882296111890000",
+			name: "eor	x16, x17, #0x8181818181818181",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0xc6, 0x01, 0xd2}),
 				address:          0,
 			},
-			want: "eor	x16, x17, #9331882296111890000",
+			want: "eor	x16, x17, #0x8181818181818181",
 			wantErr: false,
 		},
 		{
-			name: "tst	x18, #14757395258967642000",
+			name: "tst	x18, #0xcccccccccccccccc",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x5f, 0xe6, 0x02, 0xf2}),
 				address:          0,
 			},
-			want: "tst	x18, #14757395258967642000",
+			want: "tst	x18, #0xcccccccccccccccc",
 			wantErr: false,
 		},
 		{
-			name: "ands	x19, x20, #3689348814741910500",
+			name: "ands	x19, x20, #0x3333333333333333",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0xe6, 0x00, 0xf2}),
 				address:          0,
 			},
-			want: "ands	x19, x20, #3689348814741910500",
+			want: "ands	x19, x20, #0x3333333333333333",
 			wantErr: false,
 		},
 		{
-			name: "ands	x21, x22, #11068046444225730000",
+			name: "ands	x21, x22, #0x9999999999999999",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xe6, 0x01, 0xf2}),
 				address:          0,
 			},
-			want: "ands	x21, x22, #11068046444225730000",
+			want: "ands	x21, x22, #0x9999999999999999",
 			wantErr: false,
 		},
 		{
-			name: "tst	x3, #12297829382473034000",
+			name: "tst	x3, #0xaaaaaaaaaaaaaaaa",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0xf0, 0x01, 0xf2}),
 				address:          0,
 			},
-			want: "tst	x3, #12297829382473034000",
+			want: "tst	x3, #0xaaaaaaaaaaaaaaaa",
 			wantErr: false,
 		},
 		{
-			name: "tst	xzr, #6148914691236517000",
+			name: "tst	xzr, #0x5555555555555555",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xff, 0xf3, 0x00, 0xf2}),
 				address:          0,
 			},
-			want: "tst	xzr, #6148914691236517000",
+			want: "tst	xzr, #0x5555555555555555",
 			wantErr: false,
 		},
 		{
@@ -22016,49 +22023,50 @@ func Test_decompose_basic(t *testing.T) {
 			want: "mov	w3, #983055",
 			wantErr: false,
 		},
+		// TODO: ADD THIS BACK IN
+		// {
+		// 	name: "mov	x10, #-6148914691236517206",
+		// 	args: args{
+		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xf3, 0x01, 0xb2}),
+		// 		address:          0,
+		// 	},
+		// 	want: "mov	x10, #-6148914691236517206",
+		// 	wantErr: false,
+		// },
 		{
-			name: "mov	x10, #-6148914691236517206",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xf3, 0x01, 0xb2}),
-				address:          0,
-			},
-			want: "mov	x10, #-6148914691236517206",
-			wantErr: false,
-		},
-		{
-			name: "and	w2, w3, #4294967293",
+			name: "and	w2, w3, #0xfffffffd",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0x78, 0x1e, 0x12}),
 				address:          0,
 			},
-			want: "and	w2, w3, #4294967293",
+			want: "and	w2, w3, #0xfffffffd",
 			wantErr: false,
 		},
 		{
-			name: "orr	w0, w1, #4294967293",
+			name: "orr	w0, w1, #0xfffffffd",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x78, 0x1e, 0x32}),
 				address:          0,
 			},
-			want: "orr	w0, w1, #4294967293",
+			want: "orr	w0, w1, #0xfffffffd",
 			wantErr: false,
 		},
 		{
-			name: "eor	w16, w17, #4294967289",
+			name: "eor	w16, w17, #0xfffffff9",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x30, 0x76, 0x1d, 0x52}),
 				address:          0,
 			},
-			want: "eor	w16, w17, #4294967289",
+			want: "eor	w16, w17, #0xfffffff9",
 			wantErr: false,
 		},
 		{
-			name: "ands	w19, w20, #4294967280",
+			name: "ands	w19, w20, #0xfffffff0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x93, 0x6e, 0x1c, 0x72}),
 				address:          0,
 			},
-			want: "ands	w19, w20, #4294967280",
+			want: "ands	w19, w20, #0xfffffff0",
 			wantErr: false,
 		},
 		{
@@ -28561,11 +28569,11 @@ func Test_decompose_basic(t *testing.T) {
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) {
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
 				fmt.Printf("want: %s\n", tt.want)
 				fmt.Printf("got:  %s\n", decOut)
-				// hexout, _ := got.disassemble(false)
-				// fmt.Printf("got:  %s (hex)\n", hexout)
+				fmt.Printf("got:  %s (hex)\n", hexout)
 				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				decOut, _ := got.disassemble(true)
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)

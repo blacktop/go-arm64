@@ -1840,6 +1840,9 @@ func (i LdstNoAllocPair) Group2() uint32 {
 func (i LdstNoAllocPair) Opc() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
 }
+func (i LdstNoAllocPair) String() string {
+	return fmt.Sprintf("Rt: %d, Rn: %d, Rt2: %d, Imm: %d, Group1: %d, V: %d, Group2: %d, Opc: %d", i.Rt(), i.Rn(), i.Rt2(), i.Imm(), i.Group1(), i.V(), i.Group2(), i.Opc())
+}
 
 type LdstRegPairPostIdx uint32
 
@@ -5399,11 +5402,11 @@ func bfxPreferred(sf, uns, imms, immr uint32) uint32 {
 }
 
 func ones32(i uint32) uint32 {
-	return (math.MaxUint32 - 1) >> (32 - i)
+	return math.MaxUint32 >> (32 - i)
 }
 
 func ones64(i uint64) uint64 {
-	return (math.MaxUint64 - 1) >> (64 - i)
+	return math.MaxUint64 >> (64 - i)
 }
 
 func ror(x uint64, N uint64, nbits uint64) uint64 {
@@ -5452,12 +5455,16 @@ func DecodeBitMasks(immN, imms, immr, outBits uint32) uint64 {
 
 	S := uint64(imms & levels)
 	R := uint64(immr & levels)
-	//uint32_t diff = S-R;
+	// diff := int64(S - R)
+
 	esize := uint64(1 << len)
-	//uint32_t d = diff & ONES(len);
+	// d := uint32(diff) & ones32(len)
+
 	welm := uint64(ones64(S+1) & ones64(esize))
-	//uint32_t telm = (1<<(d+2))-1;
+	// telm := (1 << (d + 2)) - 1
+
 	wmask := ror(welm, R, esize) & ones64(esize)
+	// tmask := uint64(telm) & ones64(esize)
 	if uint64(outBits)/esize != 0 {
 		for i := uint64(0); i < ((uint64(outBits) / esize) - 1); i++ {
 			wmask |= wmask << esize

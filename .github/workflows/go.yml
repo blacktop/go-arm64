@@ -33,11 +33,29 @@ jobs:
     - name: Build
       run: go build -v .
 
-    - name: Test - ARM v8.4a
+    - name: Test - Basic ARM64 instructions
+      run: go test -v -run Test_decompose_basic
+
+    - name: Test - ARMv8.5-a MTE
+      run: go test -v -run Test_decompose_MTE
+
+    - name: Test - ARMv8.1-a
+      run: go test -v -run Test_decompose_v8_1a
+
+    - name: Test - ARMv8.1-a LSE
+      run: go test -v -run Test_decompose_v8_1a_LSE
+
+    - name: Test - ARMv8.2-a
+      run: go test -v -run Test_decompose_v8_2a
+
+    - name: Test - ARMv8.3-a
+      run: go test -v -run Test_decompose_v8_3a
+
+    - name: Test - ARMv8.4-a
       run: go test -v -run Test_decompose_v8_4a
 
-    - name: Test - ALL
-      run: go test -v -run Test_decompose_ALL
+    - name: Test - ARMv8.5-a
+      run: go test -v -run Test_decompose_v8_5a
 
-    - name: Test - MTE
-      run: go test -v -run Test_decompose_MTE
+    - name: Test - ARMv8.6-a
+      run: go test -v -run Test_decompose_v8_6a

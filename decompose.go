@@ -1878,7 +1878,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	var regBase = []uint32{REG_W_BASE, REG_X_BASE}
 
 	decode := LdstExclusive(i.raw)
-	// fmt.Println(decode)
+
 	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
 	i.operation = operation[decode.Size()][decode.L()][opcode]
 
@@ -1908,12 +1908,8 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		i.operands[idx].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 	} else if decode.Size() < 2 {
 		i.operands[idx].OpClass = REG
-		if opcode == 5 || decode.L() > 0 {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
-		} else if decode.Group1() == 8 {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt()))
-		} else {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		if opcode != 5 && decode.L() == 0 {
 			idx++
 		}
 		i.operands[idx].OpClass = REG
@@ -1927,12 +1923,8 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 			decodeSizeIs3 = 1
 		}
 		i.operands[idx].OpClass = REG
-		if opcode == 5 || decode.L() > 0 {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
-		} else if decode.Group1() == 8 {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rt()))
-		} else {
-			i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		i.operands[idx].Reg[0] = reg(REGSET_ZR, REG_W_BASE, int(decode.Rs()))
+		if opcode != 5 && decode.L() == 0 {
 			idx++
 		}
 		i.operands[idx].OpClass = REG
@@ -2174,15 +2166,15 @@ func (i *Instruction) decompose_load_store_no_allocate_pair_offset() (*Instructi
 	 */
 
 	decode := LdstNoAllocPair(i.raw)
-
+	// fmt.Println(decode)
 	var operation = [2]Operation{ARM64_STNP, ARM64_LDNP}
 	var regChoice = [2][4]uint32{
 		{REG_W_BASE, REG_X_BASE, REG_X_BASE, REG_X_BASE},
 		{REG_S_BASE, REG_D_BASE, REG_Q_BASE, REG_Q_BASE},
 	}
 	var immShiftBase uint32
-	if decode.V() > 0 {
-		immShiftBase = decode.Opc()
+	if decode.V() != 0 {
+		immShiftBase = decode.Opc() + 2
 	} else {
 		immShiftBase = (decode.Opc() >> 1) + 2
 	}
