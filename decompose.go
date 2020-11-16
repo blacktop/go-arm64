@@ -1803,9 +1803,10 @@ func (i *Instruction) decompose_load_store_unscaled() (*Instruction, error) {
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Opc()][decode.Size()]), int(decode.Rt()))
 	i.operands[1].OpClass = MEM_OFFSET
 	i.operands[1].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
-	i.operands[1].SignedImm = 1
 	i.operands[1].Immediate = uint64(decode.Imm9())
-	i.operands[1].SignedImm = 1
+	if decode.Imm9() < 0 {
+		i.operands[1].SignedImm = 1
+	}
 
 	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
@@ -7556,7 +7557,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			}
 
 			if ExtractBits(instructionValue, 24, 6) == 25 {
-				if op0 == 13 {
+				if op0 == 13 && ExtractBits(instructionValue, 21, 1) != 0 {
 					return instruction.decompose_load_store_mem_tags()
 				}
 				return instruction.decompose_load_store_unscaled()

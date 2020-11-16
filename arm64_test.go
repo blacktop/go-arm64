@@ -7480,16 +7480,22 @@ func Test_decompose_v8_4a(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// fmt.Printf("want: %s\n", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			out, _ := got.disassemble(true)
-			// fmt.Printf("want: %s\ngot:  %s\n", tt.want, out)
-			if !reflect.DeepEqual(out, tt.want) {
-				t.Errorf("disassemble(dec) = %v, want %v", out, tt.want)
+			decOut, _ := got.disassemble(true)
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
+				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
 	}
