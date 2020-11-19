@@ -164,6 +164,7 @@ const (
 	ARM64_FACGT
 	ARM64_FADD
 	ARM64_FADDP
+	ARM64_FCADD
 	ARM64_FCCMP
 	ARM64_FCCMPE
 	ARM64_FCMEQ
@@ -173,6 +174,7 @@ const (
 	ARM64_FCMLT
 	ARM64_FCMP
 	ARM64_FCMPE
+	ARM64_FCMLA
 	ARM64_FCSEL
 	ARM64_FCTNS
 	ARM64_FCTNU
@@ -194,6 +196,7 @@ const (
 	ARM64_FCVTZS
 	ARM64_FCVTZU
 	ARM64_FDIV
+	ARM64_FJCVTZS
 	ARM64_FMADD
 	ARM64_FMAX
 	ARM64_FMAXNM
@@ -259,6 +262,9 @@ const (
 	ARM64_LD3R
 	ARM64_LD4
 	ARM64_LD4R
+	ARM64_LDAPR    // 8.3
+	ARM64_LDAPRB   // 8.3
+	ARM64_LDAPRH   // 8.3
 	ARM64_LDAPUR   // Added for 8.4
 	ARM64_LDAPURB  // Added for 8.4
 	ARM64_LDAPURH  // Added for 8.4
@@ -846,6 +852,7 @@ func (o Operation) String() string {
 		"facgt",
 		"fadd",
 		"faddp",
+		"fcadd", //Added for 8.3
 		"fccmp",
 		"fccmpe",
 		"fcmeq",
@@ -855,6 +862,7 @@ func (o Operation) String() string {
 		"fcmlt",
 		"fcmp",
 		"fcmpe",
+		"fcmla", //Added for 8.3
 		"fcsel",
 		"fctns",
 		"fctnu",
@@ -876,6 +884,7 @@ func (o Operation) String() string {
 		"fcvtzs",
 		"fcvtzu",
 		"fdiv",
+		"fjcvtzs",
 		"fmadd",
 		"fmax",
 		"fmaxnm",
@@ -941,6 +950,9 @@ func (o Operation) String() string {
 		"ld3r",
 		"ld4",
 		"ld4r",
+		"ldapr",    // 8.3
+		"ldaprb",   // 8.3
+		"ldaprh",   // 8.3
 		"ldapur",   // Added for 8.4
 		"ldapurb",  // Added for 8.4
 		"ldapurh",  // Added for 8.4
@@ -2965,6 +2977,10 @@ func (i FloatingIntegerConversion) Group4() uint32 {
 func (i FloatingIntegerConversion) Sf() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i FloatingIntegerConversion) String() string {
+	return fmt.Sprintf("Rd: %d, Rn: %d, Group1: %d, Opcode: %d, Rmode: %d, Group2: %d, Type: %d, Group3: %d, S: %d, Group4: %d, Sf: %d",
+		i.Rd(), i.Rn(), i.Group1(), i.Opcode(), i.Rmode(), i.Group2(), i.Type(), i.Group3(), i.S(), i.Group4(), i.Sf())
+}
 
 type FloatingDataProcessing3 uint32
 
@@ -3000,6 +3016,49 @@ func (i FloatingDataProcessing3) Group2() uint32 {
 }
 func (i FloatingDataProcessing3) M() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+
+type FloatingComplexMultiplyAccumulate uint32
+
+func (i FloatingComplexMultiplyAccumulate) Rd() uint32 {
+	return ExtractBits(uint32(i), 0, 5)
+}
+func (i FloatingComplexMultiplyAccumulate) Rn() uint32 {
+	return ExtractBits(uint32(i), 5, 5)
+}
+func (i FloatingComplexMultiplyAccumulate) H() uint32 {
+	return ExtractBits(uint32(i), 11, 1)
+}
+func (i FloatingComplexMultiplyAccumulate) Rot() uint32 {
+	return ExtractBits(uint32(i), 11, 2)
+}
+func (i FloatingComplexMultiplyAccumulate) Rot2() uint32 {
+	return ExtractBits(uint32(i), 13, 2)
+}
+func (i FloatingComplexMultiplyAccumulate) Rm() uint32 {
+	return ExtractBits(uint32(i), 16, 4)
+}
+func (i FloatingComplexMultiplyAccumulate) Rm2() uint32 {
+	return ExtractBits(uint32(i), 16, 5)
+}
+func (i FloatingComplexMultiplyAccumulate) M() uint32 {
+	return ExtractBits(uint32(i), 20, 1)
+}
+func (i FloatingComplexMultiplyAccumulate) L() uint32 {
+	return ExtractBits(uint32(i), 21, 1)
+}
+func (i FloatingComplexMultiplyAccumulate) Size() uint32 {
+	return ExtractBits(uint32(i), 22, 2)
+}
+func (i FloatingComplexMultiplyAccumulate) Group() uint32 {
+	return ExtractBits(uint32(i), 24, 5)
+}
+func (i FloatingComplexMultiplyAccumulate) Q() uint32 {
+	return ExtractBits(uint32(i), 30, 1)
+}
+func (i FloatingComplexMultiplyAccumulate) String() string {
+	return fmt.Sprintf("Rd: %d, Rn: %d, H: %d, Rot: %d, Rot2: %d, Rm: %d, Rm2: %d, M: %d, L: %d, Size: %d, Group: %d, Q: %d",
+		i.Rd(), i.Rn(), i.H(), i.Rot(), i.Rot2(), i.Rm(), i.Rm2(), i.M(), i.L(), i.Size(), i.Group(), i.Q())
 }
 
 type Simd3Same uint32
@@ -3751,6 +3810,38 @@ const (
 	REG_AMAIR_EL12
 	REG_AMAIR_EL2
 	REG_AMAIR_EL3
+	REG_AMEVCNTVOFF00_EL2
+	REG_AMEVCNTVOFF01_EL2
+	REG_AMEVCNTVOFF02_EL2
+	REG_AMEVCNTVOFF03_EL2
+	REG_AMEVCNTVOFF04_EL2
+	REG_AMEVCNTVOFF05_EL2
+	REG_AMEVCNTVOFF06_EL2
+	REG_AMEVCNTVOFF07_EL2
+	REG_AMEVCNTVOFF08_EL2
+	REG_AMEVCNTVOFF09_EL2
+	REG_AMEVCNTVOFF010_EL2
+	REG_AMEVCNTVOFF011_EL2
+	REG_AMEVCNTVOFF012_EL2
+	REG_AMEVCNTVOFF013_EL2
+	REG_AMEVCNTVOFF014_EL2
+	REG_AMEVCNTVOFF015_EL2
+	REG_AMEVCNTVOFF10_EL2
+	REG_AMEVCNTVOFF11_EL2
+	REG_AMEVCNTVOFF12_EL2
+	REG_AMEVCNTVOFF13_EL2
+	REG_AMEVCNTVOFF14_EL2
+	REG_AMEVCNTVOFF15_EL2
+	REG_AMEVCNTVOFF16_EL2
+	REG_AMEVCNTVOFF17_EL2
+	REG_AMEVCNTVOFF18_EL2
+	REG_AMEVCNTVOFF19_EL2
+	REG_AMEVCNTVOFF110_EL2
+	REG_AMEVCNTVOFF111_EL2
+	REG_AMEVCNTVOFF112_EL2
+	REG_AMEVCNTVOFF113_EL2
+	REG_AMEVCNTVOFF114_EL2
+	REG_AMEVCNTVOFF115_EL2
 	REG_APDAKEYHI_EL1
 	REG_APDAKEYLO_EL1
 	REG_APDBKEYHI_EL1
@@ -3793,6 +3884,11 @@ const (
 	REG_CNTV_CVAL_EL0
 	REG_CNTV_CVAL_EL02
 	REG_CNTV_TVAL_EL0
+	REG_CNTSCALE_EL2
+	REG_CNTISCALE_EL2
+	REG_CNTPOFF_EL2
+	REG_CNTVFRQ_EL2
+	REG_CNTVCTSS_EL0
 	REG_CONTEXTIDR_EL1
 	REG_CONTEXTIDR_EL12
 	REG_CPACR_EL1
@@ -3905,6 +4001,11 @@ const (
 	REG_HCR_EL2
 	REG_HPFAR_EL2
 	REG_HSTR_EL2
+	REG_HFGRTR_EL2
+	REG_HFGWTR_EL2
+	REG_HFGITR_EL2
+	REG_HDFGRTR_EL2
+	REG_HDFGWTR_EL2
 	REG_IALLU
 	REG_IVAU
 	REG_IALLUIS
@@ -4184,6 +4285,7 @@ const (
 	REG_ID_ISAR3_EL1
 	REG_ID_ISAR4_EL1
 	REG_ID_ISAR5_EL1
+	REG_ID_ISAR6_EL1
 	REG_ID_MMFR4_EL1
 	REG_ID_MMFR5_EL1
 
@@ -4280,6 +4382,14 @@ const (
 	REG_TGT_J
 	REG_TGT_JC
 
+	REG_LOREA_EL1
+	REG_LORSA_EL1
+	REG_LORN_EL1
+	REG_LORC_EL1
+	REG_LORID_EL1
+
+	REG_CNTPCTSS_EL0
+
 	REG_END_REG
 )
 
@@ -4308,6 +4418,38 @@ func (s SystemReg) String() string {
 		"amair_el12",
 		"amair_el2",
 		"amair_el3",
+		"amevcntvoff00_el2",
+		"amevcntvoff01_el2",
+		"amevcntvoff02_el2",
+		"amevcntvoff03_el2",
+		"amevcntvoff04_el2",
+		"amevcntvoff05_el2",
+		"amevcntvoff06_el2",
+		"amevcntvoff07_el2",
+		"amevcntvoff08_el2",
+		"amevcntvoff09_el2",
+		"amevcntvoff010_el2",
+		"amevcntvoff011_el2",
+		"amevcntvoff012_el2",
+		"amevcntvoff013_el2",
+		"amevcntvoff014_el2",
+		"amevcntvoff015_el2",
+		"amevcntvoff10_el2",
+		"amevcntvoff11_el2",
+		"amevcntvoff12_el2",
+		"amevcntvoff13_el2",
+		"amevcntvoff14_el2",
+		"amevcntvoff15_el2",
+		"amevcntvoff16_el2",
+		"amevcntvoff17_el2",
+		"amevcntvoff18_el2",
+		"amevcntvoff19_el2",
+		"amevcntvoff110_el2",
+		"amevcntvoff111_el2",
+		"amevcntvoff112_el2",
+		"amevcntvoff113_el2",
+		"amevcntvoff114_el2",
+		"amevcntvoff115_el2",
 		"apdakeyhi_el1",
 		"apdakeylo_el1",
 		"apdbkeyhi_el1",
@@ -4350,6 +4492,11 @@ func (s SystemReg) String() string {
 		"cntv_cval_el0",
 		"cntv_cval_el02",
 		"cntv_tval_el0",
+		"cntscale_el2",
+		"cntiscale_el2",
+		"cntpoff_el2",
+		"cntvfrq_el2",
+		"cntvctss_el0",
 		"contextidr_el1",
 		"contextidr_el12",
 		"cpacr_el1",
@@ -4462,6 +4609,11 @@ func (s SystemReg) String() string {
 		"hcr_el2",
 		"hpfar_el2",
 		"hstr_el2",
+		"hfgrtr_el2",
+		"hfgwtr_el2",
+		"hfgitr_el2",
+		"hdfgrtr_el2",
+		"hdfgwtr_el2",
 		"iallu",
 		"ivau",
 		"ialluis",
@@ -4743,6 +4895,7 @@ func (s SystemReg) String() string {
 		"id_isar3_el1",
 		"id_isar4_el1",
 		"id_isar5_el1",
+		"id_isar6_el1",
 		"id_mmfr4_el1",
 		"id_mmfr5_el1",
 
@@ -4838,6 +4991,14 @@ func (s SystemReg) String() string {
 		"c",
 		"j",
 		"jc",
+
+		"lorea_el1",
+		"lorsa_el1",
+		"lorn_el1",
+		"lorc_el1",
+		"lorid_el1",
+
+		"cntpctss_el0",
 
 		"END_REG",
 	}[s]

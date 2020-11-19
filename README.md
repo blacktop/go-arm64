@@ -102,6 +102,7 @@ _test:
 ## TODO
 
 - [ ] fix 🐛🐛🐛
+- [ ] standize on error types
 - [x] add option for dec/hex immediates
 - [x] display opcodes like `7f 23 03 d5`
 - [ ] benchmarks 🏃‍♂️💨

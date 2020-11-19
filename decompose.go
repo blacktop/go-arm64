@@ -2,6 +2,7 @@ package arm64
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
 	"math/bits"
 )
@@ -1095,9 +1096,9 @@ func (i *Instruction) decompose_fixed_floating_conversion() (*Instruction, error
 	 */
 
 	decode := FloatingFixedConversion(i.raw)
-
+	// fmt.Println(decode)
 	var operation = [4]Operation{ARM64_FCVTZS, ARM64_FCVTZU, ARM64_SCVTF, ARM64_UCVTF}
-	var sdReg = [3]uint32{REG_S_BASE, REG_D_BASE, REG_H_BASE}
+	var sdReg = [4]uint32{REG_S_BASE, REG_D_BASE, 0, REG_H_BASE}
 	i.operation = operation[decode.Opcode()&3]
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
@@ -1127,7 +1128,7 @@ func (i *Instruction) decompose_fixed_floating_conversion() (*Instruction, error
 		break
 	}
 
-	if (decode.Sf() == 0 && (decode.Scale()>>5) == 0) || decode.Type() > 1 || decode.Opcode() > 3 {
+	if (decode.Sf() == 0 && (decode.Scale()>>5) == 0) || decode.Type() > 3 || decode.Opcode() > 3 {
 		return nil, failedToDecodeInstruction
 	}
 
@@ -1194,6 +1195,83 @@ func (i *Instruction) decompose_floating_conditional_compare() (*Instruction, er
 
 	if decode.S() != 0 || decode.M() != 0 || decode.Type() > 1 {
 		return nil, failedToDecodeInstruction
+	}
+
+	return i, nil
+}
+
+// TODO finish
+func (i *Instruction) decompose_floating_complex_multiply_accumulate() (*Instruction, error) {
+	/* C7.2.62 Floating-point Complex Multiply Accumulate
+	 *
+	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<Ts>[<index>], #<rotate>
+	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<Ts>[<index>], #<rotate>
+	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<T>, #<rotate>
+	 * FCADD <Vd>.<T>, <Vn>.<T>, <Vm>.<T>, #<rotate>
+	 */
+
+	decode := FloatingComplexMultiplyAccumulate(i.raw)
+	fmt.Println(decode)
+
+	i.operation = ARM64_FCMLA
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
+	var rots = [4]uint32{0, 90, 180, 270}
+	i.operands[2].ShiftValueUsed = 1
+	i.operands[2].ShiftValue = rots[decode.Rot()]
+	esize1 := uint32(1 << decode.Size())
+	var dsizeMap = [2]uint32{64, 128}
+	dsize1 := dsizeMap[decode.Q()] / (8 * esize1)
+	var esize2 uint32
+	var dsize2 uint32
+	switch decode.Size() {
+	case 0:
+		esize2 = 2
+		dsize2 = 8
+		break
+	case 1:
+		esize2 = 4
+		dsize2 = 4
+		break
+	case 2:
+		esize2 = 8
+		dsize2 = 2
+		break
+	case 3:
+		esize2 = 16
+		dsize2 = 1
+		break
+	}
+	var elementMap = [16][3]uint32{
+		{0, 1, 1},
+		{0, 0, 1},
+		{0, 1, 1},
+		{0, 0, 1},
+		{1, 0, 0},
+		{0, 1, 1},
+		{1, 0, 0},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+		{0, 1, 1},
+	}
+	for idx := 0; idx < 3; idx++ {
+		if elementMap[decode.Size()][idx] == 0 {
+			i.operands[idx].ElementSize = esize2
+			i.operands[idx].DataSize = dsize2
+		} else {
+			i.operands[idx].ElementSize = esize1
+			i.operands[idx].DataSize = dsize1
+		}
 	}
 
 	return i, nil
@@ -1518,8 +1596,9 @@ func (i *Instruction) decompose_floating_integer_conversion() (*Instruction, err
 
 	var srcReg = [2]uint32{REG_S_BASE, REG_D_BASE}
 	var dstReg = [2]uint32{REG_W_BASE, REG_X_BASE}
-	// FLOATING_INTEGER_CONVERSION decode = *(FLOATING_INTEGER_CONVERSION*)&instructionValue
+
 	decode := FloatingIntegerConversion(i.raw)
+	fmt.Println(decode)
 	i.operation = operation[decode.Type()&1][decode.Rmode()][decode.Opcode()]
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
@@ -1570,6 +1649,21 @@ func (i *Instruction) decompose_floating_integer_conversion() (*Instruction, err
 		return nil, failedToDecodeInstruction
 	}
 
+	return i, nil
+}
+
+func (i *Instruction) decompose_floating_javascript_conversion() (*Instruction, error) {
+	/* C7.2.99 Floating-point Javascript Convert to Signed fixed-point
+	 * FJCVTZS <Wd>, <Dn>
+	 */
+
+	decode := FloatingIntegerConversion(i.raw)
+
+	i.operation = ARM64_FJCVTZS
+	i.operands[0].OpClass = REG
+	i.operands[0].Reg[0] = uint32(regMap[REGSET_ZR][REG_W_BASE][decode.Rd()])
+	i.operands[1].OpClass = REG
+	i.operands[1].Reg[0] = uint32(regMap[REGSET_ZR][REG_D_BASE][decode.Rn()])
 	return i, nil
 }
 
@@ -2087,10 +2181,10 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
 			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
 		}, {
-			{ARM64_LDSMAXB, ARM64_LDSMAXLB, ARM64_LDSMAXAB, ARM64_LDSMAXALB},
-			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDSMAXAH, ARM64_LDSMAXALH},
-			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
-			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
+			{ARM64_LDSMAXB, ARM64_LDSMAXLB, ARM64_LDAPRB, ARM64_LDSMAXALB},
+			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDAPRH, ARM64_LDSMAXALH},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
 		}, {
 			{ARM64_LDSMINB, ARM64_LDSMINLB, ARM64_LDSMINAB, ARM64_LDSMINALB},
 			{ARM64_LDSMINH, ARM64_LDSMINLH, ARM64_LDSMINAH, ARM64_LDSMINALH},
@@ -2111,7 +2205,7 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 	var regBase = [4]uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE}
 
 	decode := LdstAtomic(i.raw)
-
+	fmt.Println(decode)
 	i.operation = operation[decode.Opc()][decode.Size()][decode.A()<<1|decode.R()]
 	i.operands[0].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rs()))
@@ -2119,6 +2213,18 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 	i.operands[1].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rt()))
 	i.operands[2].OpClass = MEM_OFFSET
 	i.operands[2].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+
+	/* C6.2.10x
+	* LDAPR <Wt>, [<Xn|SP> {,#0}]
+	* LDAPR <Xt>, [<Xn|SP> {,#0}]
+	* LDAPRB <Wt>, [<Xn|SP> {,#0}]
+	* LDAPRH <Wt>, [<Xn|SP> {,#0}]
+	 */
+	if (i.raw & 0x38BFC000) == 0x38BFC000 {
+		i.operands[0] = i.operands[1]
+		i.operands[1] = i.operands[2]
+		i.operands[2].OpClass = NONE
+	}
 
 	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
@@ -5843,6 +5949,10 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 	case 4: //PSTATE Access
 		switch decode.Op2() {
 		case 4:
+			if decode.Op1() == 0 { // MSR PAN, <Xt>
+				i.operands[0].Reg[0] = uint32(REG_PAN)
+				break
+			}
 			if decode.Op1() != 3 {
 				return nil, failedToDecodeInstruction
 			}
@@ -6381,7 +6491,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Ins
 func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*Instruction, error) {
 	sysreg := SYSREG_NONE
 	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
-	// fmt.Println(decode)
+	fmt.Println(decode)
 	switch decode.Crn() {
 	case 0:
 		if decode.Op1() == 0 {
@@ -6390,7 +6500,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				{REG_ID_PFR0_EL1, REG_ID_PFR1_EL1, REG_ID_DFR0_EL1, REG_ID_AFR0_EL1,
 					REG_ID_MMFR0_EL1, REG_ID_MMFR1_EL1, REG_ID_MMFR2_EL1, REG_ID_MMFR3_EL1},
 				{REG_ID_ISAR0_EL1, REG_ID_ISAR1_EL1, REG_ID_ISAR2_EL1, REG_ID_ISAR3_EL1,
-					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1, SYSREG_NONE},
+					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1, REG_ID_ISAR6_EL1},
 				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_ID_MMFR5_EL1, SYSREG_NONE},
 				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR1_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64AFR0_EL1, REG_ID_AA64AFR1_EL1, SYSREG_NONE, SYSREG_NONE},
@@ -6460,7 +6570,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 			} else if decode.Crm() == 1 {
 				var sysregs = []SystemReg{
 					REG_HCR_EL2, REG_MDCR_EL2, REG_CPTR_EL2, REG_HSTR_EL2,
-					SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_HACR_EL2,
+					REG_HFGRTR_EL2, REG_HFGWTR_EL2, REG_HFGITR_EL2, REG_HACR_EL2,
 				}
 				sysreg = sysregs[decode.Op2()]
 			} else if decode.Crm() == 6 {
@@ -6607,6 +6717,13 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		}
 		break
 	case 3:
+		if decode.Crm() == 1 && decode.Op2() == 4 {
+			sysreg = REG_HDFGRTR_EL2
+			break
+		} else if decode.Crm() == 1 && decode.Op2() == 5 {
+			sysreg = REG_HDFGWTR_EL2
+			break
+		}
 		if decode.Op1() != 4 || decode.Crm() != 0 || decode.Op2() != 0 {
 			break
 		}
@@ -6845,16 +6962,29 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		}
 	case 10:
 		{
-			if decode.Op2() == 0 {
-				var sysregs = [8][2]SystemReg{
-					{REG_MAIR_EL1, REG_AMAIR_EL1},
-					{SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, SYSREG_NONE},
-					{REG_MAIR_EL2, REG_AMAIR_EL2},
-					{REG_MAIR_EL12, REG_AMAIR_EL12},
-					{REG_MAIR_EL3, REG_AMAIR_EL3},
-					{SYSREG_NONE, SYSREG_NONE},
+			if decode.Op1() == 0 && decode.Crm() == 0b100 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_LORSA_EL1
+				case 1:
+					sysreg = REG_LOREA_EL1
+				case 2:
+					sysreg = REG_LORN_EL1
+				case 3:
+					sysreg = REG_LORC_EL1
+				case 7:
+					sysreg = REG_LORID_EL1
+				}
+			} else if decode.Op2() == 0 {
+				var sysregs = [9][3]SystemReg{
+					{REG_MAIR_EL1, REG_AMAIR_EL1, REG_LORSA_EL1},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_MAIR_EL2, REG_AMAIR_EL2, SYSREG_NONE},
+					{REG_MAIR_EL12, REG_AMAIR_EL12, SYSREG_NONE},
+					{REG_MAIR_EL3, REG_AMAIR_EL3, SYSREG_NONE},
+					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				}
 				sysreg = sysregs[decode.Op1()][decode.Crm()-2]
 			}
@@ -7204,7 +7334,18 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		break
 	case 13:
 		{
-			if decode.Crm() != 0 || decode.Op2() > 4 {
+			if 4 > decode.Crm()&3 && decode.Crm() > 0 {
+				var sysregs = [4][9]SystemReg{
+					{REG_AMEVCNTVOFF00_EL2, REG_AMEVCNTVOFF01_EL2, REG_AMEVCNTVOFF02_EL2, REG_AMEVCNTVOFF03_EL2,
+						REG_AMEVCNTVOFF04_EL2, REG_AMEVCNTVOFF05_EL2, REG_AMEVCNTVOFF06_EL2, REG_AMEVCNTVOFF07_EL2},
+					{REG_AMEVCNTVOFF08_EL2, REG_AMEVCNTVOFF09_EL2, REG_AMEVCNTVOFF010_EL2, REG_AMEVCNTVOFF011_EL2,
+						REG_AMEVCNTVOFF012_EL2, REG_AMEVCNTVOFF013_EL2, REG_AMEVCNTVOFF014_EL2, REG_AMEVCNTVOFF015_EL2},
+					{REG_AMEVCNTVOFF10_EL2, REG_AMEVCNTVOFF11_EL2, REG_AMEVCNTVOFF12_EL2, REG_AMEVCNTVOFF13_EL2,
+						REG_AMEVCNTVOFF14_EL2, REG_AMEVCNTVOFF15_EL2, REG_AMEVCNTVOFF16_EL2, REG_AMEVCNTVOFF17_EL2},
+					{REG_AMEVCNTVOFF18_EL2, REG_AMEVCNTVOFF19_EL2, REG_AMEVCNTVOFF110_EL2, REG_AMEVCNTVOFF111_EL2,
+						REG_AMEVCNTVOFF112_EL2, REG_AMEVCNTVOFF113_EL2, REG_AMEVCNTVOFF114_EL2, REG_AMEVCNTVOFF115_EL2},
+				}
+				sysreg = sysregs[decode.Crm()&3][decode.Op2()]
 				break
 			}
 			var sysregs = [8][5]SystemReg{
@@ -7224,22 +7365,36 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 		{
 			if decode.Op1() == 3 {
 				reg := ((decode.Crm() & 3) << 3) | decode.Op2()
-				if (decode.Crm() >= 8 && decode.Crm() <= 10 && decode.Op2() <= 7) ||
-					(decode.Crm() == 11 && decode.Op2() <= 6) {
+				if (decode.Crm() >= 8 && decode.Crm() <= 10 && decode.Op2() <= 7) || (decode.Crm() == 11 && decode.Op2() <= 6) {
 					sysreg = REG_PMEVCNTR0_EL0 + SystemReg(reg)
 					break
-				} else if (decode.Crm() >= 12 && decode.Crm() <= 14 && decode.Op2() <= 7) ||
-					(decode.Crm() == 15 && decode.Op2() <= 6) {
+				} else if (decode.Crm() >= 12 && decode.Crm() <= 14 && decode.Op2() <= 7) || (decode.Crm() == 15 && decode.Op2() <= 6) {
 					sysreg = REG_PMEVTYPER0_EL0 + SystemReg(reg)
 					break
 				} else if decode.Crm() == 15 && decode.Op2() == 7 {
 					sysreg = REG_PMCCFILTR_EL0
 					break
+				} else if decode.Crm() == 0 && decode.Op2() == 5 {
+					sysreg = REG_CNTPCTSS_EL0
+					break
+				} else if decode.Crm() == 0 && decode.Op2() == 6 {
+					sysreg = REG_CNTVCTSS_EL0
+					break
 				}
 			} else if decode.Op1() == 4 && decode.Crm() == 0 && decode.Op2() == 3 {
 				sysreg = REG_CNTVOFF_EL2
 				break
-			} else if decode.Op2() > 2 {
+			} else if decode.Op2() > 2 && decode.Op1() == 4 {
+				switch decode.Op2() {
+				case 4:
+					sysreg = REG_CNTSCALE_EL2
+				case 5:
+					sysreg = REG_CNTISCALE_EL2
+				case 6:
+					sysreg = REG_CNTPOFF_EL2
+				case 7:
+					sysreg = REG_CNTVFRQ_EL2
+				}
 				break
 			}
 			var sysregs = [8][4][3]SystemReg{
@@ -7284,6 +7439,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					{REG_CNTPS_TVAL_EL1, REG_CNTPS_CTL_EL1, REG_CNTPS_CVAL_EL1},
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				},
+			}
+			if decode.Op1() > 7 || decode.Crm() > 3 || decode.Op2() > 2 {
+				return nil, failedToDecodeInstruction
 			}
 			sysreg = sysregs[decode.Op1()][decode.Crm()][decode.Op2()]
 		}
@@ -7689,10 +7847,17 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			return nil, failedToDecodeInstruction
 		}
 	case 7:
-		fallthrough
+		switch ExtractBits(instructionValue, 24, 5) {
+		case 14:
+			fallthrough
+		case 15:
+			return instruction.decompose_floating_complex_multiply_accumulate()
+		default:
+			return nil, failedToDecodeInstruction
+		}
 	case 15:
 		instruction.group = GROUP_DATA_PROCESSING_SIMD
-		// fmt.Printf("case 15: %#x\n", ExtractBits(instructionValue, 24, 8))
+		fmt.Printf("case 15: %#x\n", ExtractBits(instructionValue, 24, 8))
 		switch ExtractBits(instructionValue, 24, 8) {
 		case 0x1e:
 			fallthrough
@@ -7704,9 +7869,12 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			if ExtractBits(instructionValue, 21, 1) == 0 {
 				return instruction.decompose_fixed_floating_conversion()
 			}
+			fmt.Printf("switch: %#x\n", ExtractBits(instructionValue, 10, 2))
 			switch ExtractBits(instructionValue, 10, 2) {
 			case 0:
-				if ExtractBits(instructionValue, 12, 1) == 1 {
+				if (instructionValue & 0x1E7E0000) == 0x1E7E0000 {
+					return instruction.decompose_floating_javascript_conversion()
+				} else if ExtractBits(instructionValue, 12, 1) == 1 {
 					return instruction.decompose_floating_imm()
 				} else if ExtractBits(instructionValue, 12, 2) == 2 {
 					return instruction.decompose_floating_compare()
@@ -7739,7 +7907,9 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 		case 0x4e:
 			fallthrough
 		case 0x6e:
+			// fmt.Printf("case 0x6e: %d\n", ExtractBits(instructionValue, 21, 1))
 			if ExtractBits(instructionValue, 21, 1) == 1 {
+				// fmt.Printf("switch: %d\n", ExtractBits(instructionValue, 10, 2))
 				switch ExtractBits(instructionValue, 10, 2) {
 				case 1:
 					fallthrough
@@ -7755,6 +7925,11 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 					}
 				}
 			}
+			// else if ExtractBits(instructionValue, 24, 5) == 15 || {
+
+			// } else if ExtractBits(instructionValue, 24, 5) == 14 {
+
+			// }
 			if (instructionValue & 0x9fe08400) == 0x0e000400 {
 				return instruction.decompose_simd_copy()
 			}

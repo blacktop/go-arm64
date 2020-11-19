@@ -20,21 +20,12 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "mov	x10, #-6148914691236517206",
+			name: "msr	cntvctss_el0, x23",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xea, 0xf3, 0x01, 0xb2}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xe0, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "mov	x10, #-6148914691236517206",
-			wantErr: false,
-		},
-		{
-			name: "tst	x3, #0xaaaaaaaaaaaaaaaa",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x7f, 0xf0, 0x01, 0xf2}),
-				address:          0,
-			},
-			want: "tst	x3, #0xaaaaaaaaaaaaaaaa",
+			want: "msr	cntvctss_el0, x23",
 			wantErr: false,
 		},
 	}
@@ -42,15 +33,19 @@ func Test_decompose_single_instr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fmt.Printf("want: %s\n", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
-			if (err != nil) && tt.wantErr {
+			if (err != nil) != tt.wantErr {
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			decOut, _ := got.disassemble(true)
 			hexout, _ := got.disassemble(false)
-			decout, _ := got.disassemble(true)
-			fmt.Printf("got:  %s  (dec)\ngot:  %s (hex)\n", decout, hexout)
-			if !reflect.DeepEqual(hexout, tt.want) && !reflect.DeepEqual(decout, tt.want) {
-				t.Errorf("disassemble(dec) = %v, want %v", decout, tt.want)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
+				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
 	}
@@ -915,11 +910,19 @@ func Test_decompose_v8_1a(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("disassemble() error = %v, want %v, wantErr %v", err, tt.want, tt.wantErr)
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(decOut, tt.want) {
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
@@ -5762,6 +5765,225 @@ func Test_decompose_v8_2a(t *testing.T) {
 			want: "mrs	x2, uao",
 			wantErr: false,
 		},
+		//
+		// llvm/test/MC/AArch64/armv8a-fpmul.s
+		//
+		{
+			name: "fmlal	v0.2s, v1.2h, v2.2h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xec, 0x22, 0x0e}),
+				address:          0,
+			},
+			want: "fmlal	v0.2s, v1.2h, v2.2h",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.2s, v1.2h, v2.2h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xec, 0xa2, 0x0e}),
+				address:          0,
+			},
+			want: "fmlsl	v0.2s, v1.2h, v2.2h",
+			wantErr: false,
+		},
+		{
+			name: "fmlal	v0.4s, v1.4h, v2.4h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xec, 0x22, 0x4e}),
+				address:          0,
+			},
+			want: "fmlal	v0.4s, v1.4h, v2.4h",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.4s, v1.4h, v2.4h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xec, 0xa2, 0x4e}),
+				address:          0,
+			},
+			want: "fmlsl	v0.4s, v1.4h, v2.4h",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.2s, v1.2h, v2.2h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0x22, 0x2e}),
+				address:          0,
+			},
+			want: "fmlal2	v0.2s, v1.2h, v2.2h",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.2s, v1.2h, v2.2h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0xa2, 0x2e}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.2s, v1.2h, v2.2h",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.4s, v1.4h, v2.4h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0x22, 0x6e}),
+				address:          0,
+			},
+			want: "fmlal2	v0.4s, v1.4h, v2.4h",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.4s, v1.4h, v2.4h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0xa2, 0x6e}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.4s, v1.4h, v2.4h",
+			wantErr: false,
+		},
+		{
+			name: "fmlal	v0.2s, v1.2h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0xb2, 0x0f}),
+				address:          0,
+			},
+			want: "fmlal	v0.2s, v1.2h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.2s, v1.2h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x48, 0xb2, 0x0f}),
+				address:          0,
+			},
+			want: "fmlsl	v0.2s, v1.2h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal	v0.4s, v1.4h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0xb2, 0x4f}),
+				address:          0,
+			},
+			want: "fmlal	v0.4s, v1.4h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.4s, v1.4h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x48, 0xb2, 0x4f}),
+				address:          0,
+			},
+			want: "fmlsl	v0.4s, v1.4h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.2s, v1.2h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x88, 0xb2, 0x2f}),
+				address:          0,
+			},
+			want: "fmlal2	v0.2s, v1.2h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.2s, v1.2h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc8, 0xb2, 0x2f}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.2s, v1.2h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.4s, v1.4h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x88, 0xb2, 0x6f}),
+				address:          0,
+			},
+			want: "fmlal2	v0.4s, v1.4h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.4s, v1.4h, v2.h[7]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc8, 0xb2, 0x6f}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.4s, v1.4h, v2.h[7]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal	v0.2s, v1.2h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0x92, 0x0f}),
+				address:          0,
+			},
+			want: "fmlal	v0.2s, v1.2h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.2s, v1.2h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x48, 0x92, 0x0f}),
+				address:          0,
+			},
+			want: "fmlsl	v0.2s, v1.2h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal	v0.4s, v1.4h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x08, 0x92, 0x4f}),
+				address:          0,
+			},
+			want: "fmlal	v0.4s, v1.4h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl	v0.4s, v1.4h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x48, 0x92, 0x4f}),
+				address:          0,
+			},
+			want: "fmlsl	v0.4s, v1.4h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.2s, v1.2h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x88, 0x92, 0x2f}),
+				address:          0,
+			},
+			want: "fmlal2	v0.2s, v1.2h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.2s, v1.2h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc8, 0x92, 0x2f}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.2s, v1.2h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlal2	v0.4s, v1.4h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x88, 0x92, 0x6f}),
+				address:          0,
+			},
+			want: "fmlal2	v0.4s, v1.4h, v2.h[5]",
+			wantErr: false,
+		},
+		{
+			name: "fmlsl2	v0.4s, v1.4h, v2.h[5]",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc8, 0x92, 0x6f}),
+				address:          0,
+			},
+			want: "fmlsl2	v0.4s, v1.4h, v2.h[5]",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -5792,159 +6014,159 @@ func Test_decompose_v8_3a(t *testing.T) {
 		//
 		// llvm/test/MC/AArch64/armv8.3a-complex_nofp16.s
 		//
-		// {
-		// 	name: "fcmla	v0.2s, v1.2s, v2.2s, #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2s, v1.2s, v2.2s, #0",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.4s, #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x6e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.4s, #0",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.2d, v1.2d, v2.2d, #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0xc2, 0x6e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2d, v1.2d, v2.2d, #0",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.2s, v1.2s, v2.2s, #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2s, v1.2s, v2.2s, #0",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.2s, v1.2s, v2.2s, #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2s, v1.2s, v2.2s, #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.2s, v1.2s, v2.2s, #180",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2s, v1.2s, v2.2s, #180",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.2s, v1.2s, v2.2s, #270",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdc, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.2s, v1.2s, v2.2s, #270",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcadd	v0.2s, v1.2s, v2.2s, #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcadd	v0.2s, v1.2s, v2.2s, #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcadd	v0.4s, v1.4s, v2.4s, #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x6e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcadd	v0.4s, v1.4s, v2.4s, #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcadd	v0.2d, v1.2d, v2.2d, #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0xc2, 0x6e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcadd	v0.2d, v1.2d, v2.2d, #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcadd	v0.2s, v1.2s, v2.2s, #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcadd	v0.2s, v1.2s, v2.2s, #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcadd	v0.2s, v1.2s, v2.2s, #270",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xf4, 0x82, 0x2e}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcadd	v0.2s, v1.2s, v2.2s, #270",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.s[0], #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x10, 0x82, 0x6f}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.s[0], #0",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.s[0], #90",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x30, 0x82, 0x6f}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.s[0], #90",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.s[0], #180",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x50, 0x82, 0x6f}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.s[0], #180",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.s[0], #270",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x70, 0x82, 0x6f}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.s[0], #270",
-		// 	wantErr: false,
-		// },
-		// {
-		// 	name: "fcmla	v0.4s, v1.4s, v2.s[1], #0",
-		// 	args: args{
-		// 		instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x18, 0x82, 0x6f}),
-		// 		address:          0,
-		// 	},
-		// 	want: "fcmla	v0.4s, v1.4s, v2.s[1], #0",
-		// 	wantErr: false,
-		// },
+		{
+			name: "fcmla	v0.2s, v1.2s, v2.2s, #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2s, v1.2s, v2.2s, #0",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.4s, #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x6e}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.4s, #0",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.2d, v1.2d, v2.2d, #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0xc2, 0x6e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2d, v1.2d, v2.2d, #0",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.2s, v1.2s, v2.2s, #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xc4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2s, v1.2s, v2.2s, #0",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.2s, v1.2s, v2.2s, #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xcc, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2s, v1.2s, v2.2s, #90",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.2s, v1.2s, v2.2s, #180",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2s, v1.2s, v2.2s, #180",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.2s, v1.2s, v2.2s, #270",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdc, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcmla	v0.2s, v1.2s, v2.2s, #270",
+			wantErr: false,
+		},
+		{
+			name: "fcadd	v0.2s, v1.2s, v2.2s, #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcadd	v0.2s, v1.2s, v2.2s, #90",
+			wantErr: false,
+		},
+		{
+			name: "fcadd	v0.4s, v1.4s, v2.4s, #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x6e}),
+				address:          0,
+			},
+			want: "fcadd	v0.4s, v1.4s, v2.4s, #90",
+			wantErr: false,
+		},
+		{
+			name: "fcadd	v0.2d, v1.2d, v2.2d, #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0xc2, 0x6e}),
+				address:          0,
+			},
+			want: "fcadd	v0.2d, v1.2d, v2.2d, #90",
+			wantErr: false,
+		},
+		{
+			name: "fcadd	v0.2s, v1.2s, v2.2s, #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xe4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcadd	v0.2s, v1.2s, v2.2s, #90",
+			wantErr: false,
+		},
+		{
+			name: "fcadd	v0.2s, v1.2s, v2.2s, #270",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xf4, 0x82, 0x2e}),
+				address:          0,
+			},
+			want: "fcadd	v0.2s, v1.2s, v2.2s, #270",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.s[0], #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x10, 0x82, 0x6f}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.s[0], #0",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.s[0], #90",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x30, 0x82, 0x6f}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.s[0], #90",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.s[0], #180",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x50, 0x82, 0x6f}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.s[0], #180",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.s[0], #270",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x70, 0x82, 0x6f}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.s[0], #270",
+			wantErr: false,
+		},
+		{
+			name: "fcmla	v0.4s, v1.4s, v2.s[1], #0",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0x18, 0x82, 0x6f}),
+				address:          0,
+			},
+			want: "fcmla	v0.4s, v1.4s, v2.s[1], #0",
+			wantErr: false,
+		},
 
 		//
 		// llvm/test/MC/AArch64/armv8.3a-complex.s
@@ -6965,14 +7187,19 @@ func Test_decompose_v8_3a(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("disassemble() = ERROR, error = %v, want %v, wantErr %v", err, tt.want, tt.wantErr)
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(decOut, tt.want) {
-				// fmt.Printf("want: %s\n", tt.want)
-				// fmt.Printf("got:  %s\n", decOut)
-				// got, _ = decompose(tt.args.instructionValue, tt.args.address)
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
@@ -9270,581 +9497,582 @@ func Test_decompose_v8_6a(t *testing.T) {
 	}{
 		// llvm/test/MC/AArch64/armv8.6a-amvs.s
 		{
-			name: "msr	    AMEVCNTVOFF00_EL2, x0",
+			name: "msr	amevcntvoff00_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF00_EL2, x0",
+			want: "msr	amevcntvoff00_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF01_EL2, x0",
+			name: "msr	amevcntvoff01_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF01_EL2, x0",
+			want: "msr	amevcntvoff01_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF02_EL2, x0",
+			name: "msr	amevcntvoff02_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF02_EL2, x0",
+			want: "msr	amevcntvoff02_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF03_EL2, x0",
+			name: "msr	amevcntvoff03_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF03_EL2, x0",
+			want: "msr	amevcntvoff03_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF04_EL2, x0",
+			name: "msr	amevcntvoff04_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF04_EL2, x0",
+			want: "msr	amevcntvoff04_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF05_EL2, x0",
+			name: "msr	amevcntvoff05_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF05_EL2, x0",
+			want: "msr	amevcntvoff05_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF06_EL2, x0",
+			name: "msr	amevcntvoff06_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF06_EL2, x0",
+			want: "msr	amevcntvoff06_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF07_EL2, x0",
+			name: "msr	amevcntvoff07_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd8, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF07_EL2, x0",
+			want: "msr	amevcntvoff07_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF08_EL2, x0",
+			name: "msr	amevcntvoff08_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF08_EL2, x0",
+			want: "msr	amevcntvoff08_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF09_EL2, x0",
+			name: "msr	amevcntvoff09_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF09_EL2, x0",
+			want: "msr	amevcntvoff09_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF010_EL2, x0",
+			name: "msr	amevcntvoff010_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF010_EL2, x0",
+			want: "msr	amevcntvoff010_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF011_EL2, x0",
+			name: "msr	amevcntvoff011_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF011_EL2, x0",
+			want: "msr	amevcntvoff011_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF012_EL2, x0",
+			name: "msr	amevcntvoff012_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF012_EL2, x0",
+			want: "msr	amevcntvoff012_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF013_EL2, x0",
+			name: "msr	amevcntvoff013_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF013_EL2, x0",
+			want: "msr	amevcntvoff013_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF014_EL2, x0",
+			name: "msr	amevcntvoff014_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF014_EL2, x0",
+			want: "msr	amevcntvoff014_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF015_EL2, x0",
+			name: "msr	amevcntvoff015_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd9, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF015_EL2, x0",
+			want: "msr	amevcntvoff015_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF00_EL2",
+			name: "mrs	x0, amevcntvoff00_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF00_EL2",
+			want: "mrs	x0, amevcntvoff00_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF01_EL2",
+			name: "mrs	x0, amevcntvoff01_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF01_EL2",
+			want: "mrs	x0, amevcntvoff01_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF02_EL2",
+			name: "mrs	x0, amevcntvoff02_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF02_EL2",
+			want: "mrs	x0, amevcntvoff02_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF03_EL2",
+			name: "mrs	x0, amevcntvoff03_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF03_EL2",
+			want: "mrs	x0, amevcntvoff03_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF04_EL2",
+			name: "mrs	x0, amevcntvoff04_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF04_EL2",
+			want: "mrs	x0, amevcntvoff04_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF05_EL2",
+			name: "mrs	x0, amevcntvoff05_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF05_EL2",
+			want: "mrs	x0, amevcntvoff05_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF06_EL2",
+			name: "mrs	x0, amevcntvoff06_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF06_EL2",
+			want: "mrs	x0, amevcntvoff06_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF07_EL2",
+			name: "mrs	x0, amevcntvoff07_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd8, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF07_EL2",
+			want: "mrs	x0, amevcntvoff07_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF08_EL2",
+			name: "mrs	x0, amevcntvoff08_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF08_EL2",
+			want: "mrs	x0, amevcntvoff08_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF09_EL2",
+			name: "mrs	x0, amevcntvoff09_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF09_EL2",
+			want: "mrs	x0, amevcntvoff09_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF010_EL2",
+			name: "mrs	x0, amevcntvoff010_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF010_EL2",
+			want: "mrs	x0, amevcntvoff010_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF011_EL2",
+			name: "mrs	x0, amevcntvoff011_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF011_EL2",
+			want: "mrs	x0, amevcntvoff011_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF012_EL2",
+			name: "mrs	x0, amevcntvoff012_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF012_EL2",
+			want: "mrs	x0, amevcntvoff012_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF013_EL2",
+			name: "mrs	x0, amevcntvoff013_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF013_EL2",
+			want: "mrs	x0, amevcntvoff013_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF014_EL2",
+			name: "mrs	x0, amevcntvoff014_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF014_EL2",
+			want: "mrs	x0, amevcntvoff014_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF015_EL2",
+			name: "mrs	x0, amevcntvoff015_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xd9, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF015_EL2",
+			want: "mrs	x0, amevcntvoff015_el2",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF10_EL2, x0",
+			name: "msr	amevcntvoff10_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF10_EL2, x0",
+			want: "msr	amevcntvoff10_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF11_EL2, x0",
+			name: "msr	amevcntvoff11_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF11_EL2, x0",
+			want: "msr	amevcntvoff11_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF12_EL2, x0",
+			name: "msr	amevcntvoff12_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF12_EL2, x0",
+			want: "msr	amevcntvoff12_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF13_EL2, x0",
+			name: "msr	amevcntvoff13_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF13_EL2, x0",
+			want: "msr	amevcntvoff13_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF14_EL2, x0",
+			name: "msr	amevcntvoff14_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF14_EL2, x0",
+			want: "msr	amevcntvoff14_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF15_EL2, x0",
+			name: "msr	amevcntvoff15_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF15_EL2, x0",
+			want: "msr	amevcntvoff15_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF16_EL2, x0",
+			name: "msr	amevcntvoff16_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF16_EL2, x0",
+			want: "msr	amevcntvoff16_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF17_EL2, x0",
+			name: "msr	amevcntvoff17_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xda, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF17_EL2, x0",
+			want: "msr	amevcntvoff17_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF18_EL2, x0",
+			name: "msr	amevcntvoff18_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF18_EL2, x0",
+			want: "msr	amevcntvoff18_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF19_EL2, x0",
+			name: "msr	amevcntvoff19_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF19_EL2, x0",
+			want: "msr	amevcntvoff19_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF110_EL2, x0",
+			name: "msr	amevcntvoff110_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF110_EL2, x0",
+			want: "msr	amevcntvoff110_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF111_EL2, x0",
+			name: "msr	amevcntvoff111_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF111_EL2, x0",
+			want: "msr	amevcntvoff111_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF112_EL2, x0",
+			name: "msr	amevcntvoff112_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF112_EL2, x0",
+			want: "msr	amevcntvoff112_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF113_EL2, x0",
+			name: "msr	amevcntvoff113_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF113_EL2, x0",
+			want: "msr	amevcntvoff113_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF114_EL2, x0",
+			name: "msr	amevcntvoff114_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF114_EL2, x0",
+			want: "msr	amevcntvoff114_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    AMEVCNTVOFF115_EL2, x0",
+			name: "msr	amevcntvoff115_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xdb, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    AMEVCNTVOFF115_EL2, x0",
+			want: "msr	amevcntvoff115_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF10_EL2",
+			name: "mrs	x0, amevcntvoff10_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF10_EL2",
+			want: "mrs	x0, amevcntvoff10_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF11_EL2",
+			name: "mrs	x0, amevcntvoff11_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF11_EL2",
+			want: "mrs	x0, amevcntvoff11_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF12_EL2",
+			name: "mrs	x0, amevcntvoff12_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF12_EL2",
+			want: "mrs	x0, amevcntvoff12_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF13_EL2",
+			name: "mrs	x0, amevcntvoff13_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF13_EL2",
+			want: "mrs	x0, amevcntvoff13_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF14_EL2",
+			name: "mrs	x0, amevcntvoff14_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF14_EL2",
+			want: "mrs	x0, amevcntvoff14_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF15_EL2",
+			name: "mrs	x0, amevcntvoff15_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF15_EL2",
+			want: "mrs	x0, amevcntvoff15_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF16_EL2",
+			name: "mrs	x0, amevcntvoff16_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF16_EL2",
+			want: "mrs	x0, amevcntvoff16_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF17_EL2",
+			name: "mrs	x0, amevcntvoff17_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xda, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF17_EL2",
+			want: "mrs	x0, amevcntvoff17_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF18_EL2",
+			name: "mrs	x0, amevcntvoff18_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x00, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF18_EL2",
+			want: "mrs	x0, amevcntvoff18_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF19_EL2",
+			name: "mrs	x0, amevcntvoff19_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x20, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF19_EL2",
+			want: "mrs	x0, amevcntvoff19_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF110_EL2",
+			name: "mrs	x0, amevcntvoff110_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x40, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF110_EL2",
+			want: "mrs	x0, amevcntvoff110_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF111_EL2",
+			name: "mrs	x0, amevcntvoff111_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x60, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF111_EL2",
+			want: "mrs	x0, amevcntvoff111_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF112_EL2",
+			name: "mrs	x0, amevcntvoff112_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF112_EL2",
+			want: "mrs	x0, amevcntvoff112_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF113_EL2",
+			name: "mrs	x0, amevcntvoff113_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa0, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF113_EL2",
+			want: "mrs	x0, amevcntvoff113_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF114_EL2",
+			name: "mrs	x0, amevcntvoff114_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xc0, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF114_EL2",
+			want: "mrs	x0, amevcntvoff114_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, AMEVCNTVOFF115_EL2",
+			name: "mrs	x0, amevcntvoff115_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe0, 0xdb, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, AMEVCNTVOFF115_EL2",
+			want: "mrs	x0, amevcntvoff115_el2",
 			wantErr: false,
 		},
+
 		// llvm/test/MC/AArch64/armv8.6a-bf16.s
 		{
 			name: "bfdot	v2.2s, v3.4h, v4.4h",
@@ -9865,75 +10093,75 @@ func Test_decompose_v8_6a(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "bfdot	  v2.2s, v3.4h, v4.2h[0]",
+			name: "bfdot	v2.2s, v3.4h, v4.2h[0]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x44, 0x0f}),
 				address:          0,
 			},
-			want: "bfdot	  v2.2s, v3.4h, v4.2h[0]",
+			want: "bfdot	v2.2s, v3.4h, v4.2h[0]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	  v2.2s, v3.4h, v4.2h[1]",
+			name: "bfdot	v2.2s, v3.4h, v4.2h[1]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x64, 0x0f}),
 				address:          0,
 			},
-			want: "bfdot	  v2.2s, v3.4h, v4.2h[1]",
+			want: "bfdot	v2.2s, v3.4h, v4.2h[1]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	  v2.2s, v3.4h, v4.2h[2]",
+			name: "bfdot	v2.2s, v3.4h, v4.2h[2]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x44, 0x0f}),
 				address:          0,
 			},
-			want: "bfdot	  v2.2s, v3.4h, v4.2h[2]",
+			want: "bfdot	v2.2s, v3.4h, v4.2h[2]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	  v2.2s, v3.4h, v4.2h[3]",
+			name: "bfdot	v2.2s, v3.4h, v4.2h[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x64, 0x0f}),
 				address:          0,
 			},
-			want: "bfdot	  v2.2s, v3.4h, v4.2h[3]",
+			want: "bfdot	v2.2s, v3.4h, v4.2h[3]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	 v2.4s, v3.8h, v4.2h[0]",
+			name: "bfdot	v2.4s, v3.8h, v4.2h[0]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x44, 0x4f}),
 				address:          0,
 			},
-			want: "bfdot	 v2.4s, v3.8h, v4.2h[0]",
+			want: "bfdot	v2.4s, v3.8h, v4.2h[0]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	 v2.4s, v3.8h, v4.2h[1]",
+			name: "bfdot	v2.4s, v3.8h, v4.2h[1]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf0, 0x64, 0x4f}),
 				address:          0,
 			},
-			want: "bfdot	 v2.4s, v3.8h, v4.2h[1]",
+			want: "bfdot	v2.4s, v3.8h, v4.2h[1]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	 v2.4s, v3.8h, v4.2h[2]",
+			name: "bfdot	v2.4s, v3.8h, v4.2h[2]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x44, 0x4f}),
 				address:          0,
 			},
-			want: "bfdot	 v2.4s, v3.8h, v4.2h[2]",
+			want: "bfdot	v2.4s, v3.8h, v4.2h[2]",
 			wantErr: false,
 		},
 		{
-			name: "bfdot	 v2.4s, v3.8h, v4.2h[3]",
+			name: "bfdot	v2.4s, v3.8h, v4.2h[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xf8, 0x64, 0x4f}),
 				address:          0,
 			},
-			want: "bfdot	 v2.4s, v3.8h, v4.2h[3]",
+			want: "bfdot	v2.4s, v3.8h, v4.2h[3]",
 			wantErr: false,
 		},
 		{
@@ -9955,12 +10183,12 @@ func Test_decompose_v8_6a(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "bfcvtn	 v5.4h, v5.4s",
+			name: "bfcvtn	v5.4h, v5.4s",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x68, 0xa1, 0x0e}),
 				address:          0,
 			},
-			want: "bfcvtn	 v5.4h, v5.4s",
+			want: "bfcvtn	v5.4h, v5.4s",
 			wantErr: false,
 		},
 		{
@@ -9973,21 +10201,30 @@ func Test_decompose_v8_6a(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "bfcvt	  h5, s3",
+			name: "bfcvt	h5, s3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x65, 0x40, 0x63, 0x1e}),
 				address:          0,
 			},
-			want: "bfcvt	  h5, s3",
+			want: "bfcvt	h5, s3",
 			wantErr: false,
 		},
 		{
-			name: "bfmlalb	v10.4s,	v21.8h, v14.8h",
+			name: "bfmlalb	v10.4s, v21.8h, v14.8h",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0xfe, 0xce, 0x2e}),
 				address:          0,
 			},
-			want: "bfmlalb	v10.4s,	v21.8h, v14.8h",
+			want: "bfmlalb	v10.4s, v21.8h, v14.8h",
+			wantErr: false,
+		},
+		{
+			name: "bfmlalt	v21.4s, v14.8h, v10.8h",
+			args: args{
+				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xfd, 0xca, 0x6e}),
+				address:          0,
+			},
+			want: "bfmlalt	v21.4s, v14.8h, v10.8h",
 			wantErr: false,
 		},
 		{
@@ -9997,15 +10234,6 @@ func Test_decompose_v8_6a(t *testing.T) {
 				address:          0,
 			},
 			want: "bfmlalb	v14.4s, v21.8h, v10.h[1]",
-			wantErr: false,
-		},
-		{
-			name: "bfmlalt	v21.4s,	v14.8h, v10.8h",
-			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd5, 0xfd, 0xca, 0x6e}),
-				address:          0,
-			},
-			want: "bfmlalt	v21.4s,	v14.8h, v10.8h",
 			wantErr: false,
 		},
 		{
@@ -10055,286 +10283,286 @@ func Test_decompose_v8_6a(t *testing.T) {
 		},
 		// llvm/test/MC/AArch64/armv8.6a-ecv.s
 		{
-			name: "msr	    CNTSCALE_EL2, x1",
+			name: "msr	cntscale_el2, x1",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0xe0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTSCALE_EL2, x1",
+			want: "msr	cntscale_el2, x1",
 			wantErr: false,
 		},
 		{
-			name: "msr	    CNTISCALE_EL2, x11",
+			name: "msr	cntiscale_el2, x11",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xab, 0xe0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTISCALE_EL2, x11",
+			want: "msr	cntiscale_el2, x11",
 			wantErr: false,
 		},
 		{
-			name: "msr	    CNTPOFF_EL2, x22",
+			name: "msr	cntpoff_el2, x22",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xd6, 0xe0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTPOFF_EL2, x22",
+			want: "msr	cntpoff_el2, x22",
 			wantErr: false,
 		},
 		{
-			name: "msr	    CNTVFRQ_EL2, x3",
+			name: "msr	cntvfrq_el2, x3",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0xe0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTVFRQ_EL2, x3",
+			want: "msr	cntvfrq_el2, x3",
 			wantErr: false,
 		},
 		{
-			name: "msr	    CNTPCTSS_EL0, x13",
+			name: "msr	cntpctss_el0, x13",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xad, 0xe0, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTPCTSS_EL0, x13",
+			want: "msr	cntpctss_el0, x13",
 			wantErr: false,
 		},
 		{
-			name: "msr	    CNTVCTSS_EL0, x23",
+			name: "msr	cntvctss_el0, x23",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xe0, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    CNTVCTSS_EL0, x23",
+			want: "msr	cntvctss_el0, x23",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x0, CNTSCALE_EL2",
+			name: "mrs	x0, cntscale_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0xe0, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x0, CNTSCALE_EL2",
+			want: "mrs	x0, cntscale_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x5, CNTISCALE_EL2",
+			name: "mrs	x5, cntiscale_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0xe0, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x5, CNTISCALE_EL2",
+			want: "mrs	x5, cntiscale_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x10, CNTPOFF_EL2",
+			name: "mrs	x10, cntpoff_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0xe0, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x10, CNTPOFF_EL2",
+			want: "mrs	x10, cntpoff_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x15, CNTVFRQ_EL2",
+			name: "mrs	x15, cntvfrq_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xef, 0xe0, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x15, CNTVFRQ_EL2",
+			want: "mrs	x15, cntvfrq_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x20, CNTPCTSS_EL0",
+			name: "mrs	x20, cntpctss_el0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0xe0, 0x3b, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x20, CNTPCTSS_EL0",
+			want: "mrs	x20, cntpctss_el0",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x30, CNTVCTSS_EL0",
+			name: "mrs	x30, cntvctss_el0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xde, 0xe0, 0x3b, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x30, CNTVCTSS_EL0",
+			want: "mrs	x30, cntvctss_el0",
 			wantErr: false,
 		},
 
 		// llvm/test/MC/AArch64/armv8.6a-fgt.s
 		{
-			name: "msr	    HFGRTR_EL2, x0",
+			name: "msr	hfgrtr_el2, x0",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x80, 0x11, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    HFGRTR_EL2, x0",
+			want: "msr	hfgrtr_el2, x0",
 			wantErr: false,
 		},
 		{
-			name: "msr	    HFGWTR_EL2, x5",
+			name: "msr	hfgwtr_el2, x5",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xa5, 0x11, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    HFGWTR_EL2, x5",
+			want: "msr	hfgwtr_el2, x5",
 			wantErr: false,
 		},
 		{
-			name: "msr	    HFGITR_EL2, x10",
+			name: "msr	hfgitr_el2, x10",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xca, 0x11, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    HFGITR_EL2, x10",
+			want: "msr	hfgitr_el2, x10",
 			wantErr: false,
 		},
 		{
-			name: "msr	    HDFGRTR_EL2, x15",
+			name: "msr	hdfgrtr_el2, x15",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x31, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    HDFGRTR_EL2, x15",
+			want: "msr	hdfgrtr_el2, x15",
 			wantErr: false,
 		},
 		{
-			name: "msr	    HDFGWTR_EL2, x20",
+			name: "msr	hdfgwtr_el2, x20",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xb4, 0x31, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	    HDFGWTR_EL2, x20",
+			want: "msr	hdfgwtr_el2, x20",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x30, HFGRTR_EL2",
+			name: "mrs	x30, hfgrtr_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x9e, 0x11, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x30, HFGRTR_EL2",
+			want: "mrs	x30, hfgrtr_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x25, HFGWTR_EL2",
+			name: "mrs	x25, hfgwtr_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xb9, 0x11, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x25, HFGWTR_EL2",
+			want: "mrs	x25, hfgwtr_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x20, HFGITR_EL2",
+			name: "mrs	x20, hfgitr_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xd4, 0x11, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x20, HFGITR_EL2",
+			want: "mrs	x20, hfgitr_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x15, HDFGRTR_EL2",
+			name: "mrs	x15, hdfgrtr_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x8f, 0x31, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x15, HDFGRTR_EL2",
+			want: "mrs	x15, hdfgrtr_el2",
 			wantErr: false,
 		},
 		{
-			name: "mrs	    x10, HDFGWTR_EL2",
+			name: "mrs	x10, hdfgwtr_el2",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xaa, 0x31, 0x3c, 0xd5}),
 				address:          0,
 			},
-			want: "mrs	    x10, HDFGWTR_EL2",
+			want: "mrs	x10, hdfgwtr_el2",
 			wantErr: false,
 		},
 
 		// llvm/test/MC/AArch64/armv8.6a-simd-matmul.s
 		{
-			name: "smmla	  v1.4s, v16.16b, v31.16b",
+			name: "smmla	v1.4s, v16.16b, v31.16b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xa6, 0x9f, 0x4e}),
 				address:          0,
 			},
-			want: "smmla	  v1.4s, v16.16b, v31.16b",
+			want: "smmla	v1.4s, v16.16b, v31.16b",
 			wantErr: false,
 		},
 		{
-			name: "ummla	  v1.4s, v16.16b, v31.16b",
+			name: "ummla	v1.4s, v16.16b, v31.16b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xa6, 0x9f, 0x6e}),
 				address:          0,
 			},
-			want: "ummla	  v1.4s, v16.16b, v31.16b",
+			want: "ummla	v1.4s, v16.16b, v31.16b",
 			wantErr: false,
 		},
 		{
-			name: "usmmla	 v1.4s, v16.16b, v31.16b",
+			name: "usmmla	v1.4s, v16.16b, v31.16b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xae, 0x9f, 0x4e}),
 				address:          0,
 			},
-			want: "usmmla	 v1.4s, v16.16b, v31.16b",
+			want: "usmmla	v1.4s, v16.16b, v31.16b",
 			wantErr: false,
 		},
 		{
-			name: "usdot	  v3.2s, v15.8b, v30.8b",
+			name: "usdot	v3.2s, v15.8b, v30.8b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x9d, 0x9e, 0x0e}),
 				address:          0,
 			},
-			want: "usdot	  v3.2s, v15.8b, v30.8b",
+			want: "usdot	v3.2s, v15.8b, v30.8b",
 			wantErr: false,
 		},
 		{
-			name: "usdot	  v3.4s, v15.16b, v30.16b",
+			name: "usdot	v3.4s, v15.16b, v30.16b",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe3, 0x9d, 0x9e, 0x4e}),
 				address:          0,
 			},
-			want: "usdot	  v3.4s, v15.16b, v30.16b",
+			want: "usdot	v3.4s, v15.16b, v30.16b",
 			wantErr: false,
 		},
 		{
-			name: "usdot	  v31.2s, v1.8b, v2.4b[3]",
+			name: "usdot	v31.2s, v1.8b, v2.4b[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0xa2, 0x0f}),
 				address:          0,
 			},
-			want: "usdot	  v31.2s, v1.8b, v2.4b[3]",
+			want: "usdot	v31.2s, v1.8b, v2.4b[3]",
 			wantErr: false,
 		},
 		{
-			name: "usdot	  v31.4s, v1.16b, v2.4b[3]",
+			name: "usdot	v31.4s, v1.16b, v2.4b[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0xa2, 0x4f}),
 				address:          0,
 			},
-			want: "usdot	  v31.4s, v1.16b, v2.4b[3]",
+			want: "usdot	v31.4s, v1.16b, v2.4b[3]",
 			wantErr: false,
 		},
 		{
-			name: "sudot	  v31.2s, v1.8b, v2.4b[3]",
+			name: "sudot	v31.2s, v1.8b, v2.4b[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0x22, 0x0f}),
 				address:          0,
 			},
-			want: "sudot	  v31.2s, v1.8b, v2.4b[3]",
+			want: "sudot	v31.2s, v1.8b, v2.4b[3]",
 			wantErr: false,
 		},
 		{
-			name: "sudot	  v31.4s, v1.16b, v2.4b[3]",
+			name: "sudot	v31.4s, v1.16b, v2.4b[3]",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0x3f, 0xf8, 0x22, 0x4f}),
 				address:          0,
 			},
-			want: "sudot	  v31.4s, v1.16b, v2.4b[3]",
+			want: "sudot	v31.4s, v1.16b, v2.4b[3]",
 			wantErr: false,
 		},
 	}
@@ -10342,13 +10570,20 @@ func Test_decompose_v8_6a(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			hexOut, _ := got.disassemble(false)
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(hexOut, tt.want) || !reflect.DeepEqual(decOut, tt.want) {
-				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
+				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
 	}
