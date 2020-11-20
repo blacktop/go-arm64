@@ -20,12 +20,12 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "msr	cntvctss_el0, x23",
+			name: "msr	uao, x1",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0xd7, 0xe0, 0x1b, 0xd5}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x42, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "msr	cntvctss_el0, x23",
+			want: "msr	uao, x1",
 			wantErr: false,
 		},
 	}
@@ -5989,11 +5989,19 @@ func Test_decompose_v8_2a(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("disassemble() error = %v, want %v, wantErr %v", err, tt.want, tt.wantErr)
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(decOut, tt.want) {
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})

@@ -1973,7 +1973,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	var regBase = []uint32{REG_W_BASE, REG_X_BASE}
 
 	decode := LdstExclusive(i.raw)
-
+	fmt.Println(decode)
 	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
 	i.operation = operation[decode.Size()][decode.L()][opcode]
 
@@ -2032,6 +2032,10 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 		}
 		i.operands[idx].OpClass = MEM_REG
 		i.operands[idx].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
+	}
+
+	if i.operation == ARM64_STLLR || i.operation == ARM64_STLLRB || i.operation == ARM64_STLLRH {
+		i.deleteOperand(0)
 	}
 
 	if i.operation == ARM64_UNDEFINED {
@@ -2161,7 +2165,7 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 
 	var operation = [8][4][4]Operation{
 		{
-			{ARM64_LDADDB, ARM64_LDADDLB, ARM64_LDADDAB, ARM64_LDADDALB},
+			{ARM64_LDADDB, ARM64_STADDLB, ARM64_LDADDAB, ARM64_LDADDALB},
 			{ARM64_LDADDH, ARM64_LDADDLH, ARM64_LDADDAH, ARM64_LDADDALH},
 			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
 			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
@@ -2183,7 +2187,7 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 		}, {
 			{ARM64_LDSMAXB, ARM64_LDSMAXLB, ARM64_LDAPRB, ARM64_LDSMAXALB},
 			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDAPRH, ARM64_LDSMAXALH},
-			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
 			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
 		}, {
 			{ARM64_LDSMINB, ARM64_LDSMINLB, ARM64_LDSMINAB, ARM64_LDSMINALB},
@@ -2220,15 +2224,21 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 	* LDAPRB <Wt>, [<Xn|SP> {,#0}]
 	* LDAPRH <Wt>, [<Xn|SP> {,#0}]
 	 */
-	if (i.raw & 0x38BFC000) == 0x38BFC000 {
-		i.operands[0] = i.operands[1]
-		i.operands[1] = i.operands[2]
-		i.operands[2].OpClass = NONE
+	if (i.raw & 0xFFFFFE00) == 0x38BFC000 {
+		i.deleteOperand(1)
+		// i.operands[0] = i.operands[1]
+		// i.operands[1] = i.operands[2]
+		// i.operands[2].OpClass = NONE
+	}
+
+	if decode.A() == 0 && decode.Rt() == 31 {
+		i.deleteOperand(1)
 	}
 
 	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
 	}
+
 	return i, nil
 }
 
@@ -5806,7 +5816,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 }
 
 func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, error) {
-	// fmt.Println(decode)
+	fmt.Println(decode)
 	switch decode.Crn() {
 	case 2: //Architectural hints
 		switch (decode.Crm() << 3) | decode.Op2() {
@@ -5844,7 +5854,9 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 			i.operation = ARM64_ESB
 			break
 		case 17:
-			i.operation = ARM64_PSBCSYNC
+			i.operation = ARM64_PSB
+			i.operands[0].OpClass = SYS_REG
+			i.operands[0].Reg[0] = uint32(REG_CSYNC)
 			break
 
 		// Added for 8.3
@@ -5942,12 +5954,18 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 				i.operands[0].Immediate = uint64(decode.Crm())
 			}
 			break
+		case 7:
+			i.operation = ARM64_SB
+			break
 		default:
 			return nil, failedToDecodeInstruction
 		}
 		break
 	case 4: //PSTATE Access
 		switch decode.Op2() {
+		case 3:
+			i.operands[0].Reg[0] = uint32(REG_UAO)
+			break
 		case 4:
 			if decode.Op1() == 0 { // MSR PAN, <Xt>
 				i.operands[0].Reg[0] = uint32(REG_PAN)
@@ -6673,6 +6691,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				case 0:
 					sysreg = REG_TTBR0_EL2
 					break
+				case 1:
+					sysreg = REG_TTBR1_EL2
+					break
 				case 2:
 					sysreg = REG_TCR_EL2
 					break
@@ -6752,6 +6773,8 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					sysreg = REG_CURRENT_EL
 				} else if decode.Op2() == 3 {
 					sysreg = REG_PAN
+				} else if decode.Op2() == 4 {
+					sysreg = REG_UAO
 				}
 				break
 			case 6:
@@ -6945,7 +6968,43 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				} else if decode.Op2() == 2 {
 					sysreg = REG_PMINTENCLR_EL1
 				}
-			} else if decode.Op1() == 3 {
+			} else if decode.Op1() == 0 && decode.Crm() == 0b1010 {
+				switch decode.Op2() {
+				case 0:
+					sysreg = REG_PMBLIMITR_EL1
+				case 1:
+					sysreg = REG_PMBPTR_EL1
+				case 3:
+					sysreg = REG_PMBSR_EL1
+				case 7:
+					sysreg = REG_PMBIDR_EL1
+				}
+			} else if decode.Op2() == 0 && decode.Crm() == 0b1001 {
+				switch decode.Op1() {
+				case 0:
+					sysreg = REG_PMSCR_EL1
+				case 4:
+					sysreg = REG_PMSCR_EL2
+				case 5:
+					sysreg = REG_PMSCR_EL12
+				}
+			} else if decode.Op1() == 0 && decode.Crm() == 0b1001 {
+				switch decode.Op2() {
+				case 2:
+					sysreg = REG_PMSICR_EL1
+				case 3:
+					sysreg = REG_PMSIRR_EL1
+				case 4:
+					sysreg = REG_PMSFCR_EL1
+				case 5:
+					sysreg = REG_PMSEVFR_EL1
+				case 6:
+					sysreg = REG_PMSLATFR_EL1
+				case 7:
+					sysreg = REG_PMSIDR_EL1
+				}
+			}
+			if decode.Op1() == 3 {
 				var sysregs = [3][8]SystemReg{
 					{
 						REG_PMCR_EL0, REG_PMCNTENSET_EL0, REG_PMCNTENCLR_EL0, REG_PMOVSCLR_EL0,
@@ -7353,7 +7412,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL0, REG_TPIDRRO_EL0, SYSREG_NONE},
-				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
+				{SYSREG_NONE, REG_CONTEXTIDR_EL2, REG_TPIDR_EL2, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, REG_CONTEXTIDR_EL12, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL3, SYSREG_NONE, SYSREG_NONE},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
@@ -7422,12 +7481,12 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{REG_CNTHCTL_EL2, SYSREG_NONE, SYSREG_NONE},
 					{REG_CNTHP_TVAL_EL2, REG_CNTHP_CTL_EL2, REG_CNTHP_CVAL_EL2},
-					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
+					{REG_CNTHV_TVAL_EL2, REG_CNTHV_CTL_EL2, REG_CNTHV_CVAL_EL2},
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{REG_CNTKCTL_EL12, SYSREG_NONE, SYSREG_NONE},
-					{SYSREG_NONE, REG_CNTP_CTL_EL02, REG_CNTP_CVAL_EL02},
-					{SYSREG_NONE, REG_CNTV_CTL_EL02, REG_CNTV_CVAL_EL02},
+					{REG_CNTP_TVAL_EL02, REG_CNTP_CTL_EL02, REG_CNTP_CVAL_EL02},
+					{REG_CNTV_TVAL_EL02, REG_CNTV_CTL_EL02, REG_CNTV_CVAL_EL02},
 				}, {
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 					{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
@@ -7872,7 +7931,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			fmt.Printf("switch: %#x\n", ExtractBits(instructionValue, 10, 2))
 			switch ExtractBits(instructionValue, 10, 2) {
 			case 0:
-				if (instructionValue & 0x1E7E0000) == 0x1E7E0000 {
+				if (instructionValue & 0xFFFFFC00) == 0x1E7E0000 {
 					return instruction.decompose_floating_javascript_conversion()
 				} else if ExtractBits(instructionValue, 12, 1) == 1 {
 					return instruction.decompose_floating_imm()

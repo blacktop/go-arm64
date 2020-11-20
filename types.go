@@ -440,7 +440,7 @@ const (
 	ARM64_PMULL2
 	ARM64_PRFM
 	ARM64_PRFUM
-	ARM64_PSBCSYNC //Added for 8.2
+	ARM64_PSB //Added for 8.2
 	ARM64_RADDHN
 	ARM64_RADDHN2
 	ARM64_RBIT
@@ -469,6 +469,7 @@ const (
 	ARM64_SADDLV
 	ARM64_SADDW
 	ARM64_SADDW2
+	ARM64_SB
 	ARM64_SBC
 	ARM64_SBCS
 	ARM64_SBFIZ
@@ -561,6 +562,7 @@ const (
 	ARM64_ST2G //Added for MTE
 	ARM64_ST3
 	ARM64_ST4
+	ARM64_STADDLB
 	ARM64_STG    //Added for MTE
 	ARM64_STGM   //Added for MTE
 	ARM64_STGP   //Added for MTE
@@ -1157,6 +1159,7 @@ func (o Operation) String() string {
 		"saddlv",
 		"saddw",
 		"saddw2",
+		"sb",
 		"sbc",
 		"sbcs",
 		"sbfiz",
@@ -1249,12 +1252,13 @@ func (o Operation) String() string {
 		"st2g", //Added for MTE
 		"st3",
 		"st4",
-		"stg",    //Added for MTE
-		"stgm",   //Added for MTE
-		"stgp",   //Added for MTE
-		"stllrb", // ARMv8.1
-		"stllrh", // ARMv8.1
-		"stllr",  // ARMv8.1
+		"staddlb", // 8.1
+		"stg",     //Added for MTE
+		"stgm",    //Added for MTE
+		"stgp",    //Added for MTE
+		"stllrb",  // ARMv8.1
+		"stllrh",  // ARMv8.1
+		"stllr",   // ARMv8.1
 		"stlr",
 		"stlrb",
 		"stlrh",
@@ -3867,6 +3871,9 @@ const (
 	REG_CNTHP_CTL_EL2
 	REG_CNTHP_CVAL_EL2
 	REG_CNTHP_TVAL_EL2
+	REG_CNTHV_TVAL_EL2
+	REG_CNTHV_CVAL_EL2
+	REG_CNTHV_CTL_EL2
 	REG_CNTKCTL_EL1
 	REG_CNTKCTL_EL12
 	REG_CNTPCT_EL0
@@ -3878,12 +3885,14 @@ const (
 	REG_CNTP_CVAL_EL0
 	REG_CNTP_CVAL_EL02
 	REG_CNTP_TVAL_EL0
+	REG_CNTP_TVAL_EL02
 	REG_CNTVCT_EL0
 	REG_CNTV_CTL_EL0
 	REG_CNTV_CTL_EL02
 	REG_CNTV_CVAL_EL0
 	REG_CNTV_CVAL_EL02
 	REG_CNTV_TVAL_EL0
+	REG_CNTV_TVAL_EL02
 	REG_CNTSCALE_EL2
 	REG_CNTISCALE_EL2
 	REG_CNTPOFF_EL2
@@ -3891,11 +3900,13 @@ const (
 	REG_CNTVCTSS_EL0
 	REG_CONTEXTIDR_EL1
 	REG_CONTEXTIDR_EL12
+	REG_CONTEXTIDR_EL2
 	REG_CPACR_EL1
 	REG_CPACR_EL12
 	REG_CPTR_EL2
 	REG_CPTR_EL3
 	REG_CSSELR_EL1
+	REG_CSYNC
 	REG_CSW
 	REG_CGSW
 	REG_CGDSW
@@ -4052,6 +4063,19 @@ const (
 	REG_OSLSR_EL1
 	REG_PAN
 	REG_PAR_EL1
+	REG_PMBIDR_EL1
+	REG_PMBLIMITR_EL1
+	REG_PMBPTR_EL1
+	REG_PMBSR_EL1
+	REG_PMSCR_EL2
+	REG_PMSCR_EL12
+	REG_PMSCR_EL1
+	REG_PMSICR_EL1
+	REG_PMSIRR_EL1
+	REG_PMSFCR_EL1
+	REG_PMSEVFR_EL1
+	REG_PMSLATFR_EL1
+	REG_PMSIDR_EL1
 	REG_PMCCNTR_EL0
 	REG_PMCEID0_EL0
 	REG_PMCEID1_EL0
@@ -4112,6 +4136,7 @@ const (
 	REG_TTBR0_EL12
 	REG_TTBR1_EL1
 	REG_TTBR1_EL12
+	REG_TTBR1_EL2
 	REG_TTBR0_EL2
 	REG_TTBR0_EL3
 	REG_VAAE1
@@ -4389,6 +4414,7 @@ const (
 	REG_LORID_EL1
 
 	REG_CNTPCTSS_EL0
+	REG_UAO
 
 	REG_END_REG
 )
@@ -4475,6 +4501,9 @@ func (s SystemReg) String() string {
 		"cnthp_ctl_el2",
 		"cnthp_cval_el2",
 		"cnthp_tval_el2",
+		"cnthv_tval_el2",
+		"cnthv_cval_el2",
+		"cnthv_ctl_el2",
 		"cntkctl_el1",
 		"cntkctl_el12",
 		"cntpct_el0",
@@ -4486,12 +4515,14 @@ func (s SystemReg) String() string {
 		"cntp_cval_el0",
 		"cntp_cval_el02",
 		"cntp_tval_el0",
+		"cntp_tval_el02",
 		"cntvct_el0",
 		"cntv_ctl_el0",
 		"cntv_ctl_el02",
 		"cntv_cval_el0",
 		"cntv_cval_el02",
 		"cntv_tval_el0",
+		"cntv_tval_el02",
 		"cntscale_el2",
 		"cntiscale_el2",
 		"cntpoff_el2",
@@ -4499,11 +4530,13 @@ func (s SystemReg) String() string {
 		"cntvctss_el0",
 		"contextidr_el1",
 		"contextidr_el12",
+		"contextidr_el2",
 		"cpacr_el1",
 		"cpacr_el12",
 		"cptr_el2",
 		"cptr_el3",
 		"csselr_el1",
+		"csync",
 		"csw",
 		"cgsw",
 		"cgdsw",
@@ -4660,6 +4693,19 @@ func (s SystemReg) String() string {
 		"oslsr_el1",
 		"pan",
 		"par_el1",
+		"pmbidr_el1",
+		"pmblimitr_el1",
+		"pmbptr_el1",
+		"pmbsr_el1",
+		"pmscr_el2",
+		"pmscr_el12",
+		"pmscr_el1",
+		"pmsicr_el1",
+		"pmsirr_el1",
+		"pmsfcr_el1",
+		"pmsevfr_el1",
+		"pmslatfr_el1",
+		"pmsidr_el1",
 		"pmccntr_el0",
 		"pmceid0_el0",
 		"pmceid1_el0",
@@ -4720,6 +4766,7 @@ func (s SystemReg) String() string {
 		"ttbr0_el12",
 		"ttbr1_el1",
 		"ttbr1_el12",
+		"ttbr1_el2",
 		"ttbr0_el2",
 		"ttbr0_el3",
 		"vaae1",
@@ -4999,6 +5046,8 @@ func (s SystemReg) String() string {
 		"lorid_el1",
 
 		"cntpctss_el0",
+
+		"uao",
 
 		"END_REG",
 	}[s]
