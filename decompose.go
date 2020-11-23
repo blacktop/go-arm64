@@ -1200,29 +1200,88 @@ func (i *Instruction) decompose_floating_conditional_compare() (*Instruction, er
 	return i, nil
 }
 
-// TODO finish
-func (i *Instruction) decompose_floating_complex_multiply_accumulate() (*Instruction, error) {
-	/* C7.2.62 Floating-point Complex Multiply Accumulate
+// TODO: Finish
+func (i *Instruction) decompose_simd_3_reg_ext() (*Instruction, error) {
+	/* C
 	 *
-	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<Ts>[<index>], #<rotate>
-	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<Ts>[<index>], #<rotate>
-	 * FCMLA <Vd>.<T>, <Vn>.<T>, <Vm>.<T>, #<rotate>
-	 * FCADD <Vd>.<T>, <Vn>.<T>, <Vm>.<T>, #<rotate>
+
 	 */
 
-	decode := FloatingComplexMultiplyAccumulate(i.raw)
+	decode := SimdScalar3RegisterExt(i.raw)
 	fmt.Println(decode)
 
-	i.operation = ARM64_FCMLA
+	switch decode.Opcode() {
+	case 0b0010:
+		if decode.U() == 0 {
+			i.operation = ARM64_SDOT
+			break
+		} else {
+			i.operation = ARM64_UDOT
+			break
+		}
+	case 0b0011:
+		i.operation = ARM64_USDOT
+		break
+	case 0b0000:
+		i.operation = ARM64_SQRDMLAH
+		break
+	case 0b0001:
+		i.operation = ARM64_SQRDMLSH
+		break
+	case 0b1000:
+		fallthrough
+	case 0b1001:
+		fallthrough
+	case 0b1010:
+		fallthrough
+	case 0b1011:
+		if decode.U() == 1 {
+			i.operation = ARM64_FCMLA
+			break
+		}
+	case 0b1100:
+		fallthrough
+	case 0b1110:
+		if decode.U() == 1 {
+			i.operation = ARM64_FCADD
+			break
+		}
+	case 0b1111:
+		if decode.U() == 1 && decode.Size() == 1 {
+			i.operation = ARM64_BFDOT
+			break
+		} else if decode.U() == 1 && decode.Size() == 3 {
+			if decode.Q() == 0 {
+				i.operation = ARM64_BFMLALB
+				break
+			} else {
+				i.operation = ARM64_BFMLALT
+				break
+			}
+		}
+	case 0b0100:
+		if decode.U() == 0 {
+			i.operation = ARM64_SMMLA
+			break
+		} else {
+			i.operation = ARM64_UMMLA
+			break
+		}
+	case 0b0101:
+		i.operation = ARM64_USMMLA
+		break
+	case 0b1101:
+		i.operation = ARM64_BFMMLA
+		break
+	default:
+		i.operation = ARM64_UNDEFINED
+	}
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
 	i.operands[2].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
 	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
 	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-	var rots = [4]uint32{0, 90, 180, 270}
-	i.operands[2].ShiftValueUsed = 1
-	i.operands[2].ShiftValue = rots[decode.Rot()]
 	esize1 := uint32(1 << decode.Size())
 	var dsizeMap = [2]uint32{64, 128}
 	dsize1 := dsizeMap[decode.Q()] / (8 * esize1)
@@ -1265,7 +1324,7 @@ func (i *Instruction) decompose_floating_complex_multiply_accumulate() (*Instruc
 		{0, 1, 1},
 	}
 	for idx := 0; idx < 3; idx++ {
-		if elementMap[decode.Size()][idx] == 0 {
+		if elementMap[decode.Opcode()][idx] == 0 {
 			i.operands[idx].ElementSize = esize2
 			i.operands[idx].DataSize = dsize2
 		} else {
@@ -1274,6 +1333,9 @@ func (i *Instruction) decompose_floating_complex_multiply_accumulate() (*Instruc
 		}
 	}
 
+	if i.operation == ARM64_UNDEFINED {
+		return nil, failedToDisassembleOperation
+	}
 	return i, nil
 }
 
@@ -1337,14 +1399,51 @@ func (i *Instruction) decompose_floating_data_processing1() (*Instruction, error
 	 */
 
 	var regChoice = [2]uint32{REG_S_BASE, REG_D_BASE}
+
 	decode := FloatingDataProcessing1(i.raw)
-	var operation = [16]Operation{
-		ARM64_FMOV, ARM64_FABS, ARM64_FNEG, ARM64_FSQRT,
-		ARM64_FCVT, ARM64_FCVT, ARM64_UNDEFINED, ARM64_FCVT,
-		ARM64_FRINTN, ARM64_FRINTP, ARM64_FRINTM, ARM64_FRINTZ,
-		ARM64_FRINTA, ARM64_UNDEFINED, ARM64_FRINTX, ARM64_FRINTI,
+	fmt.Println(decode)
+	switch decode.Opcode() {
+	case 0:
+		i.operation = ARM64_FMOV
+	case 1:
+		i.operation = ARM64_FABS
+	case 2:
+		i.operation = ARM64_FNEG
+	case 3:
+		i.operation = ARM64_FSQRT
+	case 4:
+		i.operation = ARM64_FCVT
+	case 5:
+		i.operation = ARM64_FCVT
+	case 6:
+		i.operation = ARM64_BFCVT
+	case 7:
+		i.operation = ARM64_FCVT
+	case 8:
+		i.operation = ARM64_FRINTN
+	case 9:
+		i.operation = ARM64_FRINTP
+	case 10:
+		i.operation = ARM64_FRINTM
+	case 11:
+		i.operation = ARM64_FRINTZ
+	case 12:
+		i.operation = ARM64_FRINTA
+	case 14:
+		i.operation = ARM64_FRINTX
+	case 15:
+		i.operation = ARM64_FRINTI
+	case 16:
+		i.operation = ARM64_FRINT32Z
+	case 17:
+		i.operation = ARM64_FRINT32X
+	case 18:
+		i.operation = ARM64_FRINT64Z
+	case 19:
+		i.operation = ARM64_FRINT64X
+	default:
+		i.operation = ARM64_UNDEFINED
 	}
-	i.operation = operation[decode.Opcode()&0xf]
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
 	if (decode.Type() == 3 && (decode.Opcode() == 4 || decode.Opcode() == 5)) || i.operation == ARM64_FCVT {
@@ -1363,7 +1462,7 @@ func (i *Instruction) decompose_floating_data_processing1() (*Instruction, error
 		i.operands[1].Reg[0] = reg(REGSET_ZR, int(regChoice[decode.Type()&1]), int(decode.Rn()))
 	}
 
-	if decode.M() != 0 || decode.S() != 0 || decode.Opcode() > 15 || i.operation == ARM64_UNDEFINED {
+	if decode.M() != 0 || decode.S() != 0 || i.operation == ARM64_UNDEFINED {
 		return nil, failedToDecodeInstruction
 	}
 
@@ -1598,7 +1697,7 @@ func (i *Instruction) decompose_floating_integer_conversion() (*Instruction, err
 	var dstReg = [2]uint32{REG_W_BASE, REG_X_BASE}
 
 	decode := FloatingIntegerConversion(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
 	i.operation = operation[decode.Type()&1][decode.Rmode()][decode.Opcode()]
 	i.operands[0].OpClass = REG
 	i.operands[1].OpClass = REG
@@ -1973,7 +2072,7 @@ func (i *Instruction) decompose_load_store_exclusive() (*Instruction, error) {
 	var regBase = []uint32{REG_W_BASE, REG_X_BASE}
 
 	decode := LdstExclusive(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
 	opcode := decode.O2()<<2 | decode.O1()<<1 | decode.O0()
 	i.operation = operation[decode.Size()][decode.L()][opcode]
 
@@ -2103,14 +2202,6 @@ func (i *Instruction) decompose_load_store_imm_post_idx() (*Instruction, error) 
 }
 
 func (i *Instruction) decompose_load_store_reg_imm_pre_idx() (*Instruction, error) {
-
-	decode := LdstRegImmPreIdx(i.raw)
-
-	type opreg struct {
-		operation    Operation
-		registerBase uint32
-	}
-
 	/* C4.3.9 Load/store register (immediate pre-indexed)
 	 *
 	 * LDRB/STRB <Wt>, [<Xn|SP>, #<simm>]!
@@ -2126,6 +2217,12 @@ func (i *Instruction) decompose_load_store_reg_imm_pre_idx() (*Instruction, erro
 	 * LDRSH	 <Xt>, [<Xn|SP>, #<simm>]!		   //64bit
 	 * LDRSW	 <Xt>, [<Xn|SP>, #<simm>]!
 	 */
+
+	type opreg struct {
+		operation    Operation
+		registerBase uint32
+	}
+
 	var operation = [4][2][4]opreg{
 		{
 			{{ARM64_STRB, REG_W_BASE}, {ARM64_LDRB, REG_W_BASE}, {ARM64_LDRSB, REG_X_BASE}, {ARM64_LDRSB, REG_W_BASE}},
@@ -2141,6 +2238,9 @@ func (i *Instruction) decompose_load_store_reg_imm_pre_idx() (*Instruction, erro
 			{{ARM64_STR, REG_D_BASE}, {ARM64_LDR, REG_D_BASE}, {ARM64_UNDEFINED, 0}, {ARM64_UNDEFINED, 0}},
 		},
 	}
+
+	decode := LdstRegImmPreIdx(i.raw)
+
 	op := operation[decode.Size()][decode.V()][decode.Opc()]
 	i.operation = op.operation
 
@@ -2165,51 +2265,53 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 
 	var operation = [8][4][4]Operation{
 		{
-			{ARM64_LDADDB, ARM64_STADDLB, ARM64_LDADDAB, ARM64_LDADDALB},
-			{ARM64_LDADDH, ARM64_LDADDLH, ARM64_LDADDAH, ARM64_LDADDALH},
-			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
-			{ARM64_LDADD, ARM64_LDADDL, ARM64_LDADDA, ARM64_LDADDAL},
+			{ARM64_SWPB, ARM64_SWPLB, ARM64_SWPAB, ARM64_SWPALB},
+			{ARM64_SWPH, ARM64_SWPLH, ARM64_SWPAH, ARM64_SWPALH},
+			{ARM64_SWP, ARM64_SWPL, ARM64_SWPA, ARM64_SWPAL},
+			{ARM64_SWP, ARM64_SWPL, ARM64_SWPA, ARM64_SWPAL},
 		}, {
 			{ARM64_LDCLRB, ARM64_LDCLRLB, ARM64_LDCLRAB, ARM64_LDCLRALB},
-			{ARM64_LDCLRH, ARM64_LDCLRLH, ARM64_LDCLRAH, ARM64_LDCLRALH},
+			{ARM64_LDCLRH, ARM64_STCLRLH, ARM64_LDCLRAH, ARM64_LDCLRALH},
 			{ARM64_LDCLR, ARM64_LDCLRL, ARM64_LDCLRA, ARM64_LDCLRAL},
 			{ARM64_LDCLR, ARM64_LDCLRL, ARM64_LDCLRA, ARM64_LDCLRAL},
 		}, {
 			{ARM64_LDEORB, ARM64_LDEORLB, ARM64_LDEORAB, ARM64_LDEORALB},
 			{ARM64_LDEORH, ARM64_LDEORLH, ARM64_LDEORAH, ARM64_LDEORALH},
-			{ARM64_LDEOR, ARM64_LDEORL, ARM64_LDEORA, ARM64_LDEORAL},
+			{ARM64_LDEOR, ARM64_STEORL, ARM64_LDEORA, ARM64_LDEORAL},
 			{ARM64_LDEOR, ARM64_LDEORL, ARM64_LDEORA, ARM64_LDEORAL},
 		}, {
 			{ARM64_LDSETB, ARM64_LDSETLB, ARM64_LDSETAB, ARM64_LDSETALB},
 			{ARM64_LDSETH, ARM64_LDSETLH, ARM64_LDSETAH, ARM64_LDSETALH},
 			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
-			{ARM64_LDSET, ARM64_LDSETL, ARM64_LDSETA, ARM64_LDSETAL},
+			{ARM64_LDSET, ARM64_STSETL, ARM64_LDSETA, ARM64_LDSETAL},
 		}, {
-			{ARM64_LDSMAXB, ARM64_LDSMAXLB, ARM64_LDAPRB, ARM64_LDSMAXALB},
+			{ARM64_STSMAXB, ARM64_LDSMAXLB, ARM64_LDAPRB, ARM64_LDSMAXALB},
 			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDAPRH, ARM64_LDSMAXALH},
 			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
 			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
 		}, {
 			{ARM64_LDSMINB, ARM64_LDSMINLB, ARM64_LDSMINAB, ARM64_LDSMINALB},
-			{ARM64_LDSMINH, ARM64_LDSMINLH, ARM64_LDSMINAH, ARM64_LDSMINALH},
+			{ARM64_STSMINH, ARM64_LDSMINLH, ARM64_LDSMINAH, ARM64_LDSMINALH},
 			{ARM64_LDSMIN, ARM64_LDSMINL, ARM64_LDSMINA, ARM64_LDSMINAL},
-			{ARM64_LDSMIN, ARM64_LDSMINL, ARM64_LDSMINA, ARM64_LDSMINAL},
+			{ARM64_LDSMIN, ARM64_STSMINL, ARM64_LDSMINA, ARM64_LDSMINAL},
 		}, {
 			{ARM64_LDUMAXB, ARM64_LDUMAXLB, ARM64_LDUMAXAB, ARM64_LDUMAXALB},
 			{ARM64_LDUMAXH, ARM64_LDUMAXLH, ARM64_LDUMAXAH, ARM64_LDUMAXALH},
-			{ARM64_LDUMAX, ARM64_LDUMAXL, ARM64_LDUMAXA, ARM64_LDUMAXAL},
+			{ARM64_STUMAX, ARM64_LDUMAXL, ARM64_LDUMAXA, ARM64_LDUMAXAL},
 			{ARM64_LDUMAX, ARM64_LDUMAXL, ARM64_LDUMAXA, ARM64_LDUMAXAL},
 		}, {
 			{ARM64_LDUMINB, ARM64_LDUMINLB, ARM64_LDUMINAB, ARM64_LDUMINALB},
 			{ARM64_LDUMINH, ARM64_LDUMINLH, ARM64_LDUMINAH, ARM64_LDUMINALH},
 			{ARM64_LDUMIN, ARM64_LDUMINL, ARM64_LDUMINA, ARM64_LDUMINAL},
-			{ARM64_LDUMIN, ARM64_LDUMINL, ARM64_LDUMINA, ARM64_LDUMINAL},
+			{ARM64_STUMIN, ARM64_LDUMINL, ARM64_LDUMINA, ARM64_LDUMINAL},
 		},
 	}
 	var regBase = [4]uint32{REG_W_BASE, REG_W_BASE, REG_W_BASE, REG_X_BASE}
 
 	decode := LdstAtomic(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
+	// fmt.Printf("Opc: %d, Size: %d, A|R: %d\n", decode.Opc(), decode.Size(), decode.A()<<1|decode.R())
+
 	i.operation = operation[decode.Opc()][decode.Size()][decode.A()<<1|decode.R()]
 	i.operands[0].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regBase[decode.Size()]), int(decode.Rs()))
@@ -2219,18 +2321,11 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 	i.operands[2].Reg[0] = reg(REGSET_SP, REG_X_BASE, int(decode.Rn()))
 
 	/* C6.2.10x
-	* LDAPR <Wt>, [<Xn|SP> {,#0}]
-	* LDAPR <Xt>, [<Xn|SP> {,#0}]
-	* LDAPRB <Wt>, [<Xn|SP> {,#0}]
-	* LDAPRH <Wt>, [<Xn|SP> {,#0}]
+	 * LDAPR <Wt>, [<Xn|SP> {,#0}]
+	 * LDAPR <Xt>, [<Xn|SP> {,#0}]
+	 * LDAPRB <Wt>, [<Xn|SP> {,#0}]
+	 * LDAPRH <Wt>, [<Xn|SP> {,#0}]
 	 */
-	if (i.raw & 0xFFFFFE00) == 0x38BFC000 {
-		i.deleteOperand(1)
-		// i.operands[0] = i.operands[1]
-		// i.operands[1] = i.operands[2]
-		// i.operands[2].OpClass = NONE
-	}
-
 	if decode.A() == 0 && decode.Rt() == 31 {
 		i.deleteOperand(1)
 	}
@@ -3137,162 +3232,237 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 	 * 7 - {2} <Vd>.<Ta>, <Vn>.<Tb>
 	 * 8 - <V><d>, <V><n>, #0
 	 */
-	decode := Simd2RegMisc(i.raw)
+
 	type opInfo struct {
 		op      Operation
 		otype   uint32
 		maxSize uint32
 	}
+
+	decode := Simd2RegMisc(i.raw)
+	fmt.Println(decode)
+
 	info := opInfo{}
-	if decode.U() == 0 {
-		var operation1 = []opInfo{
-			{ARM64_REV64, 0, 3},
-			{ARM64_REV16, 0, 1},
-			{ARM64_SADDLP, 1, 2},
-			{ARM64_SUQADD, 0, 0},
-			{ARM64_CLS, 0, 3},
-			{ARM64_CNT, 0, 1},
-			{ARM64_SADALP, 1, 3},
-			{ARM64_SQABS, 0, 4},
-			{ARM64_CMGT, 4, 4},
-			{ARM64_CMEQ, 4, 4},
-			{ARM64_CMLT, 4, 4},
-			{ARM64_ABS, 0, 4},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_XTN, 6, 3}, //{2}
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_SQXTN, 6, 3}, //{2}
-		}
-
-		var operation2 = []opInfo{
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FCVTN, 10, 3}, //{2}
-			{ARM64_FCVTL, 12, 1}, //{2}
-			{ARM64_FRINTN, 13, 7},
-			{ARM64_FRINTM, 13, 7},
-			{ARM64_FCVTNS, 13, 7},
-			{ARM64_FCVTMS, 13, 7},
-			{ARM64_FCVTAS, 13, 7},
-			{ARM64_SCVTF, 13, 7},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-		}
-
-		var operation3 = []opInfo{
-			{ARM64_FCMGT, 5, 7},
-			{ARM64_FCMEQ, 5, 7},
-			{ARM64_FCMLT, 5, 7},
-			{ARM64_FABS, 0, 7},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FRINTP, 0, 7},
-			{ARM64_FRINTZ, 0, 7},
-			{ARM64_FCVTPS, 0, 7},
-			{ARM64_FCVTZS, 0, 7},
-			{ARM64_URECPE, 0, 8},
-			{ARM64_FRECPE, 0, 7},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-		}
-		// TODO: make sure COUNT_OF is the same as len()
-		if decode.Opcode() < uint32(len(operation1)) && operation1[decode.Opcode()].op != ARM64_UNDEFINED {
-			info = operation1[decode.Opcode()]
-		} else if decode.Size() < 2 && decode.Opcode() > uint32(len(operation1)) {
-			info = operation2[decode.Opcode()-uint32(len(operation1))]
-		} else if decode.Size() > 1 {
-			info = operation3[decode.Opcode()-12]
+	switch decode.Opcode() {
+	case 0b00000:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_REV64, 0, 3}
 		} else {
-			return nil, failedToDecodeInstruction
+			info = opInfo{ARM64_REV32, 0, 3}
 		}
-	} else {
-		var operation1 = []opInfo{
-			{ARM64_REV32, 0, 3},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UADDLP, 1, 3},
-			{ARM64_USQADD, 0, 3},
-			{ARM64_CLZ, 0, 3},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UADALP, 1, 3},
-			{ARM64_SQNEG, 0, 4},
-			{ARM64_CMGE, 4, 4},
-			{ARM64_CMLE, 4, 4},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_NEG, 0, 4},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_SQXTUN, 6, 3}, //{2}
-			{ARM64_SHLL, 3, 3},   //{2}
-			{ARM64_UQXTN, 6, 3},  //{2}
-			{ARM64_UNDEFINED, 0, 0},
-		}
-
-		var operation2 = []opInfo{
-			{ARM64_FCVTXN, 11, 5}, //{2}
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FRINTA, 13, 0},
-			{ARM64_FRINTX, 13, 7},
-			{ARM64_FCVTNU, 13, 7},
-			{ARM64_FCVTMU, 13, 7},
-			{ARM64_FCVTAU, 13, 7},
-			{ARM64_UCVTF, 13, 7},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-		}
-
-		var operation3 = []opInfo{
-			{ARM64_FCMGE, 5, 5},
-			{ARM64_FCMLE, 5, 5},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FNEG, 0, 5},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FRINTI, 0, 5},
-			{ARM64_FCVTPU, 0, 5},
-			{ARM64_FCVTZU, 0, 5},
-			{ARM64_URSQRTE, 0, 5},
-			{ARM64_FRSQRTE, 0, 5},
-			{ARM64_UNDEFINED, 0, 0},
-			{ARM64_FSQRT, 0, 7},
-		}
-
-		var operation4 = []opInfo{
-			{ARM64_MVN, 9, 0},
-			{ARM64_RBIT, 9, 0},
-		}
-		if decode.Opcode() == 5 {
-			info = operation4[decode.Size()&1]
-		} else if decode.Opcode() < uint32(len(operation1)) && operation1[decode.Opcode()].op != ARM64_UNDEFINED {
-			info = operation1[decode.Opcode()]
-		} else if decode.Size() < 2 && decode.Opcode() >= 22 {
-			info = operation2[decode.Opcode()-22]
-		} else if decode.Size() > 1 && decode.Opcode() >= 12 {
-			info = operation3[decode.Opcode()-12]
+	case 0b00001:
+		info = opInfo{ARM64_REV16, 0, 1}
+	case 0b00010:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_SADDLP, 1, 2}
 		} else {
-			return nil, failedToDecodeInstruction
+			info = opInfo{ARM64_UADDLP, 1, 3}
 		}
+	case 0b00011:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_SUQADD, 0, 0}
+		} else {
+			info = opInfo{ARM64_USQADD, 0, 3}
+		}
+	case 0b00100:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_CLS, 0, 3}
+		} else {
+			info = opInfo{ARM64_CLZ, 0, 3}
+		}
+	case 0b00101:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_CNT, 0, 1}
+		} else {
+			if decode.Size() == 0 {
+				info = opInfo{ARM64_NOT, 0, 4}
+			} else if decode.Size() == 1 {
+				info = opInfo{ARM64_RBIT, 9, 0}
+			}
+		}
+	case 0b00110:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_SADALP, 1, 3}
+		} else {
+			info = opInfo{ARM64_UADALP, 1, 3}
+		}
+	case 0b00111:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_SQABS, 0, 4}
+		} else {
+			info = opInfo{ARM64_SQNEG, 0, 4}
+		}
+	case 0b01000:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_CMGT, 4, 4}
+		} else {
+			info = opInfo{ARM64_CMGE, 4, 4}
+		}
+	case 0b01001:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_CMEQ, 4, 4}
+		} else {
+			info = opInfo{ARM64_CMLE, 4, 4}
+		}
+	case 0b01010:
+		info = opInfo{ARM64_CMLT, 4, 4}
+	case 0b01011:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_ABS, 0, 4}
+		} else {
+			info = opInfo{ARM64_NEG, 0, 4}
+		}
+	case 0b01100:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FCMGT, 5, 7}
+		} else {
+			info = opInfo{ARM64_FCMGE, 5, 5}
+		}
+	case 0b01101:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FCMEQ, 5, 7}
+		} else {
+			info = opInfo{ARM64_FCMLE, 5, 5}
+		}
+	case 0b01110:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FCMLT, 5, 7}
+		}
+	case 0b01111:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FABS, 0, 7}
+		} else {
+			info = opInfo{ARM64_FNEG, 0, 5}
+		}
+	case 0b10010:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_XTN, 6, 3} //{2}
+		} else {
+			info = opInfo{ARM64_SQXTUN, 6, 3} //{2}
+		}
+	case 0b10011:
+		if decode.U() == 1 {
+			info = opInfo{ARM64_SHLL, 3, 3} //{2}
+		}
+	case 0b10100:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_SQXTN, 6, 3} //{2}
+		} else {
+			info = opInfo{ARM64_UQXTN, 6, 3} //{2}
+		}
+	case 0b10110:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FCVTN, 10, 3} //{2}
+			if decode.Size() == 2 {
+				info = opInfo{ARM64_BFCVTN, 6, 4} //{2} // TODO
+			}
+		} else {
+			info = opInfo{ARM64_FCVTXN, 11, 5} //{2}
+		}
+	case 0b10111:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FCVTL, 12, 1} //{2}
+		}
+	case 0b11000:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FRINTP, 0, 7}
+			} else {
+				info = opInfo{ARM64_FRINTN, 13, 7}
+			}
+		} else {
+			info = opInfo{ARM64_FRINTA, 13, 0}
+		}
+	case 0b11001:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FRINTZ, 0, 7}
+			} else {
+				info = opInfo{ARM64_FRINTM, 13, 7}
+			}
+		} else {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FRINTI, 0, 5}
+			} else {
+				info = opInfo{ARM64_FRINTX, 13, 7}
+			}
+		}
+	case 0b11010:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FCVTPS, 0, 7}
+			} else {
+				info = opInfo{ARM64_FCVTNS, 13, 7}
+			}
+		} else {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FCVTPU, 0, 5}
+			} else {
+				info = opInfo{ARM64_FCVTNU, 13, 7}
+			}
+		}
+	case 0b11011:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FCVTZS, 0, 7}
+			} else {
+				info = opInfo{ARM64_FCVTMS, 13, 7}
+			}
+		} else {
+			if decode.Size() > 2 {
+				info = opInfo{ARM64_FCVTZU, 0, 5}
+			} else {
+				info = opInfo{ARM64_FCVTMU, 13, 7}
+			}
+		}
+	case 0b11100:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_URECPE, 0, 8}
+			} else {
+				info = opInfo{ARM64_FCVTAS, 13, 7}
+			}
+		} else {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_URSQRTE, 0, 5}
+			} else {
+				info = opInfo{ARM64_FCVTAU, 13, 7}
+			}
+		}
+	case 0b11101:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FRECPE, 0, 7}
+			} else {
+				info = opInfo{ARM64_SCVTF, 13, 7}
+			}
+		} else {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FRSQRTE, 0, 5}
+			} else {
+				info = opInfo{ARM64_UCVTF, 13, 7}
+			}
+		}
+	case 0b11110:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FRINT32Z, 13, 7}
+		} else {
+			info = opInfo{ARM64_FRINT32X, 13, 7}
+		}
+	case 0b11111:
+		if decode.U() == 0 {
+			info = opInfo{ARM64_FRINT64Z, 13, 7}
+		} else {
+			if decode.Size() >= 2 {
+				info = opInfo{ARM64_FSQRT, 0, 7}
+			} else {
+				info = opInfo{ARM64_FRINT64X, 13, 7}
+			}
+		}
+	default:
+		return nil, failedToDecodeInstruction
 	}
+
 	i.operation = info.op
 	/* 0 - <Vd>.<T>, <Vn>.<T>
 	 * 1 - <Vd>.<Ta>, <Vn>.<Tb>
@@ -5700,45 +5870,134 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		ovar uint32
 	}
 	var opinfo OpInfo
-	var operation = [2][16]OpInfo{
-		{
-			{ARM64_UNDEFINED, 0},
-			{ARM64_FMLA, 3},
-			{ARM64_SMLAL, 1},
-			{ARM64_SQDMLAL, 1},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_FMLS, 3},
-			{ARM64_SMLSL, 1},
-			{ARM64_SQDMLSL, 1},
-			{ARM64_MUL, 0},
-			{ARM64_FMUL, 3},
-			{ARM64_SMULL, 1},
-			{ARM64_SQDMULL, 1},
-			{ARM64_SQDMULH, 0},
-			{ARM64_SQRDMULH, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-		}, {
-			{ARM64_MLA, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UMLAL, 1},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_MLS, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UMLSL, 1},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_FMULX, 3},
-			{ARM64_UMULL, 1},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-			{ARM64_UNDEFINED, 0},
-		},
-	}
+
 	decode := SimdVectorXIndexedElement(i.raw)
-	opinfo = operation[decode.U()][decode.Opcode()]
+	fmt.Println(decode)
+
+	switch decode.Opcode() {
+	case 0b0000:
+		opinfo = OpInfo{ARM64_MLA, 0}
+	case 0b0010:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SMLAL, 1}
+		} else {
+			opinfo = OpInfo{ARM64_UMLAL, 1}
+		}
+	case 0b0100:
+		opinfo = OpInfo{ARM64_MLS, 0}
+	case 0b0011:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SQDMLAL, 1}
+		} else {
+			if decode.Size() == 1 {
+				opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
+			} else if decode.Size() == 2 {
+				opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
+			}
+		}
+	case 0b0111:
+		if decode.Size() == 1 {
+			opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
+		} else if decode.Size() == 2 {
+			opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
+		}
+	case 0b0110:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SMLSL, 1}
+		} else {
+			opinfo = OpInfo{ARM64_UMLSL, 1}
+		}
+	case 0b1000:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_MUL, 0}
+		} else {
+			if decode.Size() == 2 {
+				opinfo = OpInfo{ARM64_FMLAL, 3} // TODO
+			}
+		}
+	case 0b1010:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SMULL, 1}
+		} else {
+			opinfo = OpInfo{ARM64_UMULL, 1}
+		}
+	case 0b1011:
+		opinfo = OpInfo{ARM64_SQDMULL, 1}
+	case 0b1100:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SQDMULH, 1}
+		} else {
+			if decode.Size() == 2 {
+				opinfo = OpInfo{ARM64_FMLSL, 3} // TODO
+			}
+		}
+	case 0b1101:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SQRDMULH, 1}
+		} else {
+			opinfo = OpInfo{ARM64_SQRDMLAH, 1}
+		}
+	case 0b1110:
+		if decode.U() == 0 {
+			opinfo = OpInfo{ARM64_SDOT, 3} // TODO
+		} else {
+			opinfo = OpInfo{ARM64_UDOT, 3} // TODO
+		}
+	case 0b0001:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				opinfo = OpInfo{ARM64_FMLA, 1} // TODO
+			}
+			opinfo = OpInfo{ARM64_FMLA, 3} // TODO
+		} else {
+			if decode.Size() == 1 {
+				opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
+			} else if decode.Size() == 2 {
+				opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
+			}
+		}
+	case 0b0101:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				opinfo = OpInfo{ARM64_FMLS, 1} // TODO
+			}
+			opinfo = OpInfo{ARM64_FMLS, 3} // TODO
+		} else {
+			if decode.Size() == 1 {
+				opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
+			} else if decode.Size() == 2 {
+				opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
+			}
+		}
+	case 0b1001:
+		if decode.U() == 0 {
+			if decode.Size() >= 2 {
+				opinfo = OpInfo{ARM64_FMUL, 1} // TODO
+			}
+			opinfo = OpInfo{ARM64_FMUL, 3} // TODO
+		} else {
+			opinfo = OpInfo{ARM64_FMULX, 1} // TODO
+		}
+	case 0b1111:
+		if decode.U() == 0 {
+			if decode.Size() == 0 {
+				opinfo = OpInfo{ARM64_SUDOT, 3} // TODO
+			} else if decode.Size() == 1 {
+				opinfo = OpInfo{ARM64_BFDOT, 3} // TODO
+			} else if decode.Size() == 3 {
+				if decode.Q() == 0 {
+					opinfo = OpInfo{ARM64_BFMLALB, 3} // TODO
+				} else {
+					opinfo = OpInfo{ARM64_BFMLALT, 3} // TODO
+				}
+			}
+		} else {
+			opinfo = OpInfo{ARM64_SQRDMLSH, 1} // TODO
+		}
+	default:
+		opinfo = OpInfo{ARM64_UNDEFINED, 0}
+	}
+
 	i.operation = opinfo.op
 
 	i.operands[0].OpClass = REG
@@ -5816,7 +6075,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 }
 
 func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, error) {
-	fmt.Println(decode)
+	// fmt.Println(decode)
 	switch decode.Crn() {
 	case 2: //Architectural hints
 		switch (decode.Crm() << 3) | decode.Op2() {
@@ -5963,6 +6222,9 @@ func (i *Instruction) decompose_system_arch_hints(decode System) (*Instruction, 
 		break
 	case 4: //PSTATE Access
 		switch decode.Op2() {
+		case 1:
+			i.operands[0].Reg[0] = uint32(REG_SSBS)
+			break
 		case 3:
 			i.operands[0].Reg[0] = uint32(REG_UAO)
 			break
@@ -6045,6 +6307,20 @@ func (i *Instruction) decompose_system_cache_maintenance(decode System) (*Instru
 				i.operands[0].Reg[0] = uint32(REG_IALLU)
 				i.operands[1].OpClass = NONE
 			}
+			break
+		case 3:
+			switch decode.Op2() {
+			case 4:
+				i.operation = ARM64_CFP
+			case 5:
+				i.operation = ARM64_DVP
+			case 7:
+				i.operation = ARM64_CPP
+			}
+			i.operands[0].OpClass = SYS_REG
+			i.operands[0].Reg[0] = uint32(REG_RCTX)
+			i.operands[1].OpClass = REG
+			i.operands[1].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rt()))
 			break
 		case 4: // Data cache zero operation
 			i.operation = ARM64_DC
@@ -6509,7 +6785,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs(decode System) (*Ins
 func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*Instruction, error) {
 	sysreg := SYSREG_NONE
 	var operation = [2]Operation{ARM64_MSR, ARM64_MRS}
-	fmt.Println(decode)
+	// fmt.Println(decode)
 	switch decode.Crn() {
 	case 0:
 		if decode.Op1() == 0 {
@@ -6519,7 +6795,7 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					REG_ID_MMFR0_EL1, REG_ID_MMFR1_EL1, REG_ID_MMFR2_EL1, REG_ID_MMFR3_EL1},
 				{REG_ID_ISAR0_EL1, REG_ID_ISAR1_EL1, REG_ID_ISAR2_EL1, REG_ID_ISAR3_EL1,
 					REG_ID_ISAR4_EL1, REG_ID_ISAR5_EL1, REG_ID_MMFR4_EL1, REG_ID_ISAR6_EL1},
-				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, REG_ID_MMFR5_EL1, SYSREG_NONE},
+				{REG_MVFR0_EL1, REG_MVFR1_EL1, REG_MVFR2_EL1, SYSREG_NONE, REG_ID_PFR2_EL1, SYSREG_NONE, REG_ID_MMFR5_EL1, SYSREG_NONE},
 				{REG_ID_AA64PFR0_EL1, REG_ID_AA64PFR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64DFR0_EL1, REG_ID_AA64DFR1_EL1, SYSREG_NONE, SYSREG_NONE, REG_ID_AA64AFR0_EL1, REG_ID_AA64AFR1_EL1, SYSREG_NONE, SYSREG_NONE},
 				{REG_ID_AA64ISAR0_EL1, REG_ID_AA64ISAR1_EL1, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
@@ -6685,6 +6961,14 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				}
 			}
 			break
+		case 3:
+			switch decode.Op2() {
+			case 0:
+				sysreg = REG_RNDR
+			case 1:
+				sysreg = REG_RNDRRS
+			}
+			break
 		case 4:
 			if decode.Crm() == 0 {
 				switch decode.Op2() {
@@ -6807,6 +7091,9 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 					sysreg = REG_DLR_EL0
 					break
 				}
+			} else if decode.Op2() == 6 {
+				sysreg = REG_SSBS
+				break
 			} else if decode.Op2() == 7 {
 				switch decode.Crm() {
 				case 2:
@@ -7407,6 +7694,21 @@ func (i *Instruction) decompose_system_debug_and_trace_regs2(decode System) (*In
 				sysreg = sysregs[decode.Crm()&3][decode.Op2()]
 				break
 			}
+			if decode.Op2() > 4 {
+				switch decode.Op1() {
+				case 0:
+					sysreg = REG_SCXTNUM_EL1
+				case 3:
+					sysreg = REG_SCXTNUM_EL0
+				case 4:
+					sysreg = REG_SCXTNUM_EL2
+				case 5:
+					sysreg = REG_SCXTNUM_EL12
+				case 6:
+					sysreg = REG_SCXTNUM_EL3
+				}
+				break
+			}
 			var sysregs = [8][5]SystemReg{
 				{SYSREG_NONE, REG_CONTEXTIDR_EL1, SYSREG_NONE, SYSREG_NONE, REG_TPIDR_EL1},
 				{SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE, SYSREG_NONE},
@@ -7908,15 +8210,18 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 	case 7:
 		switch ExtractBits(instructionValue, 24, 5) {
 		case 14:
-			fallthrough
+			if ExtractBits(instructionValue, 10, 2) == 2 && ExtractBits(instructionValue, 17, 5) == 16 {
+				return instruction.decompose_simd_2_reg_misc()
+			}
+			return instruction.decompose_simd_3_reg_ext()
 		case 15:
-			return instruction.decompose_floating_complex_multiply_accumulate()
+			return instruction.decompose_simd_vector_indexed_element()
 		default:
 			return nil, failedToDecodeInstruction
 		}
 	case 15:
 		instruction.group = GROUP_DATA_PROCESSING_SIMD
-		fmt.Printf("case 15: %#x\n", ExtractBits(instructionValue, 24, 8))
+		// fmt.Printf("case 15: %#x\n", ExtractBits(instructionValue, 24, 8))
 		switch ExtractBits(instructionValue, 24, 8) {
 		case 0x1e:
 			fallthrough
@@ -7928,7 +8233,7 @@ func decompose(instructionValue uint32, address uint64) (*Instruction, error) {
 			if ExtractBits(instructionValue, 21, 1) == 0 {
 				return instruction.decompose_fixed_floating_conversion()
 			}
-			fmt.Printf("switch: %#x\n", ExtractBits(instructionValue, 10, 2))
+			// fmt.Printf("switch: %#x\n", ExtractBits(instructionValue, 10, 2))
 			switch ExtractBits(instructionValue, 10, 2) {
 			case 0:
 				if (instructionValue & 0xFFFFFC00) == 0x1E7E0000 {

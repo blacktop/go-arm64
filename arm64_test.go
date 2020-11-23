@@ -20,12 +20,12 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "msr	uao, x1",
+			name: "bfdot	v2.2s, v3.4h, v4.4h",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x81, 0x42, 0x18, 0xd5}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xfc, 0x44, 0x2e}),
 				address:          0,
 			},
-			want: "msr	uao, x1",
+			want: "bfdot	v2.2s, v3.4h, v4.4h",
 			wantErr: false,
 		},
 	}
@@ -5052,11 +5052,19 @@ func Test_decompose_v8_1a_LSE(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) {
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
 				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
@@ -8107,39 +8115,39 @@ func Test_decompose_v8_5a(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "msr	scxtnum_el0,   x8",
+			name: "msr	scxtnum_el0, x8",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe8, 0xd0, 0x1b, 0xd5}),
 				address:          0,
 			},
-			want: "msr	scxtnum_el0,   x8",
+			want: "msr	scxtnum_el0, x8",
 			wantErr: false,
 		},
 		{
-			name: "msr	scxtnum_el1,   x7",
+			name: "msr	scxtnum_el1, x7",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe7, 0xd0, 0x18, 0xd5}),
 				address:          0,
 			},
-			want: "msr	scxtnum_el1,   x7",
+			want: "msr	scxtnum_el1, x7",
 			wantErr: false,
 		},
 		{
-			name: "msr	scxtnum_el2,   x6",
+			name: "msr	scxtnum_el2, x6",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe6, 0xd0, 0x1c, 0xd5}),
 				address:          0,
 			},
-			want: "msr	scxtnum_el2,   x6",
+			want: "msr	scxtnum_el2, x6",
 			wantErr: false,
 		},
 		{
-			name: "msr	scxtnum_el3,   x5",
+			name: "msr	scxtnum_el3, x5",
 			args: args{
 				instructionValue: binary.LittleEndian.Uint32([]byte{0xe5, 0xd0, 0x1e, 0xd5}),
 				address:          0,
 			},
-			want: "msr	scxtnum_el3,   x5",
+			want: "msr	scxtnum_el3, x5",
 			wantErr: false,
 		},
 		{
@@ -8182,15 +8190,23 @@ func Test_decompose_v8_5a(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			// fmt.Printf("want: %s\n", tt.want)
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
+				fmt.Printf("want: %s\n", tt.want)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
 				t.Errorf("disassemble() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			hexOut, _ := got.disassemble(false)
 			decOut, _ := got.disassemble(true)
-			if !reflect.DeepEqual(hexOut, strings.ToLower(tt.want)) || !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) {
-				t.Errorf("disassemble(hex) = %v, disassemble(dec) = %v, want %v", hexOut, decOut, tt.want)
+			hexout, _ := got.disassemble(false)
+			if !reflect.DeepEqual(decOut, strings.ToLower(tt.want)) && !reflect.DeepEqual(hexout, strings.ToLower(tt.want)) {
+				fmt.Printf("want: %s\n", tt.want)
+				fmt.Printf("got:  %s\n", decOut)
+				fmt.Printf("got:  %s (hex)\n", hexout)
+				got, _ = decompose(tt.args.instructionValue, tt.args.address)
+				decOut, _ := got.disassemble(true)
+				t.Errorf("disassemble(dec) = %v, want %v", decOut, tt.want)
 			}
 		})
 	}
@@ -10576,6 +10592,9 @@ func Test_decompose_v8_6a(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if !strings.HasPrefix(tt.want, "m") {
+				fmt.Printf("want: %s\n", tt.want)
+			}
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
 				fmt.Printf("want: %s\n", tt.want)

@@ -55,6 +55,13 @@ const (
 	ARM64_B_CS
 	ARM64_B_EQ
 	ARM64_BFC
+	ARM64_BFCVT   // ARMv8.6
+	ARM64_BFCVTN  // ARMv8.6
+	ARM64_BFCVTN2 // ARMv8.6
+	ARM64_BFDOT   // ARMv8.6
+	ARM64_BFMLALB // ARMv8.6
+	ARM64_BFMLALT // ARMv8.6
+	ARM64_BFMMLA  // ARMv8.6
 	ARM64_BFI
 	ARM64_BFM
 	ARM64_BFXIL
@@ -109,6 +116,7 @@ const (
 	ARM64_CBZ
 	ARM64_CCMN
 	ARM64_CCMP
+	ARM64_CFP
 	ARM64_CINC
 	ARM64_CINV
 	ARM64_CLREX
@@ -127,6 +135,7 @@ const (
 	ARM64_CMTST
 	ARM64_CNEG
 	ARM64_CNT
+	ARM64_CPP
 	ARM64_CRC32B
 	ARM64_CRC32CB
 	ARM64_CRC32CH
@@ -150,6 +159,7 @@ const (
 	ARM64_DRPS
 	ARM64_DSB
 	ARM64_DUP
+	ARM64_DVP
 	ARM64_EON
 	ARM64_EOR
 	ARM64_ERET
@@ -211,6 +221,8 @@ const (
 	ARM64_FMINP
 	ARM64_FMINV
 	ARM64_FMLA
+	ARM64_FMLAL // ARMv8.2
+	ARM64_FMLSL // ARMv8.2
 	ARM64_FMLS
 	ARM64_FMOV
 	ARM64_FMSUB
@@ -223,6 +235,10 @@ const (
 	ARM64_FRECPE
 	ARM64_FRECPS
 	ARM64_FRECPX
+	ARM64_FRINT32X
+	ARM64_FRINT32Z
+	ARM64_FRINT64X
+	ARM64_FRINT64Z
 	ARM64_FRINTA
 	ARM64_FRINTI
 	ARM64_FRINTM
@@ -477,6 +493,7 @@ const (
 	ARM64_SBFX
 	ARM64_SCVTF
 	ARM64_SDIV
+	ARM64_SDOT // ARMv8.2
 	ARM64_SEV
 	ARM64_SEVL
 	ARM64_SHA1C
@@ -498,6 +515,7 @@ const (
 	ARM64_SHSUB
 	ARM64_SLI
 	ARM64_SMADDL
+	ARM64_SMMLA // ARMv8.6
 	ARM64_SMAX
 	ARM64_SMAXP
 	ARM64_SMAXV
@@ -525,6 +543,8 @@ const (
 	ARM64_SQDMULL
 	ARM64_SQDMULL2
 	ARM64_SQNEG
+	ARM64_SQRDMLAH // 8.1
+	ARM64_SQRDMLSH // 8.1
 	ARM64_SQRDMULH
 	ARM64_SQRSHL
 	ARM64_SQRSHRN
@@ -563,12 +583,20 @@ const (
 	ARM64_ST3
 	ARM64_ST4
 	ARM64_STADDLB
-	ARM64_STG    //Added for MTE
-	ARM64_STGM   //Added for MTE
-	ARM64_STGP   //Added for MTE
-	ARM64_STLLRB // ARMv8.1
-	ARM64_STLLRH // ARMv8.1
-	ARM64_STLLR  // ARMv8.1
+	ARM64_STCLRLH // 8.1
+	ARM64_STEORL  // 8.1
+	ARM64_STSETL  // 8.1
+	ARM64_STSMAXB // 8.1
+	ARM64_STSMINH // 8.1
+	ARM64_STUMAX  // 8.1
+	ARM64_STUMIN  // 8.1
+	ARM64_STSMINL // 8.1
+	ARM64_STG     //Added for MTE
+	ARM64_STGM    //Added for MTE
+	ARM64_STGP    //Added for MTE
+	ARM64_STLLRB  // ARMv8.1
+	ARM64_STLLRH  // ARMv8.1
+	ARM64_STLLR   // ARMv8.1
 	ARM64_STLR
 	ARM64_STLRB
 	ARM64_STLRH
@@ -604,7 +632,20 @@ const (
 	ARM64_SUBP  //Added for MTE
 	ARM64_SUBPS //Added for MTE
 	ARM64_SUBS
+	ARM64_SUDOT // ARMv8.6
 	ARM64_SUQADD
+	ARM64_SWP    // 8.1
+	ARM64_SWPA   // 8.1
+	ARM64_SWPAB  // 8.1
+	ARM64_SWPAH  // 8.1
+	ARM64_SWPALB // 8.1
+	ARM64_SWPALH // 8.1
+	ARM64_SWPB   // 8.1
+	ARM64_SWPH   // 8.1
+	ARM64_SWPL   // 8.1
+	ARM64_SWPLB  // 8.1
+	ARM64_SWPLH  // 8.1
+	ARM64_SWPAL  // 8.1
 	ARM64_SVC
 	ARM64_SXTB
 	ARM64_SXTH
@@ -637,6 +678,7 @@ const (
 	ARM64_UBFX
 	ARM64_UCVTF
 	ARM64_UDIV
+	ARM64_UDOT
 	ARM64_UHADD
 	ARM64_UHSUB
 	ARM64_UMADDL
@@ -650,6 +692,8 @@ const (
 	ARM64_UMLAL2
 	ARM64_UMLSL
 	ARM64_UMLSL2
+	ARM64_UMMLA  // ARMv8.6
+	ARM64_USMMLA // ARMv8.6
 	ARM64_UMNEGL
 	ARM64_UMOV
 	ARM64_UMSUBL
@@ -672,6 +716,7 @@ const (
 	ARM64_URSHR
 	ARM64_URSQRTE
 	ARM64_URSRA
+	ARM64_USDOT // ARMv8.6
 	ARM64_USHL
 	ARM64_USHLL
 	ARM64_USHLL2
@@ -745,6 +790,13 @@ func (o Operation) String() string {
 		"b.cs",
 		"b.eq",
 		"bfc",
+		"bfcvt",   // ARMv8.6
+		"bfcvtn",  // ARMv8.6
+		"bfcvtn2", // ARMv8.6
+		"bfdot",   // ARMv8.6
+		"bfmlalb", // ARMv8.6
+		"bfmlalt", // ARMv8.6
+		"bfmmla",  // ARMv8.6
 		"bfi",
 		"bfm",
 		"bfxil",
@@ -799,6 +851,7 @@ func (o Operation) String() string {
 		"cbz",
 		"ccmn",
 		"ccmp",
+		"cfp",
 		"cinc",
 		"cinv",
 		"clrex",
@@ -817,6 +870,7 @@ func (o Operation) String() string {
 		"cmtst",
 		"cneg",
 		"cnt",
+		"cpp",
 		"crc32b",
 		"crc32cb",
 		"crc32ch",
@@ -840,6 +894,7 @@ func (o Operation) String() string {
 		"drps",
 		"dsb",
 		"dup",
+		"dvp",
 		"eon",
 		"eor",
 		"eret",
@@ -901,6 +956,8 @@ func (o Operation) String() string {
 		"fminp",
 		"fminv",
 		"fmla",
+		"fmlal", // ARMv8.2
+		"fmlsl", // ARMv8.2
 		"fmls",
 		"fmov",
 		"fmsub",
@@ -913,6 +970,10 @@ func (o Operation) String() string {
 		"frecpe",
 		"frecps",
 		"frecpx",
+		"frint32x", // ARMv8.5
+		"frint32z", // ARMv8.5
+		"frint64x", // ARMv8.5
+		"frint64z", // ARMv8.5
 		"frinta",
 		"frinti",
 		"frintm",
@@ -1167,6 +1228,7 @@ func (o Operation) String() string {
 		"sbfx",
 		"scvtf",
 		"sdiv",
+		"sdot", // ARMv8.2
 		"sev",
 		"sevl",
 		"sha1c",
@@ -1188,6 +1250,7 @@ func (o Operation) String() string {
 		"shsub",
 		"sli",
 		"smaddl",
+		"smmla", // ARMv8.6
 		"smax",
 		"smaxp",
 		"smaxv",
@@ -1215,6 +1278,8 @@ func (o Operation) String() string {
 		"sqdmull",
 		"sqdmull2",
 		"sqneg",
+		"sqrdmlah", // 8.1
+		"sqrdmlsh", // 8.1
 		"sqrdmulh",
 		"sqrshl",
 		"sqrshrn",
@@ -1253,6 +1318,14 @@ func (o Operation) String() string {
 		"st3",
 		"st4",
 		"staddlb", // 8.1
+		"stclrlh", // 8.1
+		"steorl",  // 8.1
+		"stsetl",  // 8.1
+		"stsmaxb", // 8.1
+		"stsminh", // 8.1
+		"stumax",  // 8.1
+		"stumin",  // 8.1
+		"stsminl", // 8.1
 		"stg",     //Added for MTE
 		"stgm",    //Added for MTE
 		"stgp",    //Added for MTE
@@ -1294,7 +1367,20 @@ func (o Operation) String() string {
 		"subp",  //Added for MTE
 		"subps", //Added for MTE
 		"subs",
+		"sudot", // ARMv8.6
 		"suqadd",
+		"swp",    // 8.1
+		"swpa",   // 8.1
+		"swpab",  // 8.1
+		"swpah",  // 8.1
+		"swpalb", // 8.1
+		"swpalh", // 8.1
+		"swpb",   // 8.1
+		"swph",   // 8.1
+		"swpl",   // 8.1
+		"swplb",  // 8.1
+		"swplh",  // 8.1
+		"swpal",  // 8.1
 		"svc",
 		"sxtb",
 		"sxth",
@@ -1327,6 +1413,7 @@ func (o Operation) String() string {
 		"ubfx",
 		"ucvtf",
 		"udiv",
+		"udot",
 		"uhadd",
 		"uhsub",
 		"umaddl",
@@ -1340,6 +1427,8 @@ func (o Operation) String() string {
 		"umlal2",
 		"umlsl",
 		"umlsl2",
+		"ummla",  // ARMv8.6
+		"usmmla", // ARMv8.6
 		"umnegl",
 		"umov",
 		"umsubl",
@@ -1362,6 +1451,7 @@ func (o Operation) String() string {
 		"urshr",
 		"ursqrte",
 		"ursra",
+		"usdot", // ARMv8.6
 		"ushl",
 		"ushll",
 		"ushll2",
@@ -1702,7 +1792,7 @@ func (i System) Group1() uint32 {
 	return ExtractBits(uint32(i), 22, 10)
 }
 func (i System) String() string {
-	return fmt.Sprintf("Group1: %d, L: %d, op0: %d, op1: %d, CRn: %#b, CRm: %#b, op2: %d, Rt: %d",
+	return fmt.Sprintf("Group1: %d, L: %d, op0: %d, op1: %d, CRn: %d, CRm: %d, op2: %d, Rt: %d",
 		i.Group1(), i.L(), i.Op0(), i.Op1(), i.Crn(), i.Crm(), i.Op2(), i.Rt())
 }
 
@@ -2945,6 +3035,10 @@ func (i FloatingDataProcessing1) Group4() uint32 {
 func (i FloatingDataProcessing1) M() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i FloatingDataProcessing1) String() string {
+	return fmt.Sprintf("Rd: %d, Rn: %d, Group1: %d, Opcode: %d, Group2: %d, Type: %d, Group3: %d, S: %d, Group4: %d, M: %d",
+		i.Rd(), i.Rn(), i.Group1(), i.Opcode(), i.Group2(), i.Type(), i.Group3(), i.S(), i.Group4(), i.M())
+}
 
 type FloatingIntegerConversion uint32
 
@@ -3030,6 +3124,9 @@ func (i FloatingComplexMultiplyAccumulate) Rd() uint32 {
 func (i FloatingComplexMultiplyAccumulate) Rn() uint32 {
 	return ExtractBits(uint32(i), 5, 5)
 }
+func (i FloatingComplexMultiplyAccumulate) Flag() uint32 {
+	return ExtractBits(uint32(i), 10, 1)
+}
 func (i FloatingComplexMultiplyAccumulate) H() uint32 {
 	return ExtractBits(uint32(i), 11, 1)
 }
@@ -3055,14 +3152,40 @@ func (i FloatingComplexMultiplyAccumulate) Size() uint32 {
 	return ExtractBits(uint32(i), 22, 2)
 }
 func (i FloatingComplexMultiplyAccumulate) Group() uint32 {
-	return ExtractBits(uint32(i), 24, 5)
+	return ExtractBits(uint32(i), 24, 6)
 }
 func (i FloatingComplexMultiplyAccumulate) Q() uint32 {
 	return ExtractBits(uint32(i), 30, 1)
 }
 func (i FloatingComplexMultiplyAccumulate) String() string {
-	return fmt.Sprintf("Rd: %d, Rn: %d, H: %d, Rot: %d, Rot2: %d, Rm: %d, Rm2: %d, M: %d, L: %d, Size: %d, Group: %d, Q: %d",
-		i.Rd(), i.Rn(), i.H(), i.Rot(), i.Rot2(), i.Rm(), i.Rm2(), i.M(), i.L(), i.Size(), i.Group(), i.Q())
+	return fmt.Sprintf("Rd: %d, Rn: %d, Flag: %d, H: %d, Rot: %d, Rot2: %d, Rm: %d, Rm2: %d, M: %d, L: %d, Size: %d, Group: %d, Q: %d",
+		i.Rd(), i.Rn(), i.Flag(), i.H(), i.Rot(), i.Rot2(), i.Rm(), i.Rm2(), i.M(), i.L(), i.Size(), i.Group(), i.Q())
+}
+
+// C3.5.28 SIMD BFloat16
+type SimdBFloat16 uint32
+
+func (i SimdBFloat16) Rd() uint32 {
+	return ExtractBits(uint32(i), 0, 5)
+}
+func (i SimdBFloat16) Rn() uint32 {
+	return ExtractBits(uint32(i), 5, 5)
+}
+func (i SimdBFloat16) Group1() uint32 {
+	return ExtractBits(uint32(i), 10, 6)
+}
+func (i SimdBFloat16) Rm() uint32 {
+	return ExtractBits(uint32(i), 16, 5)
+}
+func (i SimdBFloat16) Group2() uint32 {
+	return ExtractBits(uint32(i), 21, 9)
+}
+func (i SimdBFloat16) Q() uint32 {
+	return ExtractBits(uint32(i), 30, 1)
+}
+func (i SimdBFloat16) String() string {
+	return fmt.Sprintf("Rd: %d, Rn: %d, Group1: %d, Rm: %d, Group2: %d, Q: %d",
+		i.Rd(), i.Rn(), i.Group1(), i.Rm(), i.Group2(), i.Q())
 }
 
 type Simd3Same uint32
@@ -3169,6 +3292,10 @@ func (i Simd2RegMisc) Q() uint32 {
 func (i Simd2RegMisc) Group4() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
+func (i Simd2RegMisc) String() string {
+	return fmt.Sprintf("Q: %d, U: %d, Group3: %d, Size: %d, Group2: %d, Opcode: %d, Group1: %d, Rn: %d, Rd: %d",
+		i.Q(), i.U(), i.Group3(), i.Size(), i.Group2(), i.Opcode(), i.Group1(), i.Rn(), i.Rd())
+}
 
 type SimdAcrossLanes uint32
 
@@ -3236,6 +3363,46 @@ func (i SimdCopy) Group4() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
 }
 
+type SimdRound uint32
+
+func (i SimdRound) Rd() uint32 {
+	return ExtractBits(uint32(i), 0, 5)
+}
+func (i SimdRound) Rn() uint32 {
+	return ExtractBits(uint32(i), 5, 5)
+}
+func (i SimdRound) Group1() uint32 {
+	return ExtractBits(uint32(i), 10, 2)
+}
+func (i SimdRound) Opcode() uint32 {
+	return ExtractBits(uint32(i), 12, 1)
+}
+func (i SimdRound) Group2() uint32 {
+	return ExtractBits(uint32(i), 13, 4)
+}
+func (i SimdRound) Group3() uint32 {
+	return ExtractBits(uint32(i), 17, 5)
+}
+func (i SimdRound) Size() uint32 {
+	return ExtractBits(uint32(i), 22, 1)
+}
+func (i SimdRound) Group4() uint32 {
+	return ExtractBits(uint32(i), 23, 6)
+}
+func (i SimdRound) U() uint32 {
+	return ExtractBits(uint32(i), 29, 1)
+}
+func (i SimdRound) Q() uint32 {
+	return ExtractBits(uint32(i), 30, 1)
+}
+func (i SimdRound) Group5() uint32 {
+	return ExtractBits(uint32(i), 31, 1)
+}
+func (i SimdRound) String() string {
+	return fmt.Sprintf("Rd: %d, Rn: %d, Group1: %d, Opcode: %d, Group2: %d, Group3: %d, Size: %d, Group4: %d, U: %d, Q: %d, Group5: %d",
+		i.Rd(), i.Rn(), i.Group1(), i.Opcode(), i.Group2(), i.Group3(), i.Size(), i.Group4(), i.U(), i.Q(), i.Group5())
+}
+
 type SimdVectorXIndexedElement uint32
 
 func (i SimdVectorXIndexedElement) Rd() uint32 {
@@ -3276,6 +3443,10 @@ func (i SimdVectorXIndexedElement) Q() uint32 {
 }
 func (i SimdVectorXIndexedElement) Group3() uint32 {
 	return ExtractBits(uint32(i), 31, 1)
+}
+func (i SimdVectorXIndexedElement) String() string {
+	return fmt.Sprintf("Q: %d, U: %d, Group2: %d, Size: %d, L: %d, M: %d, Rm: %d, Opcode: %d, H: %d, Group1: %d, Rn: %d, Rd: %d",
+		i.Q(), i.U(), i.Group2(), i.Size(), i.L(), i.M(), i.Rm(), i.Opcode(), i.H(), i.Group1(), i.Rn(), i.Rd())
 }
 
 type SimdModifiedImm uint32
@@ -3561,6 +3732,49 @@ func (i SimdScalar2RegisterMisc) U() uint32 {
 }
 func (i SimdScalar2RegisterMisc) Group4() uint32 {
 	return ExtractBits(uint32(i), 30, 2)
+}
+
+type SimdScalar3RegisterExt uint32
+
+func (i SimdScalar3RegisterExt) Rd() uint32 {
+	return ExtractBits(uint32(i), 0, 5)
+}
+func (i SimdScalar3RegisterExt) Rn() uint32 {
+	return ExtractBits(uint32(i), 5, 5)
+}
+func (i SimdScalar3RegisterExt) Group1() uint32 {
+	return ExtractBits(uint32(i), 10, 1)
+}
+func (i SimdScalar3RegisterExt) Opcode() uint32 {
+	return ExtractBits(uint32(i), 11, 4)
+}
+func (i SimdScalar3RegisterExt) Group2() uint32 {
+	return ExtractBits(uint32(i), 15, 1)
+}
+func (i SimdScalar3RegisterExt) Rm() uint32 {
+	return ExtractBits(uint32(i), 16, 5)
+}
+func (i SimdScalar3RegisterExt) Group3() uint32 {
+	return ExtractBits(uint32(i), 21, 1)
+}
+func (i SimdScalar3RegisterExt) Size() uint32 {
+	return ExtractBits(uint32(i), 22, 2)
+}
+func (i SimdScalar3RegisterExt) Group4() uint32 {
+	return ExtractBits(uint32(i), 24, 5)
+}
+func (i SimdScalar3RegisterExt) U() uint32 {
+	return ExtractBits(uint32(i), 29, 1)
+}
+func (i SimdScalar3RegisterExt) Q() uint32 {
+	return ExtractBits(uint32(i), 30, 1)
+}
+func (i SimdScalar3RegisterExt) Group5() uint32 {
+	return ExtractBits(uint32(i), 31, 1)
+}
+func (i SimdScalar3RegisterExt) String() string {
+	return fmt.Sprintf("Q: %d, U: %d, Group4: %d, Size: %d, Group3: %d, Size: %d, Rm: %d, Group2: %d, Opcode: %#b, Group1: %d, Rn: %d, Rd: %d",
+		i.Q(), i.U(), i.Group4(), i.Size(), i.Group3(), i.Size(), i.Rm(), i.Group2(), i.Opcode(), i.Group1(), i.Rn(), i.Rd())
 }
 
 type SimdScalarPairwise uint32
@@ -4091,10 +4305,13 @@ const (
 	REG_PMUSERENR_EL0
 	REG_PMXEVCNTR_EL0
 	REG_PMXEVTYPER_EL0
+	REG_RCTX
 	REG_RGSR_EL1
 	REG_RMR_EL1
 	REG_RMR_EL2
 	REG_RMR_EL3
+	REG_RNDR
+	REG_RNDRRS
 	REG_RVBAR_EL1
 	REG_RVBAR_EL2
 	REG_RVBAR_EL3
@@ -4116,7 +4333,13 @@ const (
 	REG_SCTLR_EL12
 	REG_SCTLR_EL2
 	REG_SCTLR_EL3
+	REG_SCXTNUM_EL0
+	REG_SCXTNUM_EL1
+	REG_SCXTNUM_EL12
+	REG_SCXTNUM_EL2
+	REG_SCXTNUM_EL3
 	REG_SPSEL
+	REG_SSBS // ARMv8.5
 	REG_TCO
 	REG_TCR_EL1
 	REG_TCR_EL12
@@ -4298,6 +4521,7 @@ const (
 	REG_REVIDR_EL1
 	REG_ID_PFR0_EL1
 	REG_ID_PFR1_EL1
+	REG_ID_PFR2_EL1
 	REG_ID_DFR0_EL1
 	REG_ID_AFR0_EL1
 	REG_ID_MMFR0_EL1
@@ -4721,10 +4945,13 @@ func (s SystemReg) String() string {
 		"pmuserenr_el0",
 		"pmxevcntr_el0",
 		"pmxevtyper_el0",
+		"rctx",
 		"rgsr_el1",
 		"rmr_el1",
 		"rmr_el2",
 		"rmr_el3",
+		"rndr",
+		"rndrrs",
 		"rvbar_el1",
 		"rvbar_el2",
 		"rvbar_el3",
@@ -4746,7 +4973,13 @@ func (s SystemReg) String() string {
 		"sctlr_el12",
 		"sctlr_el2",
 		"sctlr_el3",
+		"scxtnum_el0",
+		"scxtnum_el1",
+		"scxtnum_el12",
+		"scxtnum_el2",
+		"scxtnum_el3",
 		"spsel",
+		"ssbs",
 		"tco",
 		"tcr_el1",
 		"tcr_el12",
@@ -4930,6 +5163,7 @@ func (s SystemReg) String() string {
 		"revidr_el1",
 		"id_pfr0_el1",
 		"id_pfr1_el1",
+		"id_pfr2_el1",
 		"id_dfr0_el1",
 		"id_afr0_el1",
 		"id_mmfr0_el1",
