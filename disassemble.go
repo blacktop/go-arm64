@@ -96,11 +96,13 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 		return failedToDisassembleOperand
 	}
 
+	// if op.SignedImm == 1 && int64(op.Immediate) < 0 {
 	if op.SignedImm == 1 {
 		sign = "-"
 	}
+
 	if op.ShiftType != SHIFT_NONE {
-		if op.ShiftValueUsed != 0 || op.ShiftType != SHIFT_LSL {
+		if op.ShiftValueUsed || op.ShiftType != SHIFT_LSL {
 			// if op.ShiftValueUsed != 0 {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
@@ -169,7 +171,7 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 // 	}
 
 // 	if op.ShiftType != SHIFT_NONE {
-// 		if op.ShiftValueUsed != 0 {
+// 		if op.ShiftValueUsed {
 // 			immBuff = fmt.Sprintf(" #%#x", op.ShiftValue)
 // 		}
 // 		shiftBuff = fmt.Sprintf(", %s%s", ShiftType(op.ShiftType), immBuff)
@@ -188,8 +190,9 @@ func (op *InstructionOperand) getShiftedImmediate(decimalImm bool) error {
 
 func (op *InstructionOperand) getRegister(registerNumber int, decimalImm bool) error {
 	var scale string
+	var rotate string
 
-	if op.Scale != 0 {
+	if op.HasScale || op.Scale > 0 {
 		scale = fmt.Sprintf("[%d]", 0x7fffffff&op.Scale)
 	}
 
@@ -214,6 +217,10 @@ func (op *InstructionOperand) getRegister(registerNumber int, decimalImm bool) e
 			}
 		}
 		return nil
+	}
+
+	if op.HasRotation {
+		rotate = fmt.Sprintf(", #%d", op.Rotation)
 	}
 
 	var elementSize string
@@ -241,12 +248,12 @@ func (op *InstructionOperand) getRegister(registerNumber int, decimalImm bool) e
 		if registerNumber > 3 || (op.DataSize != 1 && op.DataSize != 2 && op.DataSize != 4 && op.DataSize != 8 && op.DataSize != 16) {
 			return failedToDisassembleRegister
 		}
-		op.strRepr = fmt.Sprintf("%s.%d%s%s", Register(op.Reg[registerNumber]), op.DataSize, elementSize, scale)
+		op.strRepr = fmt.Sprintf("%s.%d%s%s%s", Register(op.Reg[registerNumber]), op.DataSize, elementSize, scale, rotate)
 	} else {
 		if registerNumber > 3 {
 			return failedToDisassembleRegister
 		}
-		op.strRepr = fmt.Sprintf("%s.%s%s", Register(op.Reg[registerNumber]), elementSize, scale)
+		op.strRepr = fmt.Sprintf("%s.%s%s%s", Register(op.Reg[registerNumber]), elementSize, scale, rotate)
 	}
 
 	return nil
@@ -261,8 +268,8 @@ func (op *InstructionOperand) getShiftedRegister(registerNumber int, decimalImm 
 		return failedToDisassembleRegister
 	}
 	if op.ShiftType != SHIFT_NONE {
-		// if op.ShiftValueUsed != 0 || op.ShiftType != SHIFT_LSL {
-		if op.ShiftValueUsed != 0 {
+		// if op.ShiftValueUsed || op.ShiftType != SHIFT_LSL {
+		if op.ShiftValueUsed {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
 			} else {
@@ -377,7 +384,7 @@ func (op *InstructionOperand) getMemoryOperand(decimalImm bool) error {
 		if reg1 == REG_NONE || reg2 == REG_NONE {
 			return failedToDisassembleOperand
 		}
-		if op.ShiftValueUsed != 0 {
+		if op.ShiftValueUsed {
 			if decimalImm {
 				immBuff = fmt.Sprintf(" #%d", op.ShiftValue)
 			} else {

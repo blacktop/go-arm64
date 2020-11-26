@@ -2,7 +2,6 @@ package arm64
 
 import (
 	"encoding/binary"
-	"fmt"
 	"math"
 	"math/bits"
 )
@@ -78,7 +77,7 @@ func (i *Instruction) decompose_add_sub_extended_reg() (*Instruction, error) {
 		i.operands[2].Reg[0] = reg(REGSET_ZR, int(regBaseMap2[decode.Option()]), int(decode.Rm()))
 	}
 	i.operands[2].ShiftType = shiftMap[decode.Sf()][decode.Option()]
-	i.operands[2].ShiftValueUsed = 0
+	i.operands[2].ShiftValueUsed = false
 	//SUBS => Rn == 31
 	//ADDS => Rn == 31
 	//SUB  => Rd|Rn == 31
@@ -86,13 +85,13 @@ func (i *Instruction) decompose_add_sub_extended_reg() (*Instruction, error) {
 	if (decode.Option() == decodeOptionMap[decode.Sf()]) && ((decode.S() == 1 && decode.Rn() == 31) || (decode.S() == 0 && (decode.Rd() == 31 || decode.Rn() == 31))) {
 		if decode.Imm() != 0 {
 			i.operands[2].ShiftType = SHIFT_LSL
-			i.operands[2].ShiftValueUsed = 1
+			i.operands[2].ShiftValueUsed = true
 			i.operands[2].ShiftValue = decode.Imm()
 		} else {
 			i.operands[2].ShiftType = SHIFT_NONE
 		}
 	} else if decode.Imm() != 0 {
-		i.operands[2].ShiftValueUsed = 1
+		i.operands[2].ShiftValueUsed = true
 		i.operands[2].ShiftValue = decode.Imm()
 	}
 	//Now handle aliases
@@ -146,7 +145,7 @@ func (i *Instruction) decompose_add_sub_imm() (*Instruction, error) {
 	i.operands[2].Immediate = uint64(decode.Imm())
 	if decode.Shift() == 1 {
 		i.operands[2].ShiftValue = 12
-		i.operands[2].ShiftValueUsed = 1
+		i.operands[2].ShiftValueUsed = true
 		i.operands[2].ShiftType = SHIFT_LSL
 	} else if decode.Shift() > 1 {
 		return nil, failedToDecodeInstruction
@@ -241,7 +240,7 @@ func (i *Instruction) decompose_add_sub_shifted_reg() (*Instruction, error) {
 	if !(decode.Shift() == 0 && decode.Imm() == 0) {
 		i.operands[2].ShiftType = shift[decode.Shift()]
 		i.operands[2].ShiftValue = decode.Imm()
-		i.operands[2].ShiftValueUsed = 1
+		i.operands[2].ShiftValueUsed = true
 	}
 	//Handle aliases
 	if i.operation == ARM64_ADDS && decode.Rd() == 31 {
@@ -438,12 +437,11 @@ func (i *Instruction) decompose_compare_branch_imm() (*Instruction, error) {
 	i.operands[0].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rt()))
 
 	i.operands[1].OpClass = LABEL
-	if decode.Imm() < 0 {
-		i.operands[1].Immediate = i.address - uint64(decode.Imm()<<2)
+	imm := int64(i.address) + int64(decode.Imm()<<2)
+	if imm < 0 {
 		i.operands[1].SignedImm = 1
-	} else {
-		i.operands[1].Immediate = i.address + uint64(decode.Imm()<<2)
 	}
+	i.operands[1].Immediate = uint64(imm)
 
 	return i, nil
 }
@@ -463,12 +461,12 @@ func (i *Instruction) decompose_conditional_branch() (*Instruction, error) {
 	i.operation = operation[decode.Cond()]
 
 	i.operands[0].OpClass = LABEL
-	if decode.Imm() < 0 {
-		i.operands[0].Immediate = i.address - uint64(decode.Imm()<<2)
+	imm := int64(i.address) + int64(decode.Imm()<<2)
+	if imm < 0 {
 		i.operands[0].SignedImm = 1
-	} else {
-		i.operands[0].Immediate = i.address + uint64(decode.Imm()<<2)
 	}
+	i.operands[0].Immediate = uint64(imm)
+
 	if !(decode.O0() == 0 && decode.O1() == 0) {
 		return nil, failedToDecodeInstruction
 	}
@@ -1207,26 +1205,39 @@ func (i *Instruction) decompose_simd_3_reg_ext() (*Instruction, error) {
 
 	 */
 
+	type OpInfo struct {
+		op   Operation
+		ovar uint32
+	}
+	var opinfo OpInfo
+
 	decode := SimdScalar3RegisterExt(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
+
+	i.operands[0].OpClass = REG
+	i.operands[1].OpClass = REG
+	i.operands[2].OpClass = REG
+	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
+	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
 
 	switch decode.Opcode() {
 	case 0b0010:
 		if decode.U() == 0 {
-			i.operation = ARM64_SDOT
+			opinfo = OpInfo{ARM64_SDOT, 0}
 			break
 		} else {
-			i.operation = ARM64_UDOT
+			opinfo = OpInfo{ARM64_UDOT, 0}
 			break
 		}
 	case 0b0011:
-		i.operation = ARM64_USDOT
+		opinfo = OpInfo{ARM64_USDOT, 0}
 		break
 	case 0b0000:
-		i.operation = ARM64_SQRDMLAH
+		opinfo = OpInfo{ARM64_SQRDMLAH, 1}
 		break
 	case 0b0001:
-		i.operation = ARM64_SQRDMLSH
+		opinfo = OpInfo{ARM64_SQRDMLSH, 1}
 		break
 	case 0b1000:
 		fallthrough
@@ -1236,106 +1247,117 @@ func (i *Instruction) decompose_simd_3_reg_ext() (*Instruction, error) {
 		fallthrough
 	case 0b1011:
 		if decode.U() == 1 {
-			i.operation = ARM64_FCMLA
+			opinfo = OpInfo{ARM64_FCMLA, 2}
 			break
 		}
 	case 0b1100:
 		fallthrough
 	case 0b1110:
 		if decode.U() == 1 {
-			i.operation = ARM64_FCADD
+			opinfo = OpInfo{ARM64_FCADD, 3}
 			break
 		}
 	case 0b1111:
 		if decode.U() == 1 && decode.Size() == 1 {
-			i.operation = ARM64_BFDOT
+			opinfo = OpInfo{ARM64_BFDOT, 4}
 			break
 		} else if decode.U() == 1 && decode.Size() == 3 {
 			if decode.Q() == 0 {
-				i.operation = ARM64_BFMLALB
+				opinfo = OpInfo{ARM64_BFMLALB, 4}
 				break
 			} else {
-				i.operation = ARM64_BFMLALT
+				opinfo = OpInfo{ARM64_BFMLALT, 4}
 				break
 			}
 		}
 	case 0b0100:
 		if decode.U() == 0 {
-			i.operation = ARM64_SMMLA
+			opinfo = OpInfo{ARM64_SMMLA, 5}
 			break
 		} else {
-			i.operation = ARM64_UMMLA
+			opinfo = OpInfo{ARM64_UMMLA, 5}
 			break
 		}
 	case 0b0101:
-		i.operation = ARM64_USMMLA
+		opinfo = OpInfo{ARM64_USMMLA, 5}
 		break
 	case 0b1101:
-		i.operation = ARM64_BFMMLA
+		opinfo = OpInfo{ARM64_BFMMLA, 6}
 		break
 	default:
-		i.operation = ARM64_UNDEFINED
-	}
-	i.operands[0].OpClass = REG
-	i.operands[1].OpClass = REG
-	i.operands[2].OpClass = REG
-	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
-	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
-	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
-	esize1 := uint32(1 << decode.Size())
-	var dsizeMap = [2]uint32{64, 128}
-	dsize1 := dsizeMap[decode.Q()] / (8 * esize1)
-	var esize2 uint32
-	var dsize2 uint32
-	switch decode.Size() {
-	case 0:
-		esize2 = 2
-		dsize2 = 8
-		break
-	case 1:
-		esize2 = 4
-		dsize2 = 4
-		break
-	case 2:
-		esize2 = 8
-		dsize2 = 2
-		break
-	case 3:
-		esize2 = 16
-		dsize2 = 1
-		break
-	}
-	var elementMap = [16][3]uint32{
-		{0, 1, 1},
-		{0, 0, 1},
-		{0, 1, 1},
-		{0, 0, 1},
-		{1, 0, 0},
-		{0, 1, 1},
-		{1, 0, 0},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-		{0, 1, 1},
-	}
-	for idx := 0; idx < 3; idx++ {
-		if elementMap[decode.Opcode()][idx] == 0 {
-			i.operands[idx].ElementSize = esize2
-			i.operands[idx].DataSize = dsize2
-		} else {
-			i.operands[idx].ElementSize = esize1
-			i.operands[idx].DataSize = dsize1
-		}
-	}
-
-	if i.operation == ARM64_UNDEFINED {
 		return nil, failedToDisassembleOperation
 	}
+
+	i.operation = opinfo.op
+
+	switch opinfo.ovar {
+	case 0:
+		var dsizeMap = [2]uint32{8, 16}
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = dsizeMap[decode.Q()] / 4
+		i.operands[1].ElementSize = 1
+		i.operands[1].DataSize = dsizeMap[decode.Q()]
+		i.operands[2].ElementSize = 1
+		i.operands[2].DataSize = dsizeMap[decode.Q()]
+	case 1:
+		if decode.Size() < 3 {
+			var eMap = [3]uint32{0, 2, 4}
+			var dsizeMap = [2]uint32{8, 16}
+			i.operands[0].ElementSize = eMap[decode.Size()]
+			i.operands[0].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+			i.operands[1].ElementSize = eMap[decode.Size()]
+			i.operands[1].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+			i.operands[2].ElementSize = eMap[decode.Size()]
+			i.operands[2].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		}
+	case 2:
+		var eMap = [4]uint32{0, 2, 4, 8}
+		var dsizeMap = [2]uint32{8, 16}
+		var rotMap = [4]uint32{0, 90, 180, 270}
+		i.operands[0].ElementSize = eMap[decode.Size()]
+		i.operands[0].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[1].ElementSize = eMap[decode.Size()]
+		i.operands[1].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[2].ElementSize = eMap[decode.Size()]
+		i.operands[2].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[2].HasRotation = true
+		i.operands[2].Rotation = rotMap[ExtractBits(i.raw, 11, 2)] // rot
+	case 3:
+		var eMap = [4]uint32{0, 2, 4, 8}
+		var dsizeMap = [2]uint32{8, 16}
+		var rotMap = [2]uint32{90, 270}
+		i.operands[0].ElementSize = eMap[decode.Size()]
+		i.operands[0].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[1].ElementSize = eMap[decode.Size()]
+		i.operands[1].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[2].ElementSize = eMap[decode.Size()]
+		i.operands[2].DataSize = dsizeMap[decode.Q()] / eMap[decode.Size()]
+		i.operands[2].HasRotation = true
+		i.operands[2].Rotation = rotMap[ExtractBits(i.raw, 12, 1)] // rot
+	case 4:
+		var dsizeMap = [2]uint32{4, 8}
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = dsizeMap[decode.Q()] / 2
+		i.operands[1].ElementSize = 2
+		i.operands[1].DataSize = dsizeMap[decode.Q()]
+		i.operands[2].ElementSize = 2
+		i.operands[2].DataSize = dsizeMap[decode.Q()]
+	case 5:
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = 4
+		i.operands[1].ElementSize = 1
+		i.operands[1].DataSize = 16
+		i.operands[2].ElementSize = 1
+		i.operands[2].DataSize = 16
+	case 6:
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = 4
+		i.operands[1].ElementSize = 2
+		i.operands[1].DataSize = 8
+		i.operands[2].ElementSize = 2
+		i.operands[2].DataSize = 8
+	}
+
 	return i, nil
 }
 
@@ -1401,7 +1423,7 @@ func (i *Instruction) decompose_floating_data_processing1() (*Instruction, error
 	var regChoice = [2]uint32{REG_S_BASE, REG_D_BASE}
 
 	decode := FloatingDataProcessing1(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
 	switch decode.Opcode() {
 	case 0:
 		i.operation = ARM64_FMOV
@@ -2288,7 +2310,7 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 			{ARM64_STSMAXB, ARM64_LDSMAXLB, ARM64_LDAPRB, ARM64_LDSMAXALB},
 			{ARM64_LDSMAXH, ARM64_LDSMAXLH, ARM64_LDAPRH, ARM64_LDSMAXALH},
 			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
-			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDAPR, ARM64_LDSMAXAL},
+			{ARM64_LDSMAX, ARM64_LDSMAXL, ARM64_LDSMAXA, ARM64_LDSMAXAL},
 		}, {
 			{ARM64_LDSMINB, ARM64_LDSMINLB, ARM64_LDSMINAB, ARM64_LDSMINALB},
 			{ARM64_STSMINH, ARM64_LDSMINLH, ARM64_LDSMINAH, ARM64_LDSMINALH},
@@ -2326,7 +2348,36 @@ func (i *Instruction) decompose_atomic_memory_ops() (*Instruction, error) {
 	 * LDAPRB <Wt>, [<Xn|SP> {,#0}]
 	 * LDAPRH <Wt>, [<Xn|SP> {,#0}]
 	 */
+	if decode.R() == 0 && decode.Rs() == 31 {
+		if i.operation == ARM64_LDSMAXA {
+			i.operation = ARM64_LDAPR
+		}
+		i.deleteOperand(0)
+	}
+	/* C6.2.247 - C6.2.255
+	 * STADDB <Ws>, [<Xn|SP>]
+	 * STADDLB <Ws>, [<Xn|SP>]
+	 * STADDH <Ws>, [<Xn|SP>]
+	 * STADDLH <Ws>, [<Xn|SP>]
+	 * STADD <Ws>, [<Xn|SP>]
+	 * STADDL <Ws>, [<Xn|SP>]
+	 * STCLRB <Ws>, [<Xn|SP>]
+	 * STCLRLB <Ws>, [<Xn|SP>]
+	 * STCLRH <Ws>, [<Xn|SP>]
+	 * STCLRLH <Ws>, [<Xn|SP>]
+	 * STCLR <Ws>, [<Xn|SP>]
+	 * STCLRL <Ws>, [<Xn|SP>]
+	 * STEORB <Ws>, [<Xn|SP>]
+	 * STEORLB <Ws>, [<Xn|SP>]
+	 * STEORH <Ws>, [<Xn|SP>]
+	 * STEORLH <Ws>, [<Xn|SP>]
+	 * STEOR <Ws>, [<Xn|SP>]
+	 * STEORL <Ws>, [<Xn|SP>]
+	 */
 	if decode.A() == 0 && decode.Rt() == 31 {
+		// if i.operation == ARM64_LDSMAXA {
+		// 	i.operation = ARM64_LDAPR
+		// }
 		i.deleteOperand(1)
 	}
 
@@ -2683,28 +2734,28 @@ func (i *Instruction) decompose_load_store_reg_reg_offset() (*Instruction, error
 
 	extend := extendMap[decode.Option()]
 	i.operands[1].ShiftType = extend
-	i.operands[1].ShiftValueUsed = 1
+	i.operands[1].ShiftValueUsed = true
 	i.operands[1].ShiftValue = uint32(op.amount[decode.S()])
 
 	if i.operands[1].ShiftValue == math.MaxUint32 {
-		i.operands[1].ShiftValueUsed = 0
+		i.operands[1].ShiftValueUsed = false
 		i.operands[1].ShiftValue = 0
 		if i.operands[1].ShiftType == SHIFT_LSL {
 			i.operands[1].ShiftType = SHIFT_NONE
 		}
 	} else if i.operation == ARM64_LDRB {
 		if i.operands[1].ShiftType == SHIFT_LSL && i.operands[1].ShiftValue == 0 {
-			i.operands[1].ShiftValueUsed = 1
+			i.operands[1].ShiftValueUsed = true
 		} else if i.operands[1].ShiftType != SHIFT_LSL && i.operands[1].ShiftValue == 0 {
-			i.operands[1].ShiftValueUsed = 0
+			i.operands[1].ShiftValueUsed = false
 		}
 	} else if i.operands[1].ShiftValue == 0 && (i.operation == ARM64_LDRSB || i.operation == ARM64_STRB) {
-		i.operands[1].ShiftValueUsed = 1
+		i.operands[1].ShiftValueUsed = true
 	} else if i.operands[1].ShiftValue == 0 {
 		if i.operands[1].ShiftType == SHIFT_LSL {
 			i.operands[1].ShiftType = SHIFT_NONE
 		}
-		i.operands[1].ShiftValueUsed = 0
+		i.operands[1].ShiftValueUsed = false
 	}
 
 	if i.operation == ARM64_UNDEFINED || extend == SHIFT_NONE {
@@ -3053,7 +3104,7 @@ func (i *Instruction) decompose_logical_shifted_reg() (*Instruction, error) {
 	i.operands[2].Reg[0] = reg(REGSET_ZR, int(regSize[decode.Sf()]), int(decode.Rm()))
 	i.operands[2].ShiftType = shiftMap[decode.Shift()]
 	i.operands[2].ShiftValue = decode.Imm()
-	i.operands[2].ShiftValueUsed = 1
+	i.operands[2].ShiftValueUsed = true
 
 	if i.operands[2].ShiftType == SHIFT_LSL && i.operands[2].ShiftValue == 0 {
 		i.operands[2].ShiftType = SHIFT_NONE
@@ -3099,7 +3150,7 @@ func (i *Instruction) decompose_move_wide_imm() (*Instruction, error) {
 	if decode.Hw() != 0 {
 		i.operands[1].ShiftType = SHIFT_LSL
 		i.operands[1].ShiftValue = decode.Hw() << 4
-		i.operands[1].ShiftValueUsed = 1
+		i.operands[1].ShiftValueUsed = true
 	}
 	if (decode.Sf() == 0 && decode.Hw()>>1 == 1) || i.operation == ARM64_UNDEFINED {
 		return nil, failedToDecodeInstruction
@@ -3137,24 +3188,28 @@ func (i *Instruction) decompose_pc_rel_addr() (*Instruction, error) {
 	 * ADR <Xd>, <label>
 	 * ADRP <Xd>, <label>
 	 */
-	decode := PcRelAddressing(i.raw)
+
+	var imm int64
 	var operation = []Operation{ARM64_ADR, ARM64_ADRP}
 	var shiftBase = []uint8{0, 12}
+
+	decode := PcRelAddressing(i.raw)
+
 	i.operation = operation[decode.Op()]
 	i.operands[0].OpClass = REG
 	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_X_BASE, int(decode.Rd()))
 	i.operands[1].OpClass = LABEL
-	if decode.Immhi() < 0 {
+
+	if decode.Op() == 1 {
+		imm = int64(i.address & ^uint64((1<<12)-1)) + int64(decode.Immhi()<<2|int32(decode.Immlo()))<<shiftBase[decode.Op()]
+	} else {
+		imm = int64(i.address) + int64(decode.Immhi()<<2|int32(decode.Immlo()))<<shiftBase[decode.Op()]
+	}
+	if imm < 0 {
 		i.operands[1].SignedImm = 1
 	}
-	x := uint64(decode.Immhi())
-	i.operands[1].Immediate = (((x << 2) | uint64(decode.Immlo())) << shiftBase[decode.Op()])
-	if decode.Op() == 1 {
-		i.operands[1].Immediate += i.address & ^uint64((1<<12)-1)
-	} else {
-		i.operands[1].Immediate += i.address
-	}
-	//printf("imm: %lx %lx %lx %lx\n", i.operands[1].Immediate, x, x<<2, ((x<<2)| decode.immlo)<< 12)
+	i.operands[1].Immediate = uint64(imm)
+
 	return i, nil
 }
 
@@ -3240,7 +3295,7 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 	}
 
 	decode := Simd2RegMisc(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
 
 	info := opInfo{}
 	switch decode.Opcode() {
@@ -3483,6 +3538,7 @@ func (i *Instruction) decompose_simd_2_reg_misc() (*Instruction, error) {
 	i.operands[0].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rd()))
 	i.operands[1].OpClass = REG
 	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
+
 	switch info.otype {
 	case 0:
 		elemSize1 = 1 << decode.Size()
@@ -4800,7 +4856,7 @@ func (i *Instruction) decompose_simd_modified_imm() (*Instruction, error) {
 	}
 	i.operands[1].ShiftValue = shiftValue
 	i.operands[1].ShiftType = shiftType
-	i.operands[1].ShiftValueUsed = 1
+	i.operands[1].ShiftValueUsed = true
 
 	if decode.O2() != 0 {
 		return i, failedToDecodeInstruction
@@ -5872,7 +5928,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 	var opinfo OpInfo
 
 	decode := SimdVectorXIndexedElement(i.raw)
-	fmt.Println(decode)
+	// fmt.Println(decode)
 
 	switch decode.Opcode() {
 	case 0b0000:
@@ -5947,11 +6003,12 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		if decode.U() == 0 {
 			if decode.Size() >= 2 {
 				opinfo = OpInfo{ARM64_FMLA, 1} // TODO
+			} else {
+				opinfo = OpInfo{ARM64_FMLA, 3} // TODO
 			}
-			opinfo = OpInfo{ARM64_FMLA, 3} // TODO
 		} else {
 			if decode.Size() == 1 {
-				opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
+				opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
 			} else if decode.Size() == 2 {
 				opinfo = OpInfo{ARM64_FCMLA, 3} // TODO
 			}
@@ -5960,8 +6017,9 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		if decode.U() == 0 {
 			if decode.Size() >= 2 {
 				opinfo = OpInfo{ARM64_FMLS, 1} // TODO
+			} else {
+				opinfo = OpInfo{ARM64_FMLS, 3} // TODO
 			}
-			opinfo = OpInfo{ARM64_FMLS, 3} // TODO
 		} else {
 			if decode.Size() == 1 {
 				opinfo = OpInfo{ARM64_FCMLA, 1} // TODO
@@ -5973,22 +6031,23 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		if decode.U() == 0 {
 			if decode.Size() >= 2 {
 				opinfo = OpInfo{ARM64_FMUL, 1} // TODO
+			} else {
+				opinfo = OpInfo{ARM64_FMUL, 3} // TODO
 			}
-			opinfo = OpInfo{ARM64_FMUL, 3} // TODO
 		} else {
 			opinfo = OpInfo{ARM64_FMULX, 1} // TODO
 		}
 	case 0b1111:
 		if decode.U() == 0 {
 			if decode.Size() == 0 {
-				opinfo = OpInfo{ARM64_SUDOT, 3} // TODO
+				opinfo = OpInfo{ARM64_SUDOT, 4} // TODO
 			} else if decode.Size() == 1 {
-				opinfo = OpInfo{ARM64_BFDOT, 3} // TODO
+				opinfo = OpInfo{ARM64_BFDOT, 4}
 			} else if decode.Size() == 3 {
 				if decode.Q() == 0 {
-					opinfo = OpInfo{ARM64_BFMLALB, 3} // TODO
+					opinfo = OpInfo{ARM64_BFMLALB, 5}
 				} else {
-					opinfo = OpInfo{ARM64_BFMLALT, 3} // TODO
+					opinfo = OpInfo{ARM64_BFMLALT, 5}
 				}
 			}
 		} else {
@@ -6007,6 +6066,7 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 	i.operands[1].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rn()))
 	i.operands[2].Reg[0] = reg(REGSET_ZR, REG_V_BASE, int(decode.Rm()))
 	index := uint32(decode.H()<<2 | decode.L()<<1 | decode.M())
+
 	if opinfo.ovar == 1 {
 		if decode.Size() == 0 || decode.Size() == 3 {
 			return nil, failedToDecodeInstruction
@@ -6050,6 +6110,36 @@ func (i *Instruction) decompose_simd_vector_indexed_element() (*Instruction, err
 		i.operands[1].DataSize = 8 >> (decode.Size() - decode.Q())
 		i.operands[2].DataSize = 0
 		i.operands[2].Scale = 0x80000000 | (index >> (decode.Size() - 1))
+		if i.operation == ARM64_FCMLA {
+			var rotMap = [4]uint32{0, 90, 180, 270}
+			if decode.Size() == 1 {
+				index = decode.H()<<1 | decode.L()
+			} else {
+				index = decode.H()
+			}
+			i.operands[2].HasScale = true
+			i.operands[2].Scale = index
+			i.operands[2].HasRotation = true
+			i.operands[2].Rotation = rotMap[ExtractBits(i.raw, 13, 2)] // rot
+		}
+	} else if opinfo.ovar == 4 {
+		var dsizeMap = [2]uint32{4, 8}
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = dsizeMap[decode.Q()] / 2
+		i.operands[1].ElementSize = 2
+		i.operands[1].DataSize = dsizeMap[decode.Q()]
+		i.operands[2].ElementSize = 2
+		i.operands[2].DataSize = 2
+		i.operands[2].HasScale = true
+		i.operands[2].Scale = uint32(decode.H()<<1 | decode.L())
+	} else if opinfo.ovar == 5 {
+		i.operands[0].ElementSize = 4
+		i.operands[0].DataSize = 4
+		i.operands[1].ElementSize = 2
+		i.operands[1].DataSize = 8
+		i.operands[2].ElementSize = 2
+		i.operands[2].DataSize = 0
+		i.operands[2].Scale = index
 	} else {
 		var reghi uint32
 		if decode.Size() == 2 {
@@ -7886,7 +7976,7 @@ func (i *Instruction) decompose_unconditional_branch() (*Instruction, error) {
 	i.operation = operation[decode.Op()]
 	i.operands[0].OpClass = LABEL
 	i.operands[0].Immediate = i.address + uint64(decode.Imm()<<2)
-	if decode.Imm() < 0 {
+	if (int64(i.address) + int64(decode.Imm()<<2)) < 0 {
 		i.operands[0].SignedImm = 1
 	}
 	return i, nil

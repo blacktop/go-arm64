@@ -6019,15 +6019,18 @@ type InstructionOperand struct {
 	strRepr        string
 	Reg            [5]uint32 //registers or conditions
 	Scale          uint32
+	HasScale       bool
 	DataSize       uint32
 	ElementSize    uint32
 	Index          uint32
 	Immediate      uint64
 	ShiftType      ShiftType
-	ShiftValueUsed uint32
+	ShiftValueUsed bool
 	ShiftValue     uint32
 	Extend         ShiftType
 	SignedImm      uint32
+	Rotation       uint32
+	HasRotation    bool
 }
 
 func (op InstructionOperand) String() string {
@@ -6145,6 +6148,17 @@ func ExtractBits(x uint32, start, nbits int32) uint32 {
 func signExtend(value, bits uint32) uint32 {
 	sign := (1 << (bits - 1)) & value
 	mask := (^uint32(0) >> (bits - 1)) << (bits - 1)
+	if sign != 0 {
+		value |= mask
+	} else {
+		value &= ^mask
+	}
+	return value
+}
+
+func signExtend64(value, bits uint64) uint64 {
+	sign := (1 << (bits - 1)) & value
+	mask := (^uint64(0) >> (bits - 1)) << (bits - 1)
 	if sign != 0 {
 		value |= mask
 	} else {

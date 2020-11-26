@@ -20,12 +20,12 @@ func Test_decompose_single_instr(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "bfdot	v2.2s, v3.4h, v4.4h",
+			name: "ummla	v1.4s, v16.16b, v31.16b",
 			args: args{
-				instructionValue: binary.LittleEndian.Uint32([]byte{0x62, 0xfc, 0x44, 0x2e}),
+				instructionValue: binary.LittleEndian.Uint32([]byte{0x01, 0xa6, 0x9f, 0x6e}),
 				address:          0,
 			},
-			want: "bfdot	v2.2s, v3.4h, v4.4h",
+			want: "ummla	v1.4s, v16.16b, v31.16b",
 			wantErr: false,
 		},
 	}
@@ -10592,9 +10592,6 @@ func Test_decompose_v8_6a(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if !strings.HasPrefix(tt.want, "m") {
-				fmt.Printf("want: %s\n", tt.want)
-			}
 			got, err := decompose(tt.args.instructionValue, tt.args.address)
 			if (err != nil) != tt.wantErr {
 				fmt.Printf("want: %s\n", tt.want)
