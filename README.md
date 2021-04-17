@@ -26,7 +26,7 @@ import (
 )
 
 func main() {
-	m, err := macho.Open("/path/to/hello-mte")
+	m, err := macho.Open("hello-mte")
 	if err != nil {
 		panic(err)
 	}
@@ -36,9 +36,12 @@ func main() {
 		panic(err)
 	}
 
-	text := m.Section("__TEXT", "__text")
+	fn, err := m.GetFunctionForVMAddr(symAddr)
+	if err != nil {
+		panic(err)
+	}
 
-	data, err := text.Data()
+	data, err := m.GetFunctionData(fn)
 	if err != nil {
 		panic(err)
 	}
@@ -47,6 +50,7 @@ func main() {
 		StartAddress: int64(symAddr),
 	}
 
+	fmt.Println("_test:")
 	for i := range arm64.Disassemble(bytes.NewReader(data), options) {
 		fmt.Printf("%#08x:  %s\t%s\t%s\n",
 			i.Instruction.Address(),
