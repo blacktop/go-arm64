@@ -36,13 +36,12 @@ func main() {
 		panic(err)
 	}
 
-	sec := m.Section("__TEXT", "__text")
+	text := m.Section("__TEXT", "__text")
 
-	fileOffset := symAddr - sec.Addr
-
-	data := make([]byte, 4*37)
-
-	sec.ReadAt(data, int64(fileOffset))
+	data, err := text.Data()
+	if err != nil {
+		panic(err)
+	}
 
 	options := arm64.Options{
 		StartAddress: int64(symAddr),
